@@ -1,13 +1,3 @@
- This Demo Project uses the PDFTron WebViewer from https://github.com/PDFTron/webviewer-react-sample
- Please bear in mind the PDFTron license for the WebViewer SDK:
- ----
- Copyright 2020 PDFTron Systems Inc. All rights reserved.
- WebViewer React UI project/codebase or any derived works is only permitted in solutions with an active commercial PDFTron WebViewer license.
- For exact licensing terms please refer to your commercial WebViewer license. For use in other scenario, please contact sales@pdftron.com
- ----
-
- License for code not related to PDFTron in this projects:
- ----
  MIT License
 
  Copyright (c) 2021 Daniele Plantera
@@ -29,4 +19,3 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- ----

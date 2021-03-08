@@ -48,7 +48,6 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                     }}
                          onDragOver={(e) => {
                              e.preventDefault();
-                             console.log("over")
                              pdfDrop().style.backgroundColor = "gray";
                              pdfDrop().style.opacity = "60%"
                          }}
@@ -56,7 +55,6 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                              //https://stackoverflow.com/questions/22048395/how-to-open-a-local-pdf-in-pdfjs-using-file-input
                              e.preventDefault();
                              pdfDrop().style.backgroundColor = "none";
-                             console.log("reading pdf...", )
                              setOpen(false)
                              setIsPdfReady(false)
 

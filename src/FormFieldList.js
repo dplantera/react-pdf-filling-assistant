@@ -1,6 +1,5 @@
 import {Button, Card, TextField} from "@material-ui/core";
 import React from "react";
-import {FieldList} from "./model";
 
 const updateFieldDesc = (e, field) => {
     field.description = e.currentTarget.value;
