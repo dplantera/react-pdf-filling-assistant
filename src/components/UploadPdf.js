@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -64,7 +64,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                              const fileReader = new FileReader();
                              fileReader.onload = function () {
                                  const bytearray = new Uint8Array(this.result);
-                                 loadPdf(bytearray, file.name);
+                                 loadPdf({data:bytearray, filename: file.name});
                              };
                              fileReader.readAsArrayBuffer(file)
                              console.log("done reading: ", file.name)

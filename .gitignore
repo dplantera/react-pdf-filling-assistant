@@ -67,3 +67,4 @@ node_modules/
 /.idea/
 /package-lock.json
 /public/.idea/
+/build/

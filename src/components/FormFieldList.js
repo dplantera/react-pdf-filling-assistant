@@ -16,11 +16,12 @@ const downloadCsv = (e, fieldList) => {
     const settings = {separator: separator_default};
 
     const rows = fieldList.fields.map(fl => [fl.name, fl.value, fl.description])
-    let csvContent = "data:text/csv;charset=utf-8,"
-        + rows.map(e => e.join(settings.separator)).join("\n");
-    const encodedUri = encodeURI(csvContent);
+    let csvContent = rows.map(e => e.join(settings.separator)).join("\n");
+    let universalBOM = "\uFEFF";
+
+    const encodedUri = encodeURIComponent(universalBOM + csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", "data:text/csv;charset=utf-8," + encodedUri);
     link.setAttribute("download", fieldList.name + ".csv");
     document.body.appendChild(link); // Required for FF
 
@@ -38,17 +39,21 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
                     id={field.name}
                     label={field.name}
                     defaultValue={field.value}
+                    fullWidth={true}
+
                     variant="outlined"
                     onBlur={(e) => {
                         updateFieldValue(e, field);
                         resetHighlightFormField(e, field)
                     }}
+                    style={{fontFmily: 'Source Code Pro'}}
                     onFocus={(e) => highlightFormField(e, field)}
                 />
                 <TextField
                     id={"desc-" + field.name}
                     label={"Beschreibung"}
                     variant="outlined"
+                    fullWidth={true}
                     onBlur={(e) => {
                         updateFieldDesc(e, field);
                         resetHighlightFormField(e, field)
@@ -64,6 +69,7 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
             return <div key={fieldList.name}
                         style={{position: "relative", display: "flex", width: "100%", alignItems: "center"}}>
                 <TextField id="standard-basic" label={`CSV ${fieldList.id}`} defaultValue={fieldList.name + ".csv"}
+                           fullWidth={true}
                            onBlur={(e) => {fieldList.name = e.currentTarget.value;}}/>
                 <Button size={"small"} style={{height: "50%"}} onClick={(e) => downloadCsv(e, fieldList)}>Download</Button>
             </div>
@@ -78,7 +84,7 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
             width: "30%",
             height: "98%",
             gap: "10px",
-            overflow: ""
+            resize:"horizontal"
         }}>
             <div className={"field-list-controls"} style={{
                 position: "relative",
@@ -98,6 +104,7 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
                 height: "100%",
                 gap: "10px",
                 overflow: "auto"
+
             }}>
                 {renderFields(fields)}
             </div>
