@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=50}) => {
+const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=50, overflow = "hide"}) => {
     const classes = useStyles();
     const [drawerWidth, setDrawerWidth] = React.useState(defaultWidth);
     const cardRef = useRef(null)
@@ -54,7 +54,8 @@ const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=5
             flexDirection: "column",
             width: `${drawerWidth}%`,
             height: "98%",
-            gap: "10px"
+            gap: "10px",
+            overflow: overflow
         }}
               className={classes.drawer}
         >

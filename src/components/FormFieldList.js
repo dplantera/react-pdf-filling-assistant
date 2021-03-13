@@ -36,7 +36,7 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
         return fields.map((field, idx) => {
             return <div key={"field-" + idx + "-" + field.name}
                         style={{position: "relative", display: "flex", width: "100%"}}>
-                <ResizeableCard>
+                <ResizeableCard overflow={"visible"}>
                     <TextField
                         id={field.name}
                         label={field.name}
