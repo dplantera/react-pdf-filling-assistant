@@ -12,7 +12,7 @@ const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
             return
         }
 
-        pdfClient.init({viewerDiv, initialPdf: '/files/form.pdf'})
+        pdfClient.init({viewerDiv, initialPdf: '/files/form2.pdf'})
             .then(  pdfClient => {
                 setViewerInstance(pdfClient)
                 pdfClient.on("pagesloaded", async () => {

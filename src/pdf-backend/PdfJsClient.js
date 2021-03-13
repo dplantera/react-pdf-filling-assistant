@@ -27,6 +27,10 @@ export default class PdfJsClient {
         return this.viewer.eventBus.on.bind(this.viewer.eventBus)
     }
 
+    get off() {
+        return this.viewer.eventBus.off.bind(this.viewer.eventBus)
+    }
+
     async init({viewerDiv, initialPdf}) {
         this.viewerDiv = viewerDiv;
         this.urlPath = initialPdf;
@@ -78,13 +82,37 @@ export default class PdfJsClient {
         await this.viewer.open(urlPathOrBins)
     }
 
+    cleanUpExternListeners(listener) {
+        const allListener = this.viewer.eventBus._listeners[listener];
+        const filtered = allListener.filter((el, idx) => !el.external || (el.external && (idx === allListener.length - 1))
+        );
+        this.viewer.eventBus._listeners[listener] = filtered;
+
+        if (allListener.length !== filtered.length)
+            console.log("cleaned up event listeners: " + listener, {allListener, filtered})
+    }
+
+    goToPage(num, callback) {
+        // we need to wait for form fields to be rendered...
+        this.cleanUpExternListeners("pagechanging")
+        this.on('pagechanging', () => {
+            if (num !== this.viewer.page)
+                return
+            callback()
+        });
+        this.viewer.pdfViewer.currentPageNumber = num;
+    }
+
     async getFormFields(includeReadOnly = false) {
+        // todo:optimize - a lot of loops
         // according to SO, should run in parallel and sequentially resolving promises
         const allAnnotations = []
         await this.pages.reduce(async (promise, page) => {
             await promise;
-            const annos = await page.getAnnotations()
-            allAnnotations.push(...annos)
+            const annos = await page.getAnnotations();
+            allAnnotations.push(...annos.map(anno => {
+                return {...anno, pageNum: page.pageNumber}
+            }))
         }, Promise.resolve())
 
         const formFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
@@ -100,31 +128,42 @@ export default class PdfJsClient {
         })
 
         return filtered.map(field => {
-            return Field(field, field.fieldName, field.fieldValue)
+            return Field(field, field.fieldName, field.fieldValue, {pageNum: field.pageNum})
         });
     }
 
-    getElement(name) {
-        let elements = this._iframe.contentDocument.getElementsByName(name);
+    selectField(field) {
+        const doSelectField = (field) => {
+            const el = this.getElement(field);
+            el.style.backgroundColor = "yellow";
+            el.scrollIntoView({
+                behavior: 'auto',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+
+        if (this.viewer.page === field.location.pageNum) {
+            doSelectField(field);
+        } else {
+            this.goToPage(field.location.pageNum, (e) => {
+                doSelectField(field)
+            });
+        }
+    }
+
+    getElement(field) {
+        let elements = this._iframe.contentDocument.getElementsByName(field.name);
         if (!elements || elements.length < 1) {
-            console.error("select field failed for: ", name)
-            return
+            console.error("select field failed for: ", field)
+            return document.createElement("div")
         }
         return elements[0].parentNode;
     }
 
-    selectField(name) {
-        const el = this.getElement(name)
-        el.style.backgroundColor = "yellow";
-        el.scrollIntoView({
-            behavior: 'auto',
-            block: 'nearest',
-            inline: 'center'
-        });
-    }
-
-    unselectField(name) {
-        const el = this.getElement(name)
+    unselectField(field) {
+        const el = this.getElement(field)
+        if (!el) return
         el.style.backgroundColor = "";
     }
 

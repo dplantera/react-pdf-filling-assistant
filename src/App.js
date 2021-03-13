@@ -14,11 +14,11 @@ const App = () => {
         const [fieldLists, setFieldLists] = useState([]);
 
         const highlightFormField = (e, field) => {
-            pdfClient.selectField(field.name)
+            pdfClient.selectField(field)
         }
 
         const resetHighlightFormField = (e, field) => {
-            pdfClient.unselectField(field.name)
+            pdfClient.unselectField(field)
         }
 
         const renderSpinner = () => {

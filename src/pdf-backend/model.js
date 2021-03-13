@@ -8,12 +8,13 @@ export const Pdf = (name, refPdf) => {
     }
 }
 
-export const Field = (refPdf, name, value) => {
+export const Field = (refPdf, name, value, location) => {
     return {
         refPdf,
         name: name || refPdf.name,
         value: value ? value : refPdf.value,
-        description: ""
+        description: "",
+        location: location || {pageNum: refPdf.pageNum}
     }
 }
 
