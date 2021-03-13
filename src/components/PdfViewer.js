@@ -15,8 +15,9 @@ const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
         pdfClient.init({viewerDiv, initialPdf: '/files/form2.pdf'})
             .then(  pdfClient => {
                 setViewerInstance(pdfClient)
-                pdfClient.on("pagesloaded", async () => {
+                pdfClient.on("documentinit", async () => {
                     const formFields = await pdfClient.getFormFields();
+                    console.log("pdf initialised...")
                     setFields(formFields)
                     setFieldLists([FieldList(pdfClient.getPdfName(), formFields)])
                     setIsPdfReady(true)

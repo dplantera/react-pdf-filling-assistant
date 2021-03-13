@@ -1,6 +1,6 @@
 //based on https://codesandbox.io/s/resizable-drawer-34ife?from-embed=&file=/src/CustomDrawer.js
 
-import React, {useCallback, useReducer, useRef} from "react";
+import React, {useCallback, useRef} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import {Card} from "@material-ui/core";
 
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const ResizeableCard = ({children, minDrawerWidth = 10, maxWidth = 100, defaultWidth=50}) => {
+const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=50}) => {
     const classes = useStyles();
     const [drawerWidth, setDrawerWidth] = React.useState(defaultWidth);
     const cardRef = useRef(null)
@@ -42,10 +42,10 @@ const ResizeableCard = ({children, minDrawerWidth = 10, maxWidth = 100, defaultW
         if(!parentWidth)
             return
         const newWidth = 100 * ((e.clientX - parentOffsetLeft) / parentWidth);
-        if (newWidth > minDrawerWidth && newWidth < maxWidth) {
+        if (newWidth > minWidth && newWidth < maxWidth) {
             setDrawerWidth(newWidth);
         }
-    }, []);
+    }, [minWidth, maxWidth]);
 
     return (
         <Card ref={cardRef} variant="outlined" style={{
