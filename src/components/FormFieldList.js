@@ -1,5 +1,6 @@
-import {Button, Card, TextField} from "@material-ui/core";
+import {Button, TextField} from "@material-ui/core";
 import React from "react";
+import ResizeableCard from "./ResizeableCard";
 
 const updateFieldDesc = (e, field) => {
     field.description = e.currentTarget.value;
@@ -35,20 +36,22 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
         return fields.map((field, idx) => {
             return <div key={"field-" + idx + "-" + field.name}
                         style={{position: "relative", display: "flex", width: "100%"}}>
-                <TextField
-                    id={field.name}
-                    label={field.name}
-                    defaultValue={field.value}
-                    fullWidth={true}
+                <ResizeableCard>
+                    <TextField
+                        id={field.name}
+                        label={field.name}
+                        defaultValue={field.value}
+                        fullWidth={true}
 
-                    variant="outlined"
-                    onBlur={(e) => {
-                        updateFieldValue(e, field);
-                        resetHighlightFormField(e, field)
-                    }}
-                    style={{fontFmily: 'Source Code Pro'}}
-                    onFocus={(e) => highlightFormField(e, field)}
-                />
+                        variant="outlined"
+                        onBlur={(e) => {
+                            updateFieldValue(e, field);
+                            resetHighlightFormField(e, field)
+                        }}
+                        style={{fontFmily: 'Source Code Pro'}}
+                        onFocus={(e) => highlightFormField(e, field)}
+                    />
+                </ResizeableCard>
                 <TextField
                     id={"desc-" + field.name}
                     label={"Beschreibung"}
@@ -77,15 +80,7 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
     }
 
     return (
-        <Card variant="outlined" style={{
-            position: "relative",
-            display: "flex",
-            flexDirection: "column",
-            width: "30%",
-            height: "98%",
-            gap: "10px",
-            resize:"horizontal"
-        }}>
+        <ResizeableCard defaultWidth={30}>
             <div className={"field-list-controls"} style={{
                 position: "relative",
                 display: "flex",
@@ -104,12 +99,10 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
                 height: "100%",
                 gap: "10px",
                 overflow: "auto"
-
             }}>
                 {renderFields(fields)}
             </div>
-
-        </Card>
+        </ResizeableCard>
     );
 };
 
