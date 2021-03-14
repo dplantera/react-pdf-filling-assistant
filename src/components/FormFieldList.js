@@ -1,6 +1,9 @@
 import {Button, TextField} from "@material-ui/core";
 import React, {useEffect, useState} from "react";
 import ResizeableCard from "./ResizeableCard";
+import {ClientDownload} from "../utils/ClientDownload";
+
+const downloadClient = new ClientDownload();
 
 const updateFieldDesc = (e, field) => {
     field.description = e.currentTarget.value;
@@ -13,23 +16,11 @@ const updateFieldValue = (e, field) => {
 }
 
 const downloadCsv = (e, fieldList) => {
-    const separator_default = ";";
-    const settings = {separator: separator_default};
-
     const rows = fieldList.fields.map(fl => {
         const value = fl.value ? fl.value.replace(/\r?\n|\r/g, '') : "";
         return [fl.name, value, fl.description]
     })
-    let csvContent = rows.map(e => e.join(settings.separator)).join("\n");
-    let universalBOM = "\uFEFF";
-
-    const encodedUri = encodeURIComponent(universalBOM + csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", "data:text/csv;charset=utf-8," + encodedUri);
-    link.setAttribute("download", fieldList.name + ".csv");
-    document.body.appendChild(link); // Required for FF
-
-    link.click();
+    downloadClient.forCsv.download(rows, fieldList.name);
 }
 
 
