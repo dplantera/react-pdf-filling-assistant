@@ -48,6 +48,7 @@ const App = () => {
                                    resetHighlightFormField={resetHighlightFormField}
                                    fieldLists={fieldLists}
                                    fields={fields}
+                                   setFields={setFields}
                     />
                     <PdfViewer
                         setIsPdfReady={setIsPdfReady}

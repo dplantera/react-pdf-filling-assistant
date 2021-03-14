@@ -14,8 +14,19 @@ export const Field = (refPdf, name, value, location) => {
         name: name || refPdf.name,
         value: value ? value : refPdf.value,
         description: "",
-        location: location || {pageNum: refPdf.pageNum}
+        location: location || {pageNum: refPdf.pageNum},
+        variable: null
     }
+}
+
+export const FormVariable = (name, value, description, exampleValue) => {
+    const formVariable = {
+        name: name || value || "",
+        value: value || name || "",
+        description: description || "",
+        exampleValue: exampleValue || ""
+    };
+    return formVariable
 }
 
 export const FieldList = (name, fields) => {
