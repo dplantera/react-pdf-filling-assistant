@@ -7,11 +7,14 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {useTheme} from '@material-ui/core/styles';
 import {Typography} from "@material-ui/core";
+import {ClientUpload} from "../utils/ClientUpload";
 
 export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const clientUpload = new ClientUpload();
     const pdfDrop = () => {
         return document.getElementById("drop-zone-pdf")
     };
@@ -22,6 +25,13 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const handleOpenFile = (e) => {
+        clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
+            loadPdf({data: uint8, filename: fileName})
+        })
+        handleClose();
     };
 
     return (
@@ -55,34 +65,24 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                              //https://stackoverflow.com/questions/22048395/how-to-open-a-local-pdf-in-pdfjs-using-file-input
                              e.preventDefault();
                              pdfDrop().style.backgroundColor = "none";
-                             setOpen(false)
-                             setIsPdfReady(false)
-
-                             const fileInput = document.getElementById("file");
-                             fileInput.files = e.dataTransfer.files;
-                             let file = e.dataTransfer.files[0];
-                             const fileReader = new FileReader();
-                             fileReader.onload = function () {
-                                 const bytearray = new Uint8Array(this.result);
-                                 loadPdf({data:bytearray, filename: file.name});
-                             };
-                             fileReader.readAsArrayBuffer(file)
-                             console.log("done reading: ", file.name)
-
-                             // If you want to use some of the dropped files
-                             const dT = new DataTransfer();
-                             dT.items.add(file);
-                             // dT.items.add(e.dataTransfer.files[3]);
-                             fileInput.files = dT.files;
+                             setIsPdfReady(false);
+                             setOpen(false);
+                             clientUpload.forDropEvent.uploadAsUint8(e, (uint8, fileName) => {
+                                 loadPdf({data: uint8, filename: fileName})
+                             })
                          }}
                     >
                         <Typography>Drag and Drop</Typography>
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button autoFocus onClick={handleClose} color="primary">
-                        PDF öffnen
-                    </Button>
+                    <label htmlFor="pdf-file-upload">
+                        <Button variant="contained" color="primary" component="span">
+                            Upload PDF
+                        </Button>
+                    </label>
+                    <input accept=".pdf" style={{display: "none"}} id="pdf-file-upload" type="file"
+                           onChange={handleOpenFile}/>
                 </DialogActions>
             </Dialog>
         </div>
