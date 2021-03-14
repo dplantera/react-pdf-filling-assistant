@@ -67,7 +67,7 @@ export default class PdfJsClient {
         const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
         console.log({
             PDFFormatVersion, IsAcroFormPresent, Title,
-            docId: pdfMeta.metadata.get("xmpmm:documentid"), pages: pdf._pdfInfo.numPages,
+            docId: pdfMeta.metadata? pdfMeta.metadata.get("xmpmm:documentid"): "", pages: pdf._pdfInfo.numPages,
             ...pdfMeta.metadata, all_meta: pdfMeta
         })
 
