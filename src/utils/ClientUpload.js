@@ -12,6 +12,18 @@ class FileUpload {
         fileReader.readAsArrayBuffer(file)
         console.log("reading: ", file.name)
     }
+
+    uploadAsText(file, callback) {
+        const fileReader = new FileReader();
+        fileReader.onload = (progressEvent) => {
+            const result = progressEvent.target.result;
+            console.log({result})
+            callback(result, file.name);
+        };
+
+        fileReader.readAsText(file)
+        console.log("reading: ", file.name)
+    }
 }
 
 class FilePickerUpload {
@@ -24,6 +36,12 @@ class FilePickerUpload {
         this.uploadMethod.readUnit8(file, callback)
         return file;
     }
+
+    uploadAsText(e, callback) {
+        let file = e.target.files[0];
+        this.uploadMethod.uploadAsText(file, callback)
+        return file;
+    }
 }
 
 class DropEventUpload {
@@ -34,6 +52,12 @@ class DropEventUpload {
     uploadAsUint8(e, callback) {
         let file = e.dataTransfer.files[0];
         this.uploadMethod.readUnit8(file, callback)
+        return file;
+    }
+
+    uploadAsText(e, callback) {
+        let file = e.dataTransfer.files[0];
+        this.uploadMethod.uploadAsText(file, callback)
         return file;
     }
 }

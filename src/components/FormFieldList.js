@@ -4,6 +4,7 @@ import ResizeableCard from "./ResizeableCard";
 import {ClientDownload} from "../utils/ClientDownload";
 import FormFieldVariable from "./FormFieldVariable";
 import {FormVariable} from "../pdf-backend/model"
+import UploadVariables from "./UploadVariables";
 
 const downloadClient = new ClientDownload();
 
@@ -16,7 +17,6 @@ const downloadCsv = (e, fieldList) => {
     })
     downloadClient.forCsv.download(rows, fieldList.name);
 }
-
 
 const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, resetHighlightFormField}) => {
     const [widthFormField, setWidthFormField] = useState(50);
@@ -63,11 +63,11 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
     }, [setFormVariables])
 
     const updateFieldDesc = (e, field, idx) => {
-        if((e && !e.currentTarget.value ) || !field.description)
+        if ((e && !e.currentTarget.value) || !field.description)
             return
 
         const copyFields = [...fields];
-        if(e && idx)
+        if (e && idx)
             copyFields[idx].description = e.currentTarget.value;
         else if (field.description && idx)
             copyFields[idx].description = field.description;
@@ -78,7 +78,7 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
 
     const renderFields = (fields) => {
         return fields.map((field, idx) => {
-            return <div key={"field-" + idx + "-" + field.name}
+            return <div key={"field-" + field.name}
                         style={{position: "relative", display: "flex", width: "100%"}}>
                 <ResizeableCard overflow={"visible"} width={widthFormField}>
                     <FormFieldVariable
@@ -91,6 +91,7 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
                     />
                 </ResizeableCard>
                 <TextField
+                    key={"desc-" + field.name}
                     multiline={true}
                     id={"desc-" + field.name}
                     label={"Beschreibung"}
@@ -162,6 +163,7 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
                         setWidthFormField(100)
                     else setWidthFormField(50)
                 }}>Beschreibung umschalten</Button>
+                <UploadVariables formVariables={formVariables} setFormVariables={setFormVariables}></UploadVariables>
             </div>
             <div className={"field-list"} style={{
                 position: "relative",
