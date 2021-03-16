@@ -19,9 +19,8 @@ const downloadCsv = (e, fieldList) => {
 
 
 const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, resetHighlightFormField}) => {
-    const [width, setWidth] = useState(100);
+    const [widthFormField, setWidthFormField] = useState(50);
     const [formVariables, setFormVariables] = useState([]);
-
     useEffect(() => {
         document.addEventListener("keydown", (e) => {
             if (e.ctrlKey && e.key === " ") {
@@ -81,7 +80,7 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
         return fields.map((field, idx) => {
             return <div key={"field-" + idx + "-" + field.name}
                         style={{position: "relative", display: "flex", width: "100%"}}>
-                <ResizeableCard overflow={"visible"} width={width}>
+                <ResizeableCard overflow={"visible"} width={widthFormField}>
                     <FormFieldVariable
                         field={field}
                         formVariables={formVariables}
@@ -125,7 +124,21 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
 
     console.log("rendered fieldlist...")
     return (
-        <ResizeableCard defaultWidth={30}>
+        <div style={{
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            width: `50%`,
+            // viewHeight - borderFieldList - heightAppBar
+            height: `calc(100vh - 2px - 64px)`,
+            minWidth: "35%",
+            gap: "10px",
+            resize: "horizontal",
+            borderTop: "1px",
+            borderBottom: "1px",
+            overflow: "auto"
+        }}
+        >
             <div className={"field-list-controls"} style={{
                 position: "relative",
                 display: "flex",
@@ -145,9 +158,9 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
                 // border: "3px solid"
             }}>
                 <Button variant={"contained"} size={"small"} style={{height: "100%"}} onClick={(e) => {
-                    if (width <= 50)
-                        setWidth(100)
-                    else setWidth(50)
+                    if (widthFormField <= 50)
+                        setWidthFormField(100)
+                    else setWidthFormField(50)
                 }}>Beschreibung umschalten</Button>
             </div>
             <div className={"field-list"} style={{
@@ -161,7 +174,7 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
             }}>
                 {renderFields(fields)}
             </div>
-        </ResizeableCard>
+        </div>
     );
 };
 

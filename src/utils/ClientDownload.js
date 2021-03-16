@@ -5,12 +5,14 @@ class LinkDownload {
     }
 
     download(data, fileName){
-        const encodedUri = encodeURIComponent(data);
+        const blob = new Blob([data], { type: this.dataMetaString });
+        const encodedUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.setAttribute("href", this.dataMetaString + encodedUri);
+        link.setAttribute("href",  encodedUrl);
         link.setAttribute("download", fileName);
         document.body.appendChild(link); // Required for FF
-        link.click();
+        link.click();// Required for FF
+        link.remove();
     }
 }
 

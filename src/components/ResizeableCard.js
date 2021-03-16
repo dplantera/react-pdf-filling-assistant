@@ -2,7 +2,6 @@
 
 import React, {useCallback, useEffect, useRef} from "react";
 import {makeStyles} from "@material-ui/core/styles";
-import {Card} from "@material-ui/core";
 
 
 const useStyles = makeStyles(theme => ({
@@ -52,7 +51,7 @@ const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=5
     }, [width])
 
     return (
-        <Card ref={cardRef} variant="outlined" style={{
+        <div ref={cardRef} variant="outlined" style={{
             position: "relative",
             display: "flex",
             flexDirection: "column",
@@ -64,8 +63,8 @@ const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=5
               className={classes.drawer}
         >
             {children}
-            <div onMouseDown={e => handleMouseDown(e)} className={classes.dragger} />
-        </Card>
+            <div onMouseDown={handleMouseDown} className={classes.dragger} />
+        </div>
     );
 }
 
