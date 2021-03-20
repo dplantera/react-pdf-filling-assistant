@@ -4,7 +4,7 @@ import ResizeableCard from "./ResizeableCard";
 import {ClientDownload} from "../utils/ClientDownload";
 import FormFieldVariable from "./FormFieldVariable";
 import {FormVariable} from "../pdf-backend/model"
-import UploadVariables from "./UploadVariables";
+import VariablesIO from "./VariablesIO";
 
 const downloadClient = new ClientDownload();
 
@@ -156,14 +156,15 @@ const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, reset
                 width: "98%",
                 maxHeight: "10%",
                 gap: "10px",
+                flexDirection: "column"
                 // border: "3px solid"
             }}>
+                <VariablesIO formVariables={formVariables} setFormVariables={setFormVariables}/>
                 <Button variant={"contained"} size={"small"} style={{height: "100%"}} onClick={(e) => {
                     if (widthFormField <= 50)
                         setWidthFormField(100)
                     else setWidthFormField(50)
                 }}>Beschreibung umschalten</Button>
-                <UploadVariables formVariables={formVariables} setFormVariables={setFormVariables}></UploadVariables>
             </div>
             <div className={"field-list"} style={{
                 position: "relative",

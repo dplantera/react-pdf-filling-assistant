@@ -57,8 +57,8 @@ export default function UploadVariables({formVariables, setFormVariables}) {
 
     return (
         <div>
-            <Button variant="contained" onClick={handleClickOpen}>
-                Upload Variable
+            <Button onClick={handleClickOpen} size={"small"} style={{height: "50%"}} >
+                Upload
             </Button>
             <Dialog
                 fullScreen={fullScreen}
