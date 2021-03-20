@@ -2,72 +2,102 @@ import {Button, TextField} from "@material-ui/core";
 import React, {useEffect, useState} from "react";
 import ResizeableCard from "./ResizeableCard";
 import {ClientDownload} from "../utils/ClientDownload";
+import FormFieldVariable from "./FormFieldVariable";
+import {FormVariable} from "../pdf-backend/model"
+import VariablesIO from "./VariablesIO";
 
 const downloadClient = new ClientDownload();
 
-const updateFieldDesc = (e, field) => {
-    field.description = e.currentTarget.value;
-    console.log(`updated desc '${field.name}': ${field.description}`)
-}
-
-const updateFieldValue = (e, field) => {
-    field.value = e.currentTarget.value;
-    console.log(`updated value '${field.name}': ${field.value}`)
-}
 
 const downloadCsv = (e, fieldList) => {
-    const rows = fieldList.fields.map(fl => {
-        const value = fl.value ? fl.value.replace(/\r?\n|\r/g, '') : "";
-        return [fl.name, value, fl.description]
+    const rows = fieldList.fields.map(field => {
+        let value = field.variable ? field.variable.value : field.value || "";
+        value = value.replace(/\r?\n|\r/g, '');
+        return [field.name, value, field.description]
     })
     downloadClient.forCsv.download(rows, fieldList.name);
 }
 
-
-const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFormField}) => {
-    const [width, setWidth] = useState(100);
-
+const FormFieldList = ({fieldLists, setFields, fields, highlightFormField, resetHighlightFormField}) => {
+    const [widthFormField, setWidthFormField] = useState(50);
+    const [formVariables, setFormVariables] = useState([]);
     useEffect(() => {
         document.addEventListener("keydown", (e) => {
             if (e.ctrlKey && e.key === " ") {
+
                 const fieldDiv = e.target;
                 const formField = fields.find(field => {
                     const targetName = fieldDiv.id;
+                    console.log(field.name, fieldDiv.id)
                     return field.name === targetName
                 })
+                console.log("combo!", fieldDiv.selectionStart, fieldDiv.selectionEnd, fieldDiv.id, fieldDiv, formField)
                 if (!formField)
                     return;
-
-                console.log("combo!", fieldDiv.selectionStart, fieldDiv.selectionEnd, fieldDiv, formField)
             }
         })
     }, [fields])
 
+    useEffect(() => {
+        fetch("/variables.json")
+            .then(res => res.json())
+            .then((data) => {
+                const variablesFromDB = Object.keys(data).reduce((acc, key) => {
+                    const entityType = data[key].type;
+                    const attributes = data[key].attributes;
+
+                    const vars = Object.keys(attributes)
+                        .map(key => {
+                            return FormVariable(
+                                entityType.name + " " + key,
+                                entityType.accessKey + "." + attributes[key].name,
+                                attributes[key].description,
+                                attributes[key].exampleValue
+                            )
+                        })
+                    return [...acc, ...vars];
+                }, []);
+
+                setFormVariables(variablesFromDB);
+            })
+    }, [setFormVariables])
+
+    const updateFieldDesc = (e, field, idx) => {
+        if ((e && !e.currentTarget.value) || !field.description)
+            return
+
+        const copyFields = [...fields];
+        if (e && idx)
+            copyFields[idx].description = e.currentTarget.value;
+        else if (field.description && idx)
+            copyFields[idx].description = field.description;
+
+        setFields(copyFields);
+        console.log(`updated desc '${field.name}': ${field.description}`)
+    }
+
     const renderFields = (fields) => {
         return fields.map((field, idx) => {
-            return <div key={"field-" + idx + "-" + field.name}
+            return <div key={"field-" + field.name}
                         style={{position: "relative", display: "flex", width: "100%"}}>
-                <ResizeableCard overflow={"visible"} width={width}>
-                    <TextField multiline={true}
-                               id={field.name}
-                               label={field.name}
-                               defaultValue={field.value}
-                               fullWidth={true}
-                               variant="outlined"
-                               onBlur={(e) => {
-                                   updateFieldValue(e, field);
-                                   resetHighlightFormField(e, field)
-                               }}
-                               style={{fontFmily: 'Source Code Pro'}}
-                               onFocus={(e) => highlightFormField(e, field)}
+                <ResizeableCard overflow={"visible"} width={widthFormField}>
+                    <FormFieldVariable
+                        field={field}
+                        formVariables={formVariables}
+                        updateFieldDesc={(e, field) => updateFieldDesc(e, field, idx)}
+                        setFormVariables={setFormVariables}
+                        resetHighlightFormField={resetHighlightFormField}
+                        highlightFormField={highlightFormField}
                     />
                 </ResizeableCard>
                 <TextField
+                    key={"desc-" + field.name}
                     multiline={true}
                     id={"desc-" + field.name}
                     label={"Beschreibung"}
                     variant="outlined"
                     fullWidth={true}
+                    value={field.description}
                     onBlur={(e) => {
                         updateFieldDesc(e, field);
                         resetHighlightFormField(e, field)
@@ -95,7 +125,21 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
 
     console.log("rendered fieldlist...")
     return (
-        <ResizeableCard defaultWidth={30}>
+        <div style={{
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            width: `50%`,
+            // viewHeight - borderFieldList - heightAppBar
+            height: `calc(100vh - 2px - 64px)`,
+            minWidth: "35%",
+            gap: "10px",
+            resize: "horizontal",
+            borderTop: "1px",
+            borderBottom: "1px",
+            overflow: "auto"
+        }}
+        >
             <div className={"field-list-controls"} style={{
                 position: "relative",
                 display: "flex",
@@ -112,12 +156,14 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
                 width: "98%",
                 maxHeight: "10%",
                 gap: "10px",
+                flexDirection: "column"
                 // border: "3px solid"
             }}>
+                <VariablesIO formVariables={formVariables} setFormVariables={setFormVariables}/>
                 <Button variant={"contained"} size={"small"} style={{height: "100%"}} onClick={(e) => {
-                    if (width <= 50)
-                        setWidth(100)
-                    else setWidth(50)
+                    if (widthFormField <= 50)
+                        setWidthFormField(100)
+                    else setWidthFormField(50)
                 }}>Beschreibung umschalten</Button>
             </div>
             <div className={"field-list"} style={{
@@ -131,7 +177,7 @@ const FormFieldList = ({fieldLists, fields, highlightFormField, resetHighlightFo
             }}>
                 {renderFields(fields)}
             </div>
-        </ResizeableCard>
+        </div>
     );
 };
 

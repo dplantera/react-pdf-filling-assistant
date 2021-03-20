@@ -26,7 +26,7 @@ const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
     }, [viewerInstance,pdfClient, setFields, setFieldLists, setIsPdfReady])
 
     return (
-        <div id="viewerContainer" style={{position: "relative", width: "70%", height: "97%"}}>
+        <div id="viewerContainer" style={{position: "relative", width: "65%", height: "97%"}}>
             <div id="viewer" className="pdfViewer" ref={viewerDiv}
                  style={{position: "relative", width: "99%", height: "100%"}}/>
         </div>
