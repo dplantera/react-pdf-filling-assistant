@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import UploadVariables from "./UploadVariables";
 import {Button, TextField} from "@material-ui/core";
-import {ClientDownload} from "../utils/ClientDownload";
+import {ClientDownload} from "../../../../utils/ClientDownload";
 
 const downloadClient = new ClientDownload();
 

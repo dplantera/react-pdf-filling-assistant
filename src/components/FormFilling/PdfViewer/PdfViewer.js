@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {FieldList} from "../pdf-backend/model";
+import {FieldList} from "../../../model/types";
+import UploadPdf from "./UploadPdf";
 
 
 const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
@@ -13,7 +14,7 @@ const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
         }
 
         pdfClient.init({viewerDiv, initialPdf: '/files/form2.pdf'})
-            .then(  pdfClient => {
+            .then(pdfClient => {
                 setViewerInstance(pdfClient)
                 pdfClient.on("documentinit", async () => {
                     const formFields = await pdfClient.getFormFields();
@@ -23,10 +24,19 @@ const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
                     setIsPdfReady(true)
                 })
             })
-    }, [viewerInstance,pdfClient, setFields, setFieldLists, setIsPdfReady])
+    }, [viewerInstance, pdfClient, setFields, setFieldLists, setIsPdfReady])
 
     return (
-        <div id="viewerContainer" style={{position: "relative", width: "65%", height: "97%"}}>
+        <div id="viewerContainer" style={{
+            position: "relative",
+            width: "65%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            justifyContent: "center"
+        }}>
+            <UploadPdf loadPdf={pdfClient.loadPdf.bind(pdfClient)} setIsPdfReady={setIsPdfReady}/>
             <div id="viewer" className="pdfViewer" ref={viewerDiv}
                  style={{position: "relative", width: "99%", height: "100%"}}/>
         </div>

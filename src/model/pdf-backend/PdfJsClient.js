@@ -1,4 +1,4 @@
-import {Field} from "./model";
+import {Field} from "../types";
 
 const pdfjsLib = require('pdfjs-dist')
 

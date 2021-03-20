@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
 import React, {useState, Fragment} from "react";
 import {Dialog, TextField} from "@material-ui/core";
-import {FormVariable} from "../pdf-backend/model";
+import {FormVariable} from "../../../../model/types";
 
 const filter = createFilterOptions();
 

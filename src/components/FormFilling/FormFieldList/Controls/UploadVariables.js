@@ -7,16 +7,17 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {useTheme} from '@material-ui/core/styles';
 import {Typography} from "@material-ui/core";
-import {ClientUpload} from "../utils/ClientUpload";
+import {ClientUpload} from "../../../../utils/ClientUpload";
+import {FormVariable} from "../../../../model/types";
 
-export default function UploadPdf({loadPdf, setIsPdfReady}) {
+export default function UploadVariables({formVariables, setFormVariables}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const clientUpload = new ClientUpload();
-    const pdfDrop = () => {
-        return document.getElementById("drop-zone-pdf")
+    const varDrop = () => {
+        return document.getElementById("drop-zone-var")
     };
 
     const handleClickOpen = () => {
@@ -27,29 +28,49 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setOpen(false);
     };
 
+    function handleUploadCsv(text) {
+        //name;value;desc;example
+        const rows = text.split("\n");
+        const vars = rows.map(row => {
+            const [name, value, desc, example] = row.split(";");
+            console.log({name, value, desc, example})
+
+            if (name && !value)
+                return FormVariable(name, name, desc, example)
+
+            if (!name && value)
+                return FormVariable(value, value, desc, example)
+
+            return FormVariable(name, value, desc, example)
+        })
+
+        //naiv implementation
+        setFormVariables([...formVariables, ...vars])
+    }
+
     const handleOpenFile = (e) => {
-        clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
-            loadPdf({data: uint8, filename: fileName})
+        clientUpload.forFilePicker.uploadAsText(e, (text, fileName) => {
+            handleUploadCsv(text);
         })
         handleClose();
     };
 
     return (
         <div>
-            <Button variant="contained" onClick={handleClickOpen}>
-                Upload PDF
+            <Button onClick={handleClickOpen} size={"small"} style={{height: "50%"}} >
+                Upload
             </Button>
             <Dialog
                 fullScreen={fullScreen}
                 open={open}
                 onClose={handleClose}
-                aria-labelledby="upload-pdf-title"
+                aria-labelledby="upload-var-title"
             >
-                <DialogTitle id="upload-pdf-title">{"PDF Hochladen"}</DialogTitle>
+                <DialogTitle id="upload-var-title">{"Variablen Hochladen"}</DialogTitle>
 
                 <DialogContent>
                     <input type="file" id="file" name="file" encType="multipart/form-data" hidden={true}/>
-                    <div className={"drop-zone"} id={"drop-zone-pdf"} style={{
+                    <div className={"drop-zone"} id={"drop-zone-var"} style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -58,17 +79,17 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                     }}
                          onDragOver={(e) => {
                              e.preventDefault();
-                             pdfDrop().style.backgroundColor = "gray";
-                             pdfDrop().style.opacity = "60%"
+                             varDrop().style.backgroundColor = "gray";
+                             varDrop().style.opacity = "60%"
                          }}
                          onDrop={(e) => {
-                             //https://stackoverflow.com/questions/22048395/how-to-open-a-local-pdf-in-pdfjs-using-file-input
+                             //https://stackoverflow.com/questions/22048395/how-to-open-a-local-var-in-pdfjs-using-file-input
                              e.preventDefault();
-                             pdfDrop().style.backgroundColor = "none";
-                             setIsPdfReady(false);
+                             varDrop().style.backgroundColor = "none";
                              setOpen(false);
-                             clientUpload.forDropEvent.uploadAsUint8(e, (uint8, fileName) => {
-                                 loadPdf({data: uint8, filename: fileName})
+
+                             clientUpload.forDropEvent.uploadAsText(e, (text, fileName) => {
+                                 handleUploadCsv(text);
                              })
                          }}
                     >
@@ -76,12 +97,12 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <label htmlFor="pdf-file-upload">
+                    <label htmlFor="var-file-upload">
                         <Button variant="contained" color="primary" component="span">
-                            Upload PDF
+                            Upload Variables
                         </Button>
                     </label>
-                    <input accept=".pdf" style={{display: "none"}} id="pdf-file-upload" type="file"
+                    <input accept=".csv" style={{display: "none"}} id="var-file-upload" type="file"
                            onChange={handleOpenFile}/>
                 </DialogActions>
             </Dialog>
