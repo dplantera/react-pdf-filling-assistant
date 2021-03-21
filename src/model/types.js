@@ -8,31 +8,47 @@ export const Pdf = (name, refPdf) => {
     }
 }
 
-export const Field = (refPdf, name, value, location) => {
+export const Field = (refPdf = null, name, value, location) => {
     return {
-        refPdf,
-        name: name || refPdf.name,
-        value: value ? value : refPdf.value,
+        id: name ?? refPdf?.name,
+        refPdf: refPdf ?? null,
+        name: name ?? refPdf?.name,
+        value: value ?? refPdf?.value,
         description: "",
-        location: location || {pageNum: refPdf.pageNum},
+        location: location ?? {pageNum: refPdf?.pageNum},
+        refFieldlist: [],
         variable: null
     }
 }
 
+const makeId = (val) => {
+    return val?.toLowerCase().replace(/\s/g, "");
+}
+
+let varId = 1;
 export const FormVariable = (name, value, description, exampleValue) => {
+
     const formVariable = {
+        id: makeId(name) ?? makeId(value) ?? varId++,
         name: name || value || "",
         value: value || name || "",
         description: description || "",
         exampleValue: exampleValue || ""
     };
+
+    formVariable.isEqual = (other) => {
+        if(!other) return false;
+
+        return formVariable.id === other.id || formVariable.value === other.value;
+    }
+
     return formVariable
 }
 
+let fieldLIstId = 1;
 export const FieldList = (name, fields) => {
-    let id = 0;
     return {
-        id: id++,
+        id: fieldLIstId++,
         name: name,
         fields: fields
     }

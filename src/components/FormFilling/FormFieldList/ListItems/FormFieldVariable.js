@@ -1,80 +1,60 @@
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
-import Button from '@material-ui/core/Button';
 import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
 import React, {useState, Fragment} from "react";
-import {Dialog, TextField} from "@material-ui/core";
+import {TextField} from "@material-ui/core";
+import {useAddVariable} from "../../../hooks/AddVariableContext";
 import {FormVariable} from "../../../../model/types";
+
 
 const filter = createFilterOptions();
 
-export default function FormFieldVariable({ field,
+export default function FormFieldVariable({
+                                              fieldName,
+                                              fieldValue,
                                               formVariables,
-                                              setFormVariables,
-                                              updateFieldDesc,
-                                              highlightFormField,
-                                              resetHighlightFormField
+                                              onVariableSet,
+                                              onInputSet,
+                                              onBlur,
+                                              onFocus
                                           }) {
-    const [formVariable, setFormVariable] = useState(FormVariable(field.value,field.value));
-    const [open, toggleOpen] = useState(false);
-    const [dialogValue, setDialogValue] = useState(FormVariable());
+    const {openVariableDialog} = useAddVariable();
+    const [formVariable, setFormVariable] = useState(FormVariable(fieldValue, fieldValue));
 
-    const handleClose = () => {
-        setDialogValue(FormVariable());
-
-        toggleOpen(false);
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // update variable options
-        setFormVariables([...formVariables, dialogValue])
-        updateFieldWithVariable(dialogValue);
-        handleClose();
-    };
-
-    const updateFieldWithVariable = (formVariable) => {
-        field.variable = formVariable;
-        console.log({formVariable})
-        if(!field.description && formVariable.description )
-            field.description = formVariable.description;
-
+    const selectVariable = (formVariable) => {
+        onVariableSet(formVariable);
         setFormVariable(formVariable);
-        updateFieldDesc(null, field);
-        console.log("added variable to field: " + field.name)
     }
+
+    const _onBlurInput = (e) => {
+        setFormVariable({name: e.target.value});
+        onInputSet(e.target.value);
+        onBlur(e);
+    }
+
     return (
         <Fragment>
             <Autocomplete
+                /*getOptionLabel destructs var for options*/
                 value={formVariable}
                 onChange={(event, newValue) => {
+                    const newVar = FormVariable(newValue.inputValue, newValue.inputValue);
                     if (typeof newValue === 'string') {
                         // types and hits enter
                         // timeout to avoid instant validation of the dialog's form.
                         setTimeout(() => {
-                            toggleOpen(true);
-                            setDialogValue({
-                                name: newValue,
-                                value: newValue,
-                            });
+                            const newOption = FormVariable(newValue, newValue);
+                            openVariableDialog(newOption);
                         });
                         // click Add x
                     } else if (newValue && newValue.inputValue) {
-                        toggleOpen(true);
-                        setDialogValue({
-                            name: newValue.inputValue,
-                            value: newValue.inputValue,
-                        });
+                        openVariableDialog(newVar);
                         // Selects existing option
                     } else {
-                        updateFieldWithVariable(newValue);
+                        selectVariable(newValue);
                     }
                 }}
                 filterOptions={(options, params) => {
                     const filtered = filter(options, params);
-
+                    // when creating new variable
                     if (params.inputValue !== '') {
                         filtered.push({
                             inputValue: params.inputValue,
@@ -84,17 +64,17 @@ export default function FormFieldVariable({ field,
 
                     return filtered;
                 }}
-                id={field.name}
+                id={"var-input-" + fieldName}
                 options={formVariables}
-                getOptionLabel={(option) => {
+                getOptionLabel={(variableOption) => {
                     // e.g formVariable selected with enter, right from the input
-                    if (typeof option === 'string') {
-                        return option;
+                    if (typeof variableOption === 'string') {
+                        return variableOption;
                     }
-                    if (option.inputValue) {
-                        return option.inputValue;
+                    if (variableOption.inputValue) {
+                        return variableOption.inputValue;
                     }
-                    return option.name;
+                    return variableOption.name;
                 }}
                 selectOnFocus
                 clearOnBlur
@@ -105,76 +85,14 @@ export default function FormFieldVariable({ field,
                 renderInput={(params) => (
                     <TextField {...params}
                                multiline={true}
-                               id={"input-" + field.name}
-                               label={field.name}
+                               id={"input-" + fieldName}
+                               label={fieldName}
                                fullWidth={true}
                                variant="outlined"
-                               onBlur={(e) => {
-                                   resetHighlightFormField(e, field)
-                               }}
-                               onFocus={(e) => highlightFormField(e, field)}/>
+                               onBlur={_onBlurInput}
+                               onFocus={onFocus}/>
                 )}
             />
-
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-name">
-                <form onSubmit={handleSubmit}>
-                    <DialogTitle id="form-dialog-name">Add a new film</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Neue Formularfeld Variable anlegen
-                        </DialogContentText>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            value={dialogValue.name}
-                            onChange={(event) => setDialogValue({...dialogValue, name: event.target.value})}
-                            label="Name"
-                            type="text"
-                            required={true}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="variable"
-                            multiline
-                            fullWidth
-                            value={dialogValue.value}
-                            onChange={(event) => setDialogValue({...dialogValue, value: event.target.value})}
-                            label="Variable"
-                            type="text"
-                            required={true}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="description"
-                            fullWidth
-                            value={dialogValue.description}
-                            onChange={(event) => setDialogValue({...dialogValue, description: event.target.value})}
-                            label="Beschreibung"
-                            type="string"
-                        />
-                        <TextField
-                            margin="dense"
-                            id="example-value"
-                            value={dialogValue.exampleValue}
-                            onChange={(event) => {
-                                console.log({event, targetVal: event.target.value, dialogValue})
-                                setDialogValue({...dialogValue, exampleValue: event.target.value});
-                            }}
-                            label="Beispiel Wert"
-                            type="string"
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                            Cancel
-                        </Button>
-                        <Button type="submit" color="primary">
-                            Add
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
         </Fragment>
     );
 }

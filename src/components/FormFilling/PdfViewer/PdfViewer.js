@@ -1,9 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {FieldList} from "../../../model/types";
 import UploadPdf from "./UploadPdf";
+import {useFormFields} from "../../hooks/FormContext";
+import {useFieldLists} from "../../hooks/FieldListsContext";
 
 
-const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
+const PdfViewer = ({pdfClient, setIsPdfReady}) => {
+    const [, setFields] = useFormFields();
+    const [, setFieldLists] = useFieldLists();
+
     const [viewerInstance, setViewerInstance] = useState(null)
     const viewerDiv = useRef(null)
 
@@ -19,12 +24,12 @@ const PdfViewer = ({pdfClient, setFields, setFieldLists, setIsPdfReady}) => {
                 pdfClient.on("documentinit", async () => {
                     const formFields = await pdfClient.getFormFields();
                     console.log("pdf initialised...")
-                    setFields(formFields)
                     setFieldLists([FieldList(pdfClient.getPdfName(), formFields)])
+                    setFields(formFields);
                     setIsPdfReady(true)
                 })
             })
-    }, [viewerInstance, pdfClient, setFields, setFieldLists, setIsPdfReady])
+    }, [viewerInstance, pdfClient, setFieldLists, setIsPdfReady, setFields])
 
     return (
         <div id="viewerContainer" style={{

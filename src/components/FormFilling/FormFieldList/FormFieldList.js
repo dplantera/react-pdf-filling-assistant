@@ -1,35 +1,45 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import FormFieldItem from "./ListItems/FormFieldItem";
 import FormItemsControls from "./Controls/FormItemsControls";
 import FormListControls from "./Controls/FormListControls";
-
+import NewVariableDialog from "./ListItems/NewVariableDialog";
+import {FormVariable} from "../../../model/types";
+import {useFormFields} from "../../hooks/FormContext";
+import {useFormVariables} from "../../hooks/VariableContext";
+import {AddVariableProvider} from "../../hooks/AddVariableContext";
 
 const FormFieldList = (
     {
-        fieldLists,
-        setFields,
-        fields,
         highlightFormField,
         resetHighlightFormField,
-        formVariables,
-        setFormVariables
     }
 ) => {
+    const [fields, setFields] = useFormFields();
+    const [formVariables, setFormVariables] = useFormVariables();
     const [widthFormField, setWidthFormField] = useState(50);
 
-    const updateFieldDesc = (e, field, idx) => {
-        if ((e && !e.currentTarget.value) || !field.description)
-            return
+    useEffect(() => {
+        fetch("/variables.json")
+            .then(res => res.json())
+            .then((data) => {
+                const variablesFromDB = Object.keys(data).reduce((acc, key) => {
+                    const entityType = data[key].type;
+                    const attributes = data[key].attributes;
 
-        const copyFields = [...fields];
-        if (e && idx)
-            copyFields[idx].description = e.currentTarget.value;
-        else if (field.description && idx)
-            copyFields[idx].description = field.description;
-
-        setFields(copyFields);
-        console.log(`updated desc '${field.name}': ${field.description}`)
-    }
+                    const vars = Object.keys(attributes)
+                        .map(key => {
+                            return FormVariable(
+                                entityType.name + " " + key,
+                                entityType.accessKey + "." + attributes[key].name,
+                                attributes[key].description,
+                                attributes[key].exampleValue
+                            )
+                        })
+                    return [...acc, ...vars];
+                }, []);
+                setFormVariables(variablesFromDB)
+            })
+    }, [setFormVariables])
 
     return (
         <div style={{
@@ -52,7 +62,7 @@ const FormFieldList = (
             overflow: "auto",
         }}
         >
-            <FormListControls fieldLists={fieldLists} formVariables={formVariables}/>
+            <FormListControls formVariables={formVariables}/>
             <FormItemsControls widthFormField={widthFormField} setWidthFormField={setWidthFormField}/>
             <div className={"field-list"} style={{
                 position: "relative",
@@ -64,19 +74,21 @@ const FormFieldList = (
                 overflow: "auto",
                 paddingTop: "10px"
             }}>
-                {fields.map((field, idx) => {
-                    return <FormFieldItem
-                        field={field}
-                        key={"field-" + field.name}
-                        idx={idx}
-                        widthFormField={widthFormField}
-                        formVariables={formVariables}
-                        setFormVariables={setFormVariables}
-                        updateFieldDesc={(e, field) => updateFieldDesc(e, field, idx)}
-                        resetHighlightFormField={resetHighlightFormField}
-                        highlightFormField={highlightFormField}
-                    />
-                })}
+                <AddVariableProvider>
+                    {fields.map((field, idx) => {
+                        return <FormFieldItem
+                            field={field}
+                            key={"field-" + field.name}
+                            itemKey={"field-" + field.name}
+                            idx={idx}
+                            setFields={setFields}
+                            widthFormField={widthFormField}
+                            resetHighlightFormField={resetHighlightFormField}
+                            highlightFormField={highlightFormField}
+                        />
+                    })}
+                    <NewVariableDialog/>
+                </AddVariableProvider>
             </div>
         </div>
     );

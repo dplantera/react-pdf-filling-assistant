@@ -2,11 +2,13 @@ import React, {useState} from 'react';
 import UploadVariables from "./UploadVariables";
 import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
+import {useFormVariables} from "../../../hooks/VariableContext";
 
 const downloadClient = new ClientDownload();
 
-const VariablesIO = ({formVariables, setFormVariables}) => {
+const VariablesIO = () => {
     const [fileName, setFileName] = useState("variables")
+    const [formVariables, setFormVariables] = useFormVariables();
 
     const downloadCsv = (e, variables) => {
         const rows = variables.map(variable => {

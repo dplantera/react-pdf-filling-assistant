@@ -2,6 +2,7 @@ import React from 'react';
 import VariablesIO from "./VariablesIO";
 import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
+import {useFieldLists} from "../../../hooks/FieldListsContext";
 
 const downloadClient = new ClientDownload();
 const downloadCsv = (e, fieldList) => {
@@ -13,7 +14,8 @@ const downloadCsv = (e, fieldList) => {
     downloadClient.forCsv.download(rows, fieldList.name);
 }
 
-const FormListControls = ({fieldLists, formVariables, setFormVariables} ) => {
+const FormListControls = () => {
+    const [fieldLists] = useFieldLists();
 
     return (
         <div className={"field-list-controls"} style={{
@@ -37,7 +39,7 @@ const FormListControls = ({fieldLists, formVariables, setFormVariables} ) => {
                             onClick={(e) => downloadCsv(e, fieldList)}>Download</Button>
                 </div>
             })}
-            <VariablesIO formVariables={formVariables} setFormVariables={setFormVariables}/>
+            <VariablesIO />
         </div>
     );
 };

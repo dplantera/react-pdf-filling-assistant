@@ -79,6 +79,7 @@ export default class PdfJsClient {
         if (data) urlPathOrBins = new Uint8Array(data)
         else if (url) urlPathOrBins = url;
 
+        // after init this is redundant - init has already loaded pdf
         await this.viewer.open(urlPathOrBins)
     }
 
