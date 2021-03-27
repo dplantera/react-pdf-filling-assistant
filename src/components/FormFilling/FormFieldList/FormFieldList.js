@@ -1,45 +1,28 @@
-import React, {useEffect, useState} from "react";
+import React, {memo, useCallback, useState} from "react";
 import FormFieldItem from "./ListItems/FormFieldItem";
 import FormItemsControls from "./Controls/FormItemsControls";
 import FormListControls from "./Controls/FormListControls";
-import NewVariableDialog from "./ListItems/NewVariableDialog";
-import {FormVariable} from "../../../model/types";
-import {useFormFields} from "../../hooks/FormContext";
-import {useFormVariables} from "../../hooks/VariableContext";
-import {AddVariableProvider} from "../../hooks/AddVariableContext";
+import NewVariableDialog from "./NewVariableDialog";
+import {useAddVariable} from "../../hooks/AddVariableContext";
+import {useFormActions} from "../../hooks/FormActionContext";
 
-const FormFieldList = (
+const FormFieldList = memo((
     {
-        highlightFormField,
-        resetHighlightFormField,
+        pdfClient,
     }
 ) => {
-    const [fields, setFields] = useFormFields();
-    const [formVariables, setFormVariables] = useFormVariables();
+    const {state: {fields, variables}, updateField, addVariableToField} = useFormActions();
+    const {openVariableDialog} = useAddVariable();
     const [widthFormField, setWidthFormField] = useState(50);
 
-    useEffect(() => {
-        fetch("/variables.json")
-            .then(res => res.json())
-            .then((data) => {
-                const variablesFromDB = Object.keys(data).reduce((acc, key) => {
-                    const entityType = data[key].type;
-                    const attributes = data[key].attributes;
+    const _highlightFormField = useCallback((name, pageNum) => {
+        pdfClient.selectField({name, location: {pageNum}})
+    }, [pdfClient])
 
-                    const vars = Object.keys(attributes)
-                        .map(key => {
-                            return FormVariable(
-                                entityType.name + " " + key,
-                                entityType.accessKey + "." + attributes[key].name,
-                                attributes[key].description,
-                                attributes[key].exampleValue
-                            )
-                        })
-                    return [...acc, ...vars];
-                }, []);
-                setFormVariables(variablesFromDB)
-            })
-    }, [setFormVariables])
+    const _resetHighlightFormField = useCallback((name) => {
+        pdfClient.unselectField({name})
+    }, [pdfClient])
+
 
     return (
         <div style={{
@@ -62,7 +45,7 @@ const FormFieldList = (
             overflow: "auto",
         }}
         >
-            <FormListControls formVariables={formVariables}/>
+            <FormListControls formVariables={variables}/>
             <FormItemsControls widthFormField={widthFormField} setWidthFormField={setWidthFormField}/>
             <div className={"field-list"} style={{
                 position: "relative",
@@ -74,24 +57,29 @@ const FormFieldList = (
                 overflow: "auto",
                 paddingTop: "10px"
             }}>
-                <AddVariableProvider>
                     {fields.map((field, idx) => {
                         return <FormFieldItem
-                            field={field}
                             key={"field-" + field.name}
-                            itemKey={"field-" + field.name}
                             idx={idx}
-                            setFields={setFields}
+                            fieldId={field.id}
+                            fieldValue={field.value}
+                            fieldName={field.name}
+                            fieldDescription={field.description}
+                            fieldPageNum={field.location?.pageNum}
+                            variables={variables}
+                            //causes rerender
+                            openVariableDialog={openVariableDialog}
+                            addVariableToField={addVariableToField}
+                            updateField={updateField}
                             widthFormField={widthFormField}
-                            resetHighlightFormField={resetHighlightFormField}
-                            highlightFormField={highlightFormField}
+                            resetHighlightFormField={_resetHighlightFormField}
+                            highlightFormField={_highlightFormField}
                         />
                     })}
                     <NewVariableDialog/>
-                </AddVariableProvider>
             </div>
         </div>
     );
-};
+});
 
 export default FormFieldList;

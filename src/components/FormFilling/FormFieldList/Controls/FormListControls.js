@@ -2,7 +2,7 @@ import React from 'react';
 import VariablesIO from "./VariablesIO";
 import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
-import {useFieldLists} from "../../../hooks/FieldListsContext";
+import {useFormActions} from "../../../hooks/FormActionContext";
 
 const downloadClient = new ClientDownload();
 const downloadCsv = (e, fieldList) => {
@@ -15,7 +15,7 @@ const downloadCsv = (e, fieldList) => {
 }
 
 const FormListControls = () => {
-    const [fieldLists] = useFieldLists();
+    const {state: {fieldLists} } = useFormActions();
 
     return (
         <div className={"field-list-controls"} style={{

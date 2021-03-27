@@ -5,13 +5,13 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import {Dialog, TextField} from "@material-ui/core";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import {FormVariable} from "../../../../model/types";
-import {useAddVariable} from "../../../hooks/AddVariableContext";
-import {useFormVariables} from "../../../hooks/VariableContext";
+import {FormVariable} from "../../../model/types";
+import {useAddVariable} from "../../hooks/AddVariableContext";
+import {useFormActions} from "../../hooks/FormActionContext";
 
 const NewVariableDialog = () => {
+    const {state: {variables}, updateVariables} = useFormActions();
     const {openDialog, setOpenDialog, newValue, setNewValue} = useAddVariable();
-    const [variables, setVariables] = useFormVariables();
     const [dialogValue, setDialogValue] = useState(newValue);
 
     const handleClose = () => {
@@ -21,11 +21,18 @@ const NewVariableDialog = () => {
         setOpenDialog(false);
     };
 
+    const emitAddVariable = (newVar) => {
+        const eventAddVariable = new CustomEvent("add-variable", {detail: newVar, bubbles: false});
+        document.dispatchEvent(eventAddVariable);
+    }
+
     const handleSubmit = (event) => {
         event.preventDefault();
+
         setNewValue(dialogValue);
-        setVariables([...variables, dialogValue]);
-        //todo: update field/s with reducer logic
+        //todo:add var
+        updateVariables([...variables, dialogValue]);
+        emitAddVariable(dialogValue);
         handleClose();
     };
 

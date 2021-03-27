@@ -50,6 +50,7 @@ export const FieldList = (name, fields) => {
     return {
         id: fieldLIstId++,
         name: name,
-        fields: fields
+        fields: fields,
+        isSelected: false,
     }
 }

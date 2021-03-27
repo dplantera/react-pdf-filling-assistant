@@ -1,7 +1,6 @@
 import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
 import React, {useState, Fragment} from "react";
 import {TextField} from "@material-ui/core";
-import {useAddVariable} from "../../../hooks/AddVariableContext";
 import {FormVariable} from "../../../../model/types";
 
 
@@ -14,18 +13,36 @@ export default function FormFieldVariable({
                                               onVariableSet,
                                               onInputSet,
                                               onBlur,
-                                              onFocus
+                                              onFocus,
+                                              openVariableDialog
                                           }) {
-    const {openVariableDialog} = useAddVariable();
     const [formVariable, setFormVariable] = useState(FormVariable(fieldValue, fieldValue));
 
     const selectVariable = (formVariable) => {
+        if (!formVariable) {
+            console.log("selectVariable", {formVariable})
+            console.trace()
+            return;
+        }
         onVariableSet(formVariable);
         setFormVariable(formVariable);
     }
 
+    const onAddVariable = (e) => {
+        console.log("event..", e);
+        selectVariable(e.detail);
+
+        document.removeEventListener("add-variable", onAddVariable);
+    }
+
+    const _openVariableDialog = (newVal) => {
+        document.addEventListener("add-variable", onAddVariable);
+        openVariableDialog(newVal);
+    }
+
     const _onBlurInput = (e) => {
-        setFormVariable({name: e.target.value});
+        // setFormVariable({name: e.target.value});
+        console.log({e}, e.target.value)
         onInputSet(e.target.value);
         onBlur(e);
     }
@@ -36,19 +53,22 @@ export default function FormFieldVariable({
                 /*getOptionLabel destructs var for options*/
                 value={formVariable}
                 onChange={(event, newValue) => {
+                    if (!newValue)
+                        return;
+
                     const newVar = FormVariable(newValue.inputValue, newValue.inputValue);
                     if (typeof newValue === 'string') {
                         // types and hits enter
                         // timeout to avoid instant validation of the dialog's form.
                         setTimeout(() => {
                             const newOption = FormVariable(newValue, newValue);
-                            openVariableDialog(newOption);
+                            _openVariableDialog(newOption);
                         });
                         // click Add x
                     } else if (newValue && newValue.inputValue) {
-                        openVariableDialog(newVar);
+                        _openVariableDialog(newVar);
                         // Selects existing option
-                    } else {
+                    } else if (newValue) {
                         selectVariable(newValue);
                     }
                 }}
@@ -66,6 +86,7 @@ export default function FormFieldVariable({
                 }}
                 id={"var-input-" + fieldName}
                 options={formVariables}
+                // Textbox display Value
                 getOptionLabel={(variableOption) => {
                     // e.g formVariable selected with enter, right from the input
                     if (typeof variableOption === 'string') {

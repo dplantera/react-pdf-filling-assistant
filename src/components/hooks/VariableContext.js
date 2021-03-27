@@ -1,42 +1,41 @@
-import React, {createContext, useCallback} from 'react';
+import React, {createContext, useEffect} from 'react';
+import {actionTypes} from "./FormActionContext";
 
 const formVariableReducer = (state, action) => {
-
     switch (action.type) {
-        case 'update-all': {
-            console.log(action.type, {state, action})
+        case actionTypes.updateAll: {
             return [...action.payload]
         }
+        case actionTypes.addAll: {
+            return [...state, ...action.payload]
+        }
+
         default: {
             throw new Error(`Unhandled action type: ${action.type}`)
         }
     }
 }
 
-const initialState = [];
+const initialState = []
 const FormVariableProvider = ({children}) => {
     const [state, dispatch] = React.useReducer(formVariableReducer, initialState)
 
-    // convenient method - so hook is usable like useState
-    const setState = useCallback((payload, actionType="update-all") => {
-        if(!payload){
-            console.warn("no payload provided")
-            return
-        }
-        dispatch({type:actionType, payload});
-    },[dispatch])
+    useEffect(() => {
+
+    }, [])
 
     return (
-        <FormVariableContext.Provider value={[state, setState, dispatch]}>
+        <store.Provider value={[state, dispatch]}>
             {children}
-        </FormVariableContext.Provider>
+        </store.Provider>
     );
 }
 
-const FormVariableContext = createContext();
+const store = createContext(initialState);
+
 function useFormVariables() {
     // returns values from provider - so evererything in value
-    const context = React.useContext(FormVariableContext)
+    const context = React.useContext(store)
 
     if (context === undefined) {
         throw new Error('useFormVariables must be used within a FormVariableProvider')

@@ -17,6 +17,8 @@ export default class PdfJsClient {
         this.pdf = null;
         this.pdfMeta = null;
         this.pages = null;
+        this.isReady = false;
+        this.onReload = () => {};
     }
 
     get viewer() {
@@ -134,8 +136,8 @@ export default class PdfJsClient {
     }
 
     selectField(field) {
-        const doSelectField = (field) => {
-            const el = this.getElement(field);
+        const doSelectField = (fieldName) => {
+            const el = this.getElement(fieldName);
             el.style.backgroundColor = "yellow";
             el.scrollIntoView({
                 behavior: 'auto',
@@ -143,27 +145,30 @@ export default class PdfJsClient {
                 inline: 'center'
             });
         }
-
-        if (this.viewer.page === field.location.pageNum) {
-            doSelectField(field);
+        const fieldName = field.name ?? field;
+        let fieldPageNum = field.location.pageNum;
+        if (this.viewer.page === fieldPageNum) {
+            doSelectField(fieldName);
         } else {
-            this.goToPage(field.location.pageNum, (e) => {
-                doSelectField(field)
+            this.goToPage(fieldPageNum, (e) => {
+                doSelectField(fieldName)
             });
         }
     }
 
     getElement(field) {
-        let elements = this._iframe.contentDocument.getElementsByName(field.name);
+        const fieldName = field.name ?? field;
+        let elements = this._iframe.contentDocument.getElementsByName(fieldName);
         if (!elements || elements.length < 1) {
-            console.error("select field failed for: ", field)
+            console.error("select field failed for: ", fieldName)
             return document.createElement("div")
         }
         return elements[0].parentNode;
     }
 
     unselectField(field) {
-        const el = this.getElement(field)
+        const fieldName = field.name ?? field;
+        const el = this.getElement(fieldName);
         if (!el) return
         el.style.backgroundColor = "";
     }

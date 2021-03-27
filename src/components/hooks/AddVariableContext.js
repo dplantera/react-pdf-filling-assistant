@@ -1,14 +1,15 @@
-import React, {createContext, useCallback} from 'react';
+import React, {createContext, useState} from 'react';
 
 const AddVariableProvider = ({children}) => {
-    const [openDialog, setOpenDialog] = React.useState(false);
-    const [newValue, setNewValue] = React.useState({});
+    const [openDialog, setOpenDialog] = useState(false);
+    const [newValue, setNewValue] = useState({});
 
     // todo: maybe use selected field?: const [selectedField] = useFormFields();
-    const openVariableDialog = useCallback((newVar) => {
+    const openVariableDialog = (newVar, callback) => {
+        console.log("openVariableDialog", {callback, newValue})
         setNewValue(newVar);
         setOpenDialog(true);
-    }, [setNewValue, setOpenDialog])
+    }
 
 
     return (

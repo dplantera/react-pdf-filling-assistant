@@ -1,72 +1,77 @@
-import React, {useState} from 'react';
+import React, {memo, useState} from 'react';
 import ResizeableDiv from "../../../commons/ResizeableDiv";
 import FormFieldVariable from "./FormFieldVariable";
 import FormFieldDesc from "./FormFieldDesc";
-import {useFormVariables} from "../../../hooks/VariableContext";
 
-const FormFieldItem = (
+const FormFieldItem = memo((
     {
-        field,
-        itemKey,
         idx,
-        setFields,
+        fieldId,
+        fieldValue,
+        fieldName,
+        fieldDescription,
+        fieldPageNum,
+        variables,
+        openVariableDialog,
+        addVariableToField,
+        updateField,
         widthFormField,
         resetHighlightFormField,
         highlightFormField
     }
 ) => {
-    const [formVariables] = useFormVariables();
-    const [fieldDesc, setFieldDesc] = useState(field.desc);
+    const [fieldVal, setFieldVal] = useState(fieldValue);
+    const [fieldDesc, setFieldDesc] = useState(fieldDescription);
 
-
-    const onFocus = (e) => {
-        highlightFormField(e, field);
+    const handleFocus = () => {
+        highlightFormField(fieldName, fieldPageNum);
     }
-    const onInputSet = (inputVal) => {
-        if(!inputVal)
+    const handleInput = (inputVal) => {
+        console.log("handleInput", inputVal)
+        if (!inputVal)
             return;
-        field.value = inputVal;
-        // const updatedField = {...field, value: inputVal};
-        // setFields({field: updatedField, index: idx}, "update-one")
+
+        updateField({index: idx, id: fieldId, value: inputVal});
+        setFieldVal(inputVal);
     }
 
-    const onVariableSet = (formVariable) => {
-        setFields({field, formVariable}, "add-variable");
+    const handleNewVariable = (formVariable) => {
+        addVariableToField(formVariable, {id: fieldId, index: idx});
+        // setFieldVal(formVariable.name);
         setFieldDesc(formVariable.description);
     }
 
-    const onDescriptionSet = (e) => {
-        resetHighlightFormField(e, field);
+    const handleNewDescription = (e) => {
+        resetHighlightFormField(fieldName);
         const description = e.currentTarget.value || fieldDesc || "";
-        setFields({field: {...field, description}, index: idx}, "update-one")
+
+        updateField({index: idx, id: fieldId, description});
         setFieldDesc(description);
     }
 
     return (
-        <div key={itemKey}
-             style={{position: "relative", display: "flex", width: "100%"}}>
+        <div style={{position: "relative", display: "flex", width: "100%"}}>
             <ResizeableDiv overflow={"visible"} width={widthFormField}>
                 <FormFieldVariable
-                    fieldName={field.name}
-                    fieldValue={field.value}
-                    formVariables={formVariables}
-                    highlightFormField={highlightFormField}
-                    resetHighlightFormField={resetHighlightFormField}
-                    onVariableSet={onVariableSet}
-                    onInputSet={onInputSet}
+                    fieldName={fieldName}
+                    fieldValue={fieldVal}
+                    formVariables={variables}
+                    onVariableSet={handleNewVariable}
+                    onInputSet={handleInput}
                     onBlur={(e) => {
-                        resetHighlightFormField(e, field)
+                        resetHighlightFormField(fieldName)
                     }}
-                    onFocus={onFocus}
+                    onFocus={handleFocus}
+                    openVariableDialog={openVariableDialog}
                 />
             </ResizeableDiv>
-            <FormFieldDesc id={"desc-" + field.name}
-                           descValue={fieldDesc}
-                           onBlur={onDescriptionSet}
-                           onFocus={onFocus}
-            />
+            {widthFormField < 100 && <FormFieldDesc id={"desc-" + fieldName}
+                                                    descValue={fieldDesc}
+                                                    onBlur={handleNewDescription}
+                                                    onFocus={handleFocus}
+            />}
         </div>
     );
-};
+});
 
 export default FormFieldItem;
