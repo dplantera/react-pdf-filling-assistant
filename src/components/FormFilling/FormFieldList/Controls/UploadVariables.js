@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -6,12 +6,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {useTheme} from '@material-ui/core/styles';
-import {Typography} from "@material-ui/core";
+import {Checkbox, FormControlLabel, Typography} from "@material-ui/core";
 import {ClientUpload} from "../../../../utils/ClientUpload";
 import {FormVariable} from "../../../../model/types";
 
-export default function UploadVariables({formVariables, setFormVariables}) {
+export default function UploadVariables({formVariables, addVariables}) {
     const [open, setOpen] = React.useState(false);
+    const [overwriteExisting, setOverwriteExisting] = useState(true);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -31,21 +32,46 @@ export default function UploadVariables({formVariables, setFormVariables}) {
     function handleUploadCsv(text) {
         //name;value;desc;example
         const rows = text.split("\n");
-        const vars = rows.map(row => {
+        const vars = rows.reduce((result, row) => {
             const [name, value, desc, example] = row.split(";");
-            console.log({name, value, desc, example})
 
-            if (name && !value)
-                return FormVariable(name, name, desc, example)
+            const isEmpty = (str) => {
+                return str === null || !(str?.length > 0);
+            }
 
-            if (!name && value)
-                return FormVariable(value, value, desc, example)
+            if (isEmpty(name) && isEmpty(value))
+                return result;
 
-            return FormVariable(name, value, desc, example)
+            const getVarCandidate = (name, value) => {
+                if (!isEmpty(name) && isEmpty(value)) return FormVariable(name, name, desc, example);
+                if (isEmpty(name) && !isEmpty(value)) return FormVariable(value, value, desc, example);
+                return FormVariable(name, value, desc, example);
+
+            }
+            result.push(getVarCandidate(name, value));
+
+            return result;
+        }, [])
+
+        const ignored = [];
+        const overwritten = [];
+        const newVariables = [];
+        vars.forEach(varCandidate => {
+            const idxExisting = formVariables.findIndex(existVar => existVar.isEqual(varCandidate));
+            if (idxExisting === -1) {
+                newVariables.push(varCandidate);
+            } else if (overwriteExisting) {
+                const existing = formVariables[idxExisting];
+                overwritten.push(existing);
+                formVariables[idxExisting] = {...existing, ...varCandidate};
+            } else {
+                ignored.push(varCandidate);
+            }
         })
 
-        //naiv implementation
-        setFormVariables([...formVariables, ...vars])
+        console.log({newVariables, overwritten, ignored})
+        addVariables(newVariables);
+        //todo: update overwritten
     }
 
     const handleOpenFile = (e) => {
@@ -57,7 +83,7 @@ export default function UploadVariables({formVariables, setFormVariables}) {
 
     return (
         <div>
-            <Button onClick={handleClickOpen} size={"small"} style={{height: "50%"}} >
+            <Button onClick={handleClickOpen} size={"small"} style={{height: "50%"}}>
                 Upload
             </Button>
             <Dialog
@@ -69,6 +95,16 @@ export default function UploadVariables({formVariables, setFormVariables}) {
                 <DialogTitle id="upload-var-title">{"Variablen Hochladen"}</DialogTitle>
 
                 <DialogContent>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={overwriteExisting}
+                                onChange={(e) => setOverwriteExisting(e.target.checked)}
+                                name="checkedI"
+                            />
+                        }
+                        label={`Bestehende Variablen werden ${overwriteExisting ? "überschrieben" : "übersprungen"}`}
+                    />
                     <input type="file" id="file" name="file" encType="multipart/form-data" hidden={true}/>
                     <div className={"drop-zone"} id={"drop-zone-var"} style={{
                         display: "flex",

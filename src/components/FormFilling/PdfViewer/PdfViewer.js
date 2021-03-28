@@ -25,7 +25,7 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
         <div id="viewerContainer" style={{
             position: "relative",
             width: "65%",
-            height: "100%",
+            // height: "100%",
             display: "flex",
             flexDirection: "column",
             gap: "10px",

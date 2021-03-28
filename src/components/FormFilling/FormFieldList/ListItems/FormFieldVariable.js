@@ -1,23 +1,22 @@
 import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
-import React, {useState, Fragment} from "react";
+import React, {Fragment, memo} from "react";
 import {TextField} from "@material-ui/core";
 import {FormVariable} from "../../../../model/types";
 
 
 const filter = createFilterOptions();
 
-export default function FormFieldVariable({
-                                              fieldName,
-                                              fieldValue,
-                                              formVariables,
-                                              onVariableSet,
-                                              onInputSet,
-                                              onBlur,
-                                              onFocus,
-                                              openVariableDialog
-                                          }) {
-    const [formVariable, setFormVariable] = useState(FormVariable(fieldValue, fieldValue));
-
+const FormFieldVariable = memo((
+    {
+        fieldName,
+        fieldValue,
+        formVariables,
+        onVariableSet,
+        onInputSet,
+        onBlur,
+        onFocus,
+        openVariableDialog
+    }) => {
     const selectVariable = (formVariable) => {
         if (!formVariable) {
             console.log("selectVariable", {formVariable})
@@ -25,7 +24,6 @@ export default function FormFieldVariable({
             return;
         }
         onVariableSet(formVariable);
-        setFormVariable(formVariable);
     }
 
     const onAddVariable = (e) => {
@@ -51,7 +49,7 @@ export default function FormFieldVariable({
         <Fragment>
             <Autocomplete
                 /*getOptionLabel destructs var for options*/
-                value={formVariable}
+                value={fieldValue}
                 onChange={(event, newValue) => {
                     if (!newValue)
                         return;
@@ -88,7 +86,6 @@ export default function FormFieldVariable({
                 options={formVariables}
                 // Textbox display Value
                 getOptionLabel={(variableOption) => {
-                    // e.g formVariable selected with enter, right from the input
                     if (typeof variableOption === 'string') {
                         return variableOption;
                     }
@@ -116,4 +113,6 @@ export default function FormFieldVariable({
             />
         </Fragment>
     );
-}
+});
+
+export default FormFieldVariable;

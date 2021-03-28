@@ -1,13 +1,11 @@
-import React, {createContext, useState} from 'react';
-import {FieldListsProvider} from "./FieldListsContext";
-import {FormVariableProvider} from "./VariableContext";
-import {FormFieldsProvider} from "./FormFieldsContext";
+import React, {createContext} from 'react';
+import {FieldListsProvider} from "./contextWithState/FieldListsContext";
+import {FormVariableProvider} from "./contextWithState/VariableContext";
+import {FormFieldsProvider} from "./contextWithState/FormFieldsContext";
 
 const FormDataProvider = ({children}) => {
-    const [pdfClient, setPdfClient] = useState({})
-
     return (
-        <FormDataContext.Provider value={[pdfClient, setPdfClient]}>
+        <FormDataContext.Provider value={{}}>
             <FieldListsProvider>
                 <FormVariableProvider>
                     <FormFieldsProvider>
@@ -16,7 +14,6 @@ const FormDataProvider = ({children}) => {
                 </FormVariableProvider>
             </FieldListsProvider>
         </FormDataContext.Provider>
-
     );
 }
 

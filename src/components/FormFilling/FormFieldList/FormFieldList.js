@@ -3,7 +3,7 @@ import FormFieldItem from "./ListItems/FormFieldItem";
 import FormItemsControls from "./Controls/FormItemsControls";
 import FormListControls from "./Controls/FormListControls";
 import NewVariableDialog from "./NewVariableDialog";
-import {useAddVariable} from "../../hooks/AddVariableContext";
+import {useAddVariable} from "../../hooks/contextWithState/AddVariableContext";
 import {useFormActions} from "../../hooks/FormActionContext";
 
 const FormFieldList = memo((

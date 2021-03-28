@@ -18,7 +18,9 @@ export default class PdfJsClient {
         this.pdfMeta = null;
         this.pages = null;
         this.isReady = false;
-        this.onReload = () => {};
+        this.isInitialized = false;
+        this.onReload = () => {
+        };
     }
 
     get viewer() {
@@ -34,6 +36,11 @@ export default class PdfJsClient {
     }
 
     async init({viewerDiv, initialPdf}) {
+        if (this.isInitialized) {
+            console.log("pdfclient already initialized");
+            return this;
+        }
+
         this.viewerDiv = viewerDiv;
         this.urlPath = initialPdf;
         this.filename = initialPdf.split("/").reverse()[0]
@@ -69,7 +76,7 @@ export default class PdfJsClient {
         const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
         console.log({
             PDFFormatVersion, IsAcroFormPresent, Title,
-            docId: pdfMeta.metadata? pdfMeta.metadata.get("xmpmm:documentid"): "", pages: pdf._pdfInfo.numPages,
+            docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
             ...pdfMeta.metadata, all_meta: pdfMeta
         })
 
@@ -83,6 +90,7 @@ export default class PdfJsClient {
 
         // after init this is redundant - init has already loaded pdf
         await this.viewer.open(urlPathOrBins)
+        return urlPathOrBins;
     }
 
     cleanUpExternListeners(listener) {

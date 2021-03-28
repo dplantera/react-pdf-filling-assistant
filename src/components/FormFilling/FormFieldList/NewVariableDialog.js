@@ -6,11 +6,11 @@ import {Dialog, TextField} from "@material-ui/core";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import {FormVariable} from "../../../model/types";
-import {useAddVariable} from "../../hooks/AddVariableContext";
+import {useAddVariable} from "../../hooks/contextWithState/AddVariableContext";
 import {useFormActions} from "../../hooks/FormActionContext";
 
 const NewVariableDialog = () => {
-    const {state: {variables}, updateVariables} = useFormActions();
+    const {addVariable} = useFormActions();
     const {openDialog, setOpenDialog, newValue, setNewValue} = useAddVariable();
     const [dialogValue, setDialogValue] = useState(newValue);
 
@@ -28,11 +28,9 @@ const NewVariableDialog = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
         setNewValue(dialogValue);
-        //todo:add var
-        updateVariables([...variables, dialogValue]);
         emitAddVariable(dialogValue);
+        addVariable(dialogValue);
         handleClose();
     };
 

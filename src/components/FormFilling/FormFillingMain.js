@@ -3,10 +3,9 @@ import PdfJsClient from "../../model/pdf-backend/PdfJsClient";
 import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
 import Spinner from "../commons/Spinner";
-import {FormDataProvider} from "../hooks/FormContext";
+import {FormDataProvider} from "../hooks/FormDataContext";
 import {FormActionProvider} from "../hooks/FormActionContext";
-import Initialize from "./FormFieldList/Initialize";
-import {AddVariableProvider} from "../hooks/AddVariableContext";
+import {AddVariableProvider} from "../hooks/contextWithState/AddVariableContext";
 
 const pdfClient = new PdfJsClient();
 
@@ -18,9 +17,7 @@ const FormFillingMain = () => {
             <div className={"form-filling-container"}
                  style={{position: "relative", display: "flex", width: "98%", height: "98%", top: "10px"}}>
                 <FormDataProvider>
-                    <FormActionProvider>
-                        <Initialize pdfClient={pdfClient}
-                        />
+                    <FormActionProvider pdfClient={pdfClient}>
                         <AddVariableProvider>
                             <FormFieldList pdfClient={pdfClient}/>
                         </AddVariableProvider>
