@@ -88,7 +88,10 @@ export default class PdfJsClient {
         if (data) urlPathOrBins = new Uint8Array(data)
         else if (url) urlPathOrBins = url;
 
-        // after init this is redundant - init has already loaded pdf
+        if(!this.viewer) {
+            console.warn("viewer not ready");
+            return urlPathOrBins;
+        }
         await this.viewer.open(urlPathOrBins)
         return urlPathOrBins;
     }

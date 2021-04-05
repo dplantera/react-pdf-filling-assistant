@@ -1,65 +1,96 @@
 import {actionTypes} from "../actions";
 import {ClientStorage} from "../../../utils/ClientStorage";
+import {dbSchema} from "../../../model/types";
 
-const storage =  ClientStorage.instance;
-export const basicReducer = (state, action) => {
-    console.log("basicReducer", action.type, action.payload)
-    const context = action.context;
-    const dbParams = {
-        onerror: () => console.error("storing: ", context.name),
-        onsuccess: () => console.info("stored: ", context.name),
+const storage = ClientStorage.instance;
+
+export class BasicReducer {
+    get reducer() {
+        return this.reduce.bind(this)
     }
-    switch (action.type) {
-        case actionTypes.updateAll: {
-            console.log("payload", action)
-            const newState = [...action.payload];
-            if(context) {
-                storage.updateObject(context, newState, dbParams);
-            }
-            return newState
-        }
-        case actionTypes.addAll: {
-            let elements = action.payload;
-            if(!elements || elements?.size < 1)
-                return state;
 
-            const newState = [...state, ...elements];
-            const context = action.context;
-            if(context) {
-                storage.storeObject(context, newState, dbParams);
-            }
-            return newState;
+    dbParams(action) {
+        const defaultParams = {
+            keyPath: "id", // db primary key(s)
+            onerror: () => console.error("storing: ", action.context.name),
+            onsuccess: () => console.info("stored: ", action.context.name),
         }
-        case actionTypes.updateOne: {
-            const element = action.payload;
-            if(!element)
-                console.warn("no element provided")
-            let index = element.index ?? state.findIndex(f => f.id === element.id);
-            // if state is empty - add it
-            if(index < 0)
-                console.warn("element not found")
-            if(index < 0 && state.size < 1)
-                index = 0
+        if (action.context)
+            return {...defaultParams, ...dbSchema(action.context)}
+        return defaultParams;
+    }
 
-            const prevField = state[index];
-            let newField = {...prevField, ...element};
-            state[element.index] = newField;
-            if(context) {
-                storage.updateObject(context, newField, dbParams);
+    reduce(state, action) {
+        console.debug(`[${this.constructor.name}]:`, action.context?.name, action.type, {state, action})
+        switch (action.type) {
+            case actionTypes.updateAll: {
+                return this.updateAll(state, action);
             }
+            case actionTypes.addAll: {
+                return this.addAll(state, action);
+            }
+            case actionTypes.updateOne: {
+                return this.updateOne(state, action);
+            }
+            case actionTypes.addOne: {
+                return this.addOne(state, action);
+            }
+            default: {
+                throw new Error(`Unhandled action type: ${action.type}`)
+            }
+        }
+    }
+
+    updateAll(state, action) {
+        console.log("payload", action)
+        const context = action.context;
+        const newState = [...action.payload];
+        if (context) {
+            storage.updateObject(context, newState, this.dbParams(action));
+        }
+        return newState
+    }
+
+    addAll(state, action) {
+        let elements = action.payload;
+        if (!elements || elements?.size < 1)
             return state;
+
+        const newState = [...state, ...elements];
+        const context = action.context;
+        if (context) {
+            storage.storeObject(context, newState, this.dbParams(action));
         }
-        case actionTypes.addOne: {
-            const variable = action.payload;
-            if(!variable)
-                console.warn("no variable provided")
-            if(context) {
-                storage.storeObject(context, variable, dbParams);
-            }
-            return [...state, variable];
+        return newState;
+    }
+
+    addOne(state, action) {
+        const variable = action.payload;
+        if (!variable)
+            console.warn("no variable provided")
+        if (action.context) {
+            storage.storeObject(action.context, variable, this.dbParams(action));
         }
-        default: {
-            throw new Error(`Unhandled action type: ${action.type}`)
+        return [...state, variable];
+    }
+
+    updateOne(state, action) {
+        const element = action.payload;
+        if (!element)
+            console.warn("no element provided")
+        let index = element.index ?? state.findIndex(f => f.id === element.id);
+        // if state is empty - add it
+        if (index < 0)
+            console.warn("element not found")
+        if (index < 0 && state.size < 1)
+            index = 0
+
+        const prevField = state[index];
+        let newField = {...prevField, ...element};
+        state[element.index] = newField;
+        if (action.context) {
+            storage.updateObject(action.context, newField, this.dbParams(action));
         }
+        return state;
     }
 }

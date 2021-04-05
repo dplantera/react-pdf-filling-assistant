@@ -1,5 +1,19 @@
 import {actions, actionTypes, noop} from "../actions";
 import {Field} from "../../../model/types";
+import {BasicReducer} from "./BasicReducer";
+import {ClientStorage} from "../../../utils/ClientStorage";
+import {Pdf} from "../../../model/types";
+
+const storage = ClientStorage.instance;
+
+export class PdfReducer extends BasicReducer {
+    updateAll(state, action) {
+        const idsPdf = state.map(pdf => pdf.id);
+        //todo: fix this workaround when supporting multiple pdfs
+        storage.delete(Pdf, {keys: idsPdf}).then((result) => console.info("all pdfs deleted: ", result));
+        return super.updateAll(state, action);
+    }
+}
 
 export const formReducer = (state, action, states) => {
     console.log("formReducer", action.type, action.payload, state, states)

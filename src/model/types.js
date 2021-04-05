@@ -1,15 +1,19 @@
+import {v4 as uuidv4} from 'uuid';
+
+
 /*
         Entities
  */
-export const Pdf = (name, binary) => {
+export const Pdf = (name, binary, id) => {
+    id = id ?? uuidv4();
     return {
-        id: 1,
+        id,
         name,
         binary
     }
 }
 
-export const Field = (refPdf = null, name, value, location) => {
+export const Field = (refPdf = null, name, value, location, fieldListId) => {
     return {
         id: name ?? refPdf?.name,
         refPdf: refPdf ?? null,
@@ -17,7 +21,7 @@ export const Field = (refPdf = null, name, value, location) => {
         value: value ?? refPdf?.value,
         description: "",
         location: location ?? {pageNum: refPdf?.pageNum},
-        refFieldlist: [],
+        fieldListId,
         variable: null
     }
 }
@@ -38,7 +42,7 @@ export const FormVariable = (name, value, description, exampleValue) => {
     };
 
     formVariable.isEqual = (other) => {
-        if(!other) return false;
+        if (!other) return false;
 
         return formVariable.id === other.id || formVariable.value === other.value;
     }
@@ -46,12 +50,26 @@ export const FormVariable = (name, value, description, exampleValue) => {
     return formVariable
 }
 
-let fieldLIstId = 1;
-export const FieldList = (name, fields) => {
+export const FieldList = (name, pdfId) => {
+    const id = uuidv4();
     return {
-        id: fieldLIstId++,
-        name: name,
-        fields: fields,
+        id,
+        pdfId,
+        name,
         isSelected: false,
     }
+}
+
+export const dbSchemaMap = {
+    [Field.name]: {
+        keyPath: ["id", "fieldListId"],
+        indices: [{name: "fieldListId"}, {name: "name"}]
+    },
+    [FieldList.name]: {
+        indices: [{name: "pdfId"}]
+    },
+}
+
+export function dbSchema(clazz) {
+    return dbSchemaMap[clazz] ?? {};
 }

@@ -1,4 +1,4 @@
-import {FieldList, FormVariable, Pdf} from "../../model/types";
+import {dbSchemaMap, Field, FieldList, FormVariable, Pdf} from "../../model/types";
 import {ClientUpload} from "../../utils/ClientUpload";
 import {ClientStorage} from "../../utils/ClientStorage";
 
@@ -34,17 +34,81 @@ export const actions = (context) => {
 }
 
 const clientUpload = new ClientUpload();
-const storage = ClientStorage.instance;
+const storage = ClientStorage.instance.setSchemaMap(dbSchemaMap);
 
 export function initializePdfFormFields({pdfClient, updateFieldLists, updateFields}) {
     pdfClient.onReload = async () => {
         console.log("pdf initialised...");
-        const fields = await pdfClient.getFormFields();
-        const fieldList = FieldList(pdfClient.getPdfName(), fields);
-        fieldList.isSelected = true;
-        updateFields(fields);
-        updateFieldLists([fieldList]);
-        pdfClient.isReady = true;
+        const loadFromDb = async () => {
+            return new Promise(async resolve => {
+                try {
+                    console.log("pdf initialised...");
+                    // get current pdf id
+                    const pdfs = await storage.get(Pdf);
+                    const currentPdf = pdfs[0];
+                    // get fieldlist by current pdf id
+                    const fieldLists = await storage.get(FieldList, {keys: [currentPdf.id], useIndex: "pdfId"});
+                    console.log({fieldLists, pdfId: currentPdf.id})
+                    let selectedList = fieldLists[0];
+                    if(fieldLists.length > 1)
+                        selectedList = fieldLists.find(list => list.isSelected);
+                    else if(!selectedList.isSelected)
+                        selectedList.isSelected = true;
+
+                    if(!selectedList?.pdfId){
+                        console.error("...no field list found: ", {selectedList})
+                        resolve(false);
+                    }
+                    // get fields by id [rawFieldName, fieldListId]
+                    const fieldsFromDb = await storage.get(Field, {keys: [selectedList.id], useIndex: "fieldListId"})
+                    console.log("...loaded fields DB: ", {
+                        fields: fieldsFromDb,
+                        pdfs,
+                        currentPdf,
+                        fieldLists,
+                        selectedList
+                    })
+                    // merge fields by name with dbFields
+                    const fieldsRaw = await pdfClient.getFormFields();
+                    const mergedFields = fieldsRaw.map(fieldRaw => {
+                        const fieldDomain = fieldsFromDb.find(fieldDb => fieldDb.name === fieldRaw.name);
+                        if (!fieldRaw.fieldListId && !fieldDomain)
+                            return {...fieldRaw, fieldListId: selectedList.id}
+                        return {...fieldRaw, ...fieldDomain};
+                    })
+                    // update fields with mergedFields
+                    updateFieldLists([selectedList])
+                    updateFields(mergedFields);
+                    pdfClient.isReady = true;
+                    resolve(true);
+                } catch (err) {
+                    console.log("failed loading fields from db", err)
+                    resolve(false);
+                }
+            })
+        }
+
+        const initField = async () => {
+            console.log("loading inital fields")
+            const pdfs = await storage.get(Pdf);
+            const currentPdf = pdfs[0];
+
+            // todo: handle accordingly when supporting multiple pdfs
+            await storage.delete(FieldList);
+            await storage.delete(Field);
+
+            const fieldList = FieldList(pdfClient.getPdfName(), currentPdf?.id);
+            fieldList.isSelected = true;
+            const fieldsRaw = await pdfClient.getFormFields();
+            const fieldsDomain = fieldsRaw.map(fieldRaw => ({...fieldRaw, ...{fieldListId: fieldList.id}}));
+            console.log({fieldsRaw, fieldsDomain, fieldList})
+            updateFieldLists([fieldList]);
+            updateFields(fieldsDomain);
+            pdfClient.isReady = true;
+        }
+        const isLoadedFromDB = await loadFromDb();
+        if (!isLoadedFromDB) await initField();
+        console.log("....fieldLoaded: ", isLoadedFromDB);
     }
 }
 
@@ -59,13 +123,13 @@ export function initializePdf(updatePdfs) {
                 })
         }
         try {
-            const pdfs = await storage.get(Pdf, {keys: [1]});
+            const pdfs = await storage.get(Pdf);
             if (!pdfs[0].binary)
                 loadDefault();
             else
                 updatePdfs(pdfs);
         } catch (error) {
-            console.log(error)
+            console.error(error)
             loadDefault();
         }
     }
@@ -108,7 +172,7 @@ export function initializeFormVariables(updateVariables) {
             const variablesFromDb = await loadVariablesFromDb();
             const idsFromFile = variablesFromFile.map(varFile => varFile.id);
             const onlyInDb = variablesFromDb.reduce((acc, varDb) => {
-                if(!idsFromFile.includes(varDb.id))
+                if (!idsFromFile.includes(varDb.id))
                     acc.push(varDb);
                 return acc;
             }, [])

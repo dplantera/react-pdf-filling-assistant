@@ -1,8 +1,9 @@
 import React, {createContext} from 'react';
-import {basicReducer} from "../reducer/BasicReducer";
+import {PdfReducer} from "../reducer/DomainReducer";
 
+const reducer = new PdfReducer().reducer
 const PdfProvider = ({children}) => {
-    const [state, dispatch] = React.useReducer(basicReducer, [])
+    const [state, dispatch] = React.useReducer(reducer, [])
 
     return (
         <PdfContext.Provider value={[state, dispatch]}>

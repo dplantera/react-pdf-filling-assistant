@@ -21,6 +21,16 @@ export class ClientStorage {
         this.objectStores = {};
         this.dbName = "pdf_form_assist";
         this.version = undefined;
+        this.schemaMap = {};
+    }
+
+    setSchemaMap(map) {
+        this.schemaMap = map;
+        return this;
+    }
+
+    addSchema(clazz, params) {
+        this.schemaMap[clazz.name] = {...this.schemaMap[clazz.name], ...params};
     }
 
     static get instance() {
@@ -48,7 +58,7 @@ export class ClientStorage {
         })
     }
 
-    async createObjectStoreIfNeeded(clazz) {
+    async createObjectStoreIfNeeded(clazz, params) {
         let db = await this.getDb();
         console.log(clazz.name + " - version: " + db.version + " | " + this.version)
         if (!this.version)
@@ -63,13 +73,20 @@ export class ClientStorage {
         }
         db.close();
 
+        const schema = this.schemaMap[clazz.name];
+        const keyPath = params.keyPath ?? schema?.keyPath ?? "id";
+        const indices = params.indices ?? schema?.indices ?? [];
         return await this.openDbConnection(this.dbName, this.version, (e) => {
             let db = e.target.result;
             this.version = db.version;
             if (!db.objectStoreNames.contains(clazz.name)) {
-                const objectStore = db.createObjectStore(clazz.name, {keyPath: "id"});
-                console.log("objectStore created: ", objectStore);
+                const objectStore = db.createObjectStore(clazz.name, {keyPath});
+                for (let index of indices) {
+                    objectStore.createIndex(index.name, index.keyPath ?? index.name, index.options ?? {})
+                }
+                console.log("objectStore created: ", objectStore, params);
             }
+
         });
     }
 
@@ -84,13 +101,13 @@ export class ClientStorage {
         });
     }
 
-    async storeTransaction(clazz) {
+    async storeTransaction(clazz, params) {
         let db;
 
         if (this.objectStores[clazz.name])
             db = this.objectStores[clazz.name]
         else
-            db = await this.createObjectStoreIfNeeded(clazz);
+            db = await this.createObjectStoreIfNeeded(clazz, params);
 
         db.onversionchange = (e) => {
             console.log("reloading db: " + clazz.name, e);
@@ -123,7 +140,7 @@ export class ClientStorage {
         }
 
 
-        const store = await this.storeTransaction(clazz);
+        const store = await this.storeTransaction(clazz, requestParams);
         return {
             add: async (object) => {
                 return await makeRequest(clazz, () => store.add(object), requestParams)
@@ -132,15 +149,27 @@ export class ClientStorage {
                 return await makeRequest(clazz, () => store.put(object), requestParams)
             },
             getAll: async (query, params = requestParams) => {
-                return await makeRequest(clazz, () => store.getAll(query), params);
+                const {useIndex} = params;
+                const storeOrIndex = useIndex ? store.index(useIndex) : store;
+                return await makeRequest(clazz, () => storeOrIndex.getAll(query), params);
             },
             get: async (query, params = requestParams) => {
-                return await makeRequest(clazz, () => store.get(query), params)
+                const {useIndex} = params;
+                const storeOrIndex = useIndex ? store.index(useIndex) : store;
+                return await makeRequest(clazz, () => storeOrIndex.get(query), params)
+            },
+            delete: async (key, params = requestParams) => {
+                return await makeRequest(clazz, () => store.delete(key), params)
+            },
+            deleteAll: async (params = requestParams) => {
+                return await makeRequest(clazz, () => store.clear(), params)
             }
         }
     }
 
     async updateObject(clazz, value, params) {
+        console.debug(`[${ClientStorage.name}]:`, clazz.name, "updateObject", {value, params})
+
         const request = await this.storeRequest(clazz, params);
         if (Array.isArray(value))
             value.map(async val => {
@@ -155,6 +184,8 @@ export class ClientStorage {
     }
 
     async storeObject(clazz, value, params) {
+        console.debug(`[${ClientStorage.name}]:`, clazz.name, "storeObject", {value, params})
+
         const request = await this.storeRequest(clazz, params);
         if (Array.isArray(value))
             value.map(async val => {
@@ -168,45 +199,74 @@ export class ClientStorage {
         }
     }
 
-    async getById(clazz, key) {
-        const request = await this.storeRequest(clazz, {});
+    async getById(clazz, key, params) {
+        console.debug(`[${ClientStorage.name}]:`, clazz.name, "getById", {key, params})
 
+        const request = await this.storeRequest(clazz, params);
+        const dbParams = {...params};
         return new Promise(async resolve => {
-            await request.get(key, {
-                onsuccess: ({target: {result}}) => {
-                    resolve(transform(clazz, result));
-                }
-            });
+            dbParams.onsuccess = ({target: {result}}) => {
+
+                resolve(result.map(res => transform(clazz, res)));
+            };
+            await request.getAll(key, dbParams);
         })
     }
 
-    async get(clazz, {keys, query, params} = {}) {
+    async get(clazz, {keys, query, ...params} = {}) {
+        console.debug(`[${ClientStorage.name}]:`, clazz.name, "get", {keys, query, params})
+
         return new Promise((async (resolve, reject) => {
             let request;
             try {
                 request = await this.storeRequest(clazz, params || {});
                 const results = [];
                 if (keys && Array.isArray(keys)) {
-                    for(let key of keys ){
-                        const result = await this.getById(clazz, key);
-                        results.push(result);
+                    for (let key of keys) {
+                        const result = await this.getById(clazz, key, params);
+                        console.log("getting: ", result)
+                        results.push(...result);
                     }
                     resolve(results);
+                } else if (keys) {
+                    const result = await this.getById(clazz, keys);
+                    resolve(result);
                 }
 
+
                 if (!keys) {
-                    await request.getAll(query, {
-                        onsuccess: ({target: {result}}) => {
-                            console.log("getting...1", result)
-                            resolve(result.map(val => ({...clazz(), ...val})))
-                        }
-                    });
+                    params.onsuccess = ({target: {result}}) => {
+                        console.log("getting...1", result)
+                        resolve(result.map(val => ({...clazz(), ...val})))
+                    }
+                    await request.getAll(query, params);
                 }
             } catch (e) {
                 reject(e)
             }
 
         }))
+    }
+
+    async delete(clazz, {keys, query, ...params} = {}) {
+        console.debug(`[${ClientStorage.name}]:`, clazz.name, "delete", {keys, query, params})
+
+        return new Promise(async resolve => {
+            const request = await this.storeRequest(clazz, params || {});
+
+            if (keys) {
+                for (let key of keys) {
+                    await request.delete(key);
+                    console.info(clazz.name + " deleted: ", key)
+                }
+                resolve(true);
+            } else {
+                await request.deleteAll(params);
+                console.info(clazz.name + " deleted all")
+                resolve(true);
+            }
+
+        })
     }
 
     async load(clazz) {

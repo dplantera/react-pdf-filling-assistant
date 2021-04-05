@@ -1,7 +1,8 @@
 import React, {createContext} from 'react';
-import {basicReducer} from "../reducer/BasicReducer";
+import {BasicReducer} from "../reducer/BasicReducer";
 
 const initialState = [];
+const basicReducer = new BasicReducer().reducer
 const FormFieldsProvider = ({children}) => {
     const [state, dispatch] = React.useReducer(basicReducer, initialState)
     return (

@@ -26,7 +26,9 @@ const FormActionProvider = ({children, pdfClient}) => {
 
     const [callback, dispatch] = React.useReducer(combinedReducer, noop)
 
-    const updatePdfs = useCallback((pdf) => dispatchPdfs(actions(Pdf).updateAll(pdf)), [dispatchPdfs]);
+    const updatePdfs = useCallback((pdf) => {
+        dispatchPdfs(actions(Pdf).updateAll(pdf));
+    }, [dispatchPdfs]);
     const updateFieldLists = useCallback((fieldLists) => dispatchFieldLists(actions(FieldList).updateAll(fieldLists)), [dispatchFieldLists]);
     const updateFieldList = useCallback((fieldList) => dispatchFieldLists(actions(FieldList).updateOne(fieldList)), [dispatchFieldLists]);
     const addFields = useCallback((fields) => dispatchFields(actions(Field).addAll(fields)), [dispatchFields]);
@@ -46,13 +48,6 @@ const FormActionProvider = ({children, pdfClient}) => {
     */
     // execute callbacks from domainReducer
     useEffect(callback, [callback])
-    // update variable reference in FieldLIsts
-    useEffect(() => {
-        const idxSelectedList = fieldLists.findIndex(list => list.isSelected);
-        if (idxSelectedList === -1)
-            return;
-        updateFieldList({index: idxSelectedList, fields})
-    }, [fields, fieldLists, updateFieldList])
 
     /*
     * Init Effects
@@ -76,6 +71,7 @@ const FormActionProvider = ({children, pdfClient}) => {
         <FormActionsContext.Provider value={ {
             state: {fieldLists, fields, variables, pdfs},
             updateFieldLists,
+            updateFieldList,
             addFields,
             updateFields,
             updateField,

@@ -26,7 +26,8 @@ class CsvDownload {
     download(rows, fileName, {settings = this.settings} = {}){
         let csvContent = rows.map(e => e.join(settings.separator)).join("\n");
         let universalBOM = "\uFEFF";
-        this.downloadMethod.download(universalBOM + csvContent, fileName + ".csv");
+        const fileNameTarget = fileName.endsWith(".csv")? fileName: fileName + ".csv";
+        this.downloadMethod.download(universalBOM + csvContent, fileNameTarget);
     }
 }
 
