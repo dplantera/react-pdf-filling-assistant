@@ -8,11 +8,15 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {useTheme} from '@material-ui/core/styles';
 import {Typography} from "@material-ui/core";
 import {ClientUpload} from "../../../utils/ClientUpload";
+import {Pdf} from "../../../model/types";
+import {useFormActions} from "../../hooks/FormActionContext";
+
 
 export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const {updatePdf} = useFormActions();
 
     const clientUpload = new ClientUpload();
     const pdfDrop = () => {
@@ -31,6 +35,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setIsPdfReady(false);
         clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
             loadPdf({data: uint8, filename: fileName})
+            updatePdf(Pdf(fileName, uint8));
         })
         handleClose();
     };

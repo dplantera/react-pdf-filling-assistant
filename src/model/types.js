@@ -1,10 +1,11 @@
 /*
         Entities
  */
-export const Pdf = (name, refPdf) => {
+export const Pdf = (name, binary) => {
     return {
+        id: 1,
         name,
-        refPdf
+        binary
     }
 }
 

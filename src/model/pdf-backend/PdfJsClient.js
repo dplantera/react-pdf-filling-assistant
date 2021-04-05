@@ -35,24 +35,24 @@ export default class PdfJsClient {
         return this.viewer.eventBus.off.bind(this.viewer.eventBus)
     }
 
-    async init({viewerDiv, initialPdf}) {
+    async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
         if (this.isInitialized) {
             console.log("pdfclient already initialized");
             return this;
         }
 
         this.viewerDiv = viewerDiv;
-        this.urlPath = initialPdf;
-        this.filename = initialPdf.split("/").reverse()[0]
+        this.urlPath = url || path;
+        this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
         const iframe = document.createElement('iframe')
         // using the default viewer for rendering
-        iframe.src = `/pdfjs-2.6.347-dist/web/viewer.html?file=${this.urlPath}`;
+        iframe.src = `/pdfjs-2.6.347-dist/web/viewer.html`;
         iframe.width = '100%';
         iframe.height = '100%';
         this.viewerDiv.current.appendChild(iframe);
         this._iframe = iframe;
 
-        await this.loadPdf({url: this.urlPath})
+        await this.loadPdf({url: this.urlPath, data, fileName})
         console.log("pdfjs backend initialized")
         return this;
     }

@@ -12,7 +12,7 @@ export const formReducer = (state, action, states) => {
                 return noop;
             }
 
-            currentField.variable = variable;
+            currentField.variable = variable.id;
             currentField.description = currentField.description || variable.description;
             currentField.value = variable.value;
 

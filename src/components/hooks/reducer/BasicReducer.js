@@ -1,16 +1,20 @@
 import {actionTypes} from "../actions";
 import {ClientStorage} from "../../../utils/ClientStorage";
 
-const storage = new ClientStorage();
+const storage =  ClientStorage.instance;
 export const basicReducer = (state, action) => {
     console.log("basicReducer", action.type, action.payload)
+    const context = action.context;
+    const dbParams = {
+        onerror: () => console.error("storing: ", context.name),
+        onsuccess: () => console.info("stored: ", context.name),
+    }
     switch (action.type) {
         case actionTypes.updateAll: {
             console.log("payload", action)
-            const context = action.context;
             const newState = [...action.payload];
             if(context) {
-                storage.storeObject(context, newState).then(() => console.log(`stored ${context.name}`));
+                storage.updateObject(context, newState, dbParams);
             }
             return newState
         }
@@ -22,7 +26,7 @@ export const basicReducer = (state, action) => {
             const newState = [...state, ...elements];
             const context = action.context;
             if(context) {
-                storage.storeObject(context, newState).then(() => console.log(`stored ${context.name}`));
+                storage.storeObject(context, newState, dbParams);
             }
             return newState;
         }
@@ -32,13 +36,20 @@ export const basicReducer = (state, action) => {
                 console.warn("no element provided")
             const index = element.index ?? state.findIndex(f => f.id === element.id);
             const prevField = state[index];
-            state[element.index] = {...prevField, ...element};
+            let newField = {...prevField, ...element};
+            state[element.index] = newField;
+            if(context) {
+                storage.updateObject(context, newField, dbParams);
+            }
             return state;
         }
         case actionTypes.addOne: {
             const variable = action.payload;
             if(!variable)
                 console.warn("no variable provided")
+            if(context) {
+                storage.storeObject(context, variable, dbParams);
+            }
             return [...state, variable];
         }
         default: {

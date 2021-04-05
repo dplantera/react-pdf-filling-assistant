@@ -5,9 +5,10 @@ import {ClientDownload} from "../../../../utils/ClientDownload";
 import {useFormActions} from "../../../hooks/FormActionContext";
 
 const downloadClient = new ClientDownload();
-const downloadCsv = (e, fieldList) => {
+const downloadCsv = (e, fieldList, variables) => {
     const rows = fieldList.fields.map(field => {
-        let value = field.variable ? field.variable.value : field.value || "";
+        const getVariable = (field) => variables.find( v => v.id === field.variable);
+        let value = field.variable ? getVariable(field)?.value: field.value || "";
         value = value.replace(/\r?\n|\r/g, '');
         return [field.name, value, field.description]
     })
@@ -15,7 +16,7 @@ const downloadCsv = (e, fieldList) => {
 }
 
 const FormListControls = () => {
-    const {state: {fieldLists} } = useFormActions();
+    const {state: {fieldLists, variables} } = useFormActions();
 
     return (
         <div className={"field-list-controls"} style={{
@@ -36,7 +37,7 @@ const FormListControls = () => {
                                    fieldList.name = e.currentTarget.value;
                                }}/>
                     <Button size={"small"} style={{height: "50%"}}
-                            onClick={(e) => downloadCsv(e, fieldList)}>Download</Button>
+                            onClick={(e) => downloadCsv(e, fieldList, variables)}>Download</Button>
                 </div>
             })}
             <VariablesIO />
