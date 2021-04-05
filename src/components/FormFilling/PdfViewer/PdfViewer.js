@@ -1,14 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
 import UploadPdf from "./UploadPdf";
-import {ClientUpload} from "../../../utils/ClientUpload";
-import {Pdf} from "../../../model/types";
-import {ClientStorage} from "../../../utils/ClientStorage";
 import {useFormActions} from "../../hooks/FormActionContext";
 
-const clientUpload = new ClientUpload();
-const storage = ClientStorage.instance;
+
 const PdfViewer = ({pdfClient, setIsPdfReady}) => {
-    const {updatePdf} = useFormActions();
+    const {state: {pdfs}} = useFormActions();
     const [viewerInstance, setViewerInstance] = useState(null)
     const viewerDiv = useRef(null)
 
@@ -17,8 +13,8 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
             console.log("pdf viewer already initialized")
             return
         }
-        const initPdf = (data, fileName) => {
-            pdfClient.init({viewerDiv, data, fileName})
+        const initPdf = (fileName, data) => {
+            pdfClient.init({viewerDiv, fileName, data})
                 .then(pdfClient => {
                     setViewerInstance(pdfClient);
                     pdfClient.on("documentinit", async () => {
@@ -27,31 +23,9 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
                     })
                 })
         }
-
-        const loadInitialPdf = async () => {
-            const loadDefault = () => {
-                clientUpload.forStaticFile
-                    .uploadAsUint8('/files/form2.pdf')
-                    .then(([data, fileName]) => {
-                        console.info("loading default pdf ", fileName);
-                        initPdf(data, fileName);
-                        updatePdf(Pdf(fileName, data));
-                    })
-            }
-            try {
-                const pdfs = await storage.get(Pdf, {keys: [1]});
-                if(!pdfs[0].binary)
-                    loadDefault();
-                else
-                    initPdf(pdfs[0].binary, pdfs[0].name)
-            } catch (error) {
-                console.log(error)
-                loadDefault();
-            }
-        }
-        loadInitialPdf().then(() => console.log("initial pdf loaded..."))
-
-    }, [pdfClient, setIsPdfReady, viewerInstance, updatePdf])
+        if (pdfs?.length > 0)
+            initPdf(pdfs[0].name, pdfs[0].binary)
+    }, [pdfs, pdfClient, setIsPdfReady, viewerInstance])
 
     return (
         <div id="viewerContainer" style={{

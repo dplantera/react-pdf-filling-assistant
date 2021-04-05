@@ -16,7 +16,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const {updatePdf} = useFormActions();
+    const {updatePdfs} = useFormActions();
 
     const clientUpload = new ClientUpload();
     const pdfDrop = () => {
@@ -35,7 +35,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setIsPdfReady(false);
         clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
             loadPdf({data: uint8, filename: fileName})
-            updatePdf(Pdf(fileName, uint8));
+            updatePdfs([Pdf(fileName, uint8)]);
         })
         handleClose();
     };

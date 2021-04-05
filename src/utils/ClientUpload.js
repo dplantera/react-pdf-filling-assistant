@@ -50,6 +50,14 @@ class FetchUpload {
             })
         }))
     }
+
+    uploadAsJson(path){
+        return new Promise((resolve, reject) => {
+            fetch("/variables.json").catch(reject)
+                .then(result => result.json()).catch(reject)
+                .then(resolve).catch(reject)
+        })
+    }
 }
 
 class FilePickerUpload {

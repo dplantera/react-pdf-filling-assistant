@@ -34,7 +34,13 @@ export const basicReducer = (state, action) => {
             const element = action.payload;
             if(!element)
                 console.warn("no element provided")
-            const index = element.index ?? state.findIndex(f => f.id === element.id);
+            let index = element.index ?? state.findIndex(f => f.id === element.id);
+            // if state is empty - add it
+            if(index < 0)
+                console.warn("element not found")
+            if(index < 0 && state.size < 1)
+                index = 0
+
             const prevField = state[index];
             let newField = {...prevField, ...element};
             state[element.index] = newField;

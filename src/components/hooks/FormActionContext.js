@@ -3,7 +3,7 @@ import {useFieldLists} from "./contextWithState/FieldListsContext";
 import {useFormVariables} from "./contextWithState/VariableContext";
 import {useFormFields} from "./contextWithState/FormFieldsContext";
 import {formReducer} from "./reducer/DomainReducer";
-import {actions, initializeFormVariables, initializePdfFormFields, noop} from "./actions";
+import {actions, initializeFormVariables, initializePdf, initializePdfFormFields, noop} from "./actions";
 import {Field, FieldList, FormVariable, Pdf} from "../../model/types";
 import {usePdf} from "./contextWithState/PdfContext";
 
@@ -11,7 +11,7 @@ const FormActionProvider = ({children, pdfClient}) => {
     const [fieldLists, dispatchFieldLists] = useFieldLists();
     const [fields, dispatchFields] = useFormFields();
     const [variables, dispatchVars] = useFormVariables();
-    const [uint8Pdf, dispatchUint8Pdf] = usePdf();
+    const [pdfs, dispatchPdfs] = usePdf();
 
     const combinedReducer = useCallback((state, action) => {
         return formReducer(state, action, {
@@ -26,7 +26,7 @@ const FormActionProvider = ({children, pdfClient}) => {
 
     const [callback, dispatch] = React.useReducer(combinedReducer, noop)
 
-    const updatePdf = useCallback((pdf) => dispatchUint8Pdf(actions(Pdf).updateOne(pdf)), [dispatchUint8Pdf]);
+    const updatePdfs = useCallback((pdf) => dispatchPdfs(actions(Pdf).updateAll(pdf)), [dispatchPdfs]);
     const updateFieldLists = useCallback((fieldLists) => dispatchFieldLists(actions(FieldList).updateAll(fieldLists)), [dispatchFieldLists]);
     const updateFieldList = useCallback((fieldList) => dispatchFieldLists(actions(FieldList).updateOne(fieldList)), [dispatchFieldLists]);
     const addFields = useCallback((fields) => dispatchFields(actions(Field).addAll(fields)), [dispatchFields]);
@@ -62,16 +62,19 @@ const FormActionProvider = ({children, pdfClient}) => {
         initializePdfFormFields(props);
     }, [pdfClient, updateFieldLists, updateFields])
 
-
     useEffect(() => {
         initializeFormVariables(updateVariables);
     }, [updateVariables]);
+
+    useEffect(() => {
+        initializePdf(updatePdfs);
+    }, [updatePdfs]);
 
 
     console.log("rendering actions...")
     return (
         <FormActionsContext.Provider value={ {
-            state: {fieldLists, fields, variables, uint8Pdf},
+            state: {fieldLists, fields, variables, pdfs},
             updateFieldLists,
             addFields,
             updateFields,
@@ -80,7 +83,7 @@ const FormActionProvider = ({children, pdfClient}) => {
             updateVariables,
             addVariable,
             addVariableToField,
-            updatePdf,
+            updatePdfs,
             dispatch
         }}>
             {children}
