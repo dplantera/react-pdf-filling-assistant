@@ -5,6 +5,7 @@ const filterFunctions = (object) => {
         return acc;
     }, {})
 }
+
 function transform(clazz, value) {
     const domainObject = clazz();
     return {...domainObject, ...value}
@@ -183,19 +184,33 @@ export class ClientStorage {
         }
     }
 
-    async storeObject(clazz, value, params) {
-        console.debug(`[${ClientStorage.name}]:`, clazz.name, "storeObject", {value, params})
+    async add(clazz, value, params) {
+        return new Promise(async (resolve, reject) => {
+            let request = await this.storeRequest(clazz, params);
+            request.onerror = (e) => {
+                if (params?.onerror) params.onerror(e)
+                reject(e);
+            }
+            request.onsuccess = (e) => {
+                if (params?.onsuccess) params.onsuccess(e)
+            }
+            await request.add(value);
+            resolve()
+        })
 
-        const request = await this.storeRequest(clazz, params);
-        if (Array.isArray(value))
-            value.map(async val => {
+    }
+
+    async storeObject(clazz, value, params) {
+        console.debug(`[${ClientStorage.__instance.constructor.name}]:`, clazz.name, "storeObject", {value, params})
+
+        if (Array.isArray(value)) {
+            for (let val of value) {
                 const filtered = filterFunctions(val);
-                await request.add(filtered);
-                return filtered;
-            })
-        else {
-            const filtered = filterFunctions(value);
-            await request.add(filtered)
+                await this.add(clazz, filtered, params)
+                console.log("storing: ", {filtered, val})
+            }
+        } else {
+            await this.add(clazz, filterFunctions(value) , params)
         }
     }
 
