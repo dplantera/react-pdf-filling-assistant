@@ -4,11 +4,14 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",
+    "@material-ui/data-grid": "^4.0.0-alpha.23",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "pdfjs-dist": "^2.6.347",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-scripts": "^4.0.3"
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "fs-extra": "^7.0.1"

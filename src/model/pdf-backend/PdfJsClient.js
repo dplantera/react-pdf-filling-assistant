@@ -1,4 +1,4 @@
-import {Field} from "./model";
+import {Field} from "../types";
 
 const pdfjsLib = require('pdfjs-dist')
 
@@ -17,6 +17,10 @@ export default class PdfJsClient {
         this.pdf = null;
         this.pdfMeta = null;
         this.pages = null;
+        this.isReady = false;
+        this.isInitialized = false;
+        this.onReload = () => {
+        };
     }
 
     get viewer() {
@@ -31,19 +35,24 @@ export default class PdfJsClient {
         return this.viewer.eventBus.off.bind(this.viewer.eventBus)
     }
 
-    async init({viewerDiv, initialPdf}) {
+    async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
+        if (this.isInitialized) {
+            console.log("pdfclient already initialized");
+            return this;
+        }
+
         this.viewerDiv = viewerDiv;
-        this.urlPath = initialPdf;
-        this.filename = initialPdf.split("/").reverse()[0]
+        this.urlPath = url || path;
+        this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
         const iframe = document.createElement('iframe')
         // using the default viewer for rendering
-        iframe.src = `/pdfjs-2.6.347-dist/web/viewer.html?file=${this.urlPath}`;
+        iframe.src = `/pdfjs-2.6.347-dist/web/viewer.html`;
         iframe.width = '100%';
         iframe.height = '100%';
         this.viewerDiv.current.appendChild(iframe);
         this._iframe = iframe;
 
-        await this.loadPdf({url: this.urlPath})
+        await this.loadPdf({url: this.urlPath, data, fileName})
         console.log("pdfjs backend initialized")
         return this;
     }
@@ -67,7 +76,7 @@ export default class PdfJsClient {
         const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
         console.log({
             PDFFormatVersion, IsAcroFormPresent, Title,
-            docId: pdfMeta.metadata? pdfMeta.metadata.get("xmpmm:documentid"): "", pages: pdf._pdfInfo.numPages,
+            docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
             ...pdfMeta.metadata, all_meta: pdfMeta
         })
 
@@ -79,7 +88,12 @@ export default class PdfJsClient {
         if (data) urlPathOrBins = new Uint8Array(data)
         else if (url) urlPathOrBins = url;
 
+        if(!this.viewer) {
+            console.warn("viewer not ready");
+            return urlPathOrBins;
+        }
         await this.viewer.open(urlPathOrBins)
+        return urlPathOrBins;
     }
 
     cleanUpExternListeners(listener) {
@@ -133,8 +147,8 @@ export default class PdfJsClient {
     }
 
     selectField(field) {
-        const doSelectField = (field) => {
-            const el = this.getElement(field);
+        const doSelectField = (fieldName) => {
+            const el = this.getElement(fieldName);
             el.style.backgroundColor = "yellow";
             el.scrollIntoView({
                 behavior: 'auto',
@@ -142,27 +156,30 @@ export default class PdfJsClient {
                 inline: 'center'
             });
         }
-
-        if (this.viewer.page === field.location.pageNum) {
-            doSelectField(field);
+        const fieldName = field.name ?? field;
+        let fieldPageNum = field.location.pageNum;
+        if (this.viewer.page === fieldPageNum) {
+            doSelectField(fieldName);
         } else {
-            this.goToPage(field.location.pageNum, (e) => {
-                doSelectField(field)
+            this.goToPage(fieldPageNum, (e) => {
+                doSelectField(fieldName)
             });
         }
     }
 
     getElement(field) {
-        let elements = this._iframe.contentDocument.getElementsByName(field.name);
+        const fieldName = field.name ?? field;
+        let elements = this._iframe.contentDocument.getElementsByName(fieldName);
         if (!elements || elements.length < 1) {
-            console.error("select field failed for: ", field)
+            console.error("select field failed for: ", fieldName)
             return document.createElement("div")
         }
         return elements[0].parentNode;
     }
 
     unselectField(field) {
-        const el = this.getElement(field)
+        const fieldName = field.name ?? field;
+        const el = this.getElement(fieldName);
         if (!el) return
         el.style.backgroundColor = "";
     }

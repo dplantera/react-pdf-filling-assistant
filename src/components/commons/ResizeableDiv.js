@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=50, overflow = "hide", width}) => {
+const ResizeableDiv = ({children, minWidth = 10, maxWidth = 100, defaultWidth=50, overflow = "hide", width}) => {
     const classes = useStyles();
     const [drawerWidth, setDrawerWidth] = React.useState(defaultWidth);
     const cardRef = useRef(null)
@@ -68,4 +68,4 @@ const ResizeableCard = ({children, minWidth = 10, maxWidth = 100, defaultWidth=5
     );
 }
 
-export default ResizeableCard;
+export default ResizeableDiv;

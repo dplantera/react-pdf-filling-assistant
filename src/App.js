@@ -1,65 +1,30 @@
-import React, {useState} from 'react';
+import React from 'react';
+import {Link, Route, Switch} from 'react-router-dom';
+import {AppBar, Button, List, Toolbar, Typography} from "@material-ui/core";
 import './App.css';
-import {AppBar, CircularProgress, Toolbar, Typography} from "@material-ui/core";
-import UploadPdf from "./components/UploadPdf";
-import PdfViewer from "./components/PdfViewer";
-import FormFieldList from "./components/FormFieldList";
-import PdfJsClient from "./pdf-backend/PdfJsClient";
+import FormFillingMain from "./components/FormFilling/FormFillingMain";
+import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
 
-const pdfClient = new PdfJsClient();
 
 const App = () => {
-        const [isPdfReady, setIsPdfReady] = useState(false);
-        const [fields, setFields] = useState([]);
-        const [fieldLists, setFieldLists] = useState([]);
-
-        const highlightFormField = (e, field) => {
-            pdfClient.selectField(field)
-        }
-
-        const resetHighlightFormField = (e, field) => {
-            pdfClient.unselectField(field)
-        }
-
-        const renderSpinner = () => {
-            return <div style={{
-                position: "absolute", display: "flex", width: "100vw", height: "100vh", alignItems: "center",
-                justifyContent: "center",
-            }}>
-                <div className={"spinner-background"} style={{
-                    position: "absolute", width: "100vw", height: "100vh", backgroundColor: "gray", opacity: "40%"
-                }}/>
-                <CircularProgress/>
-            </div>;
-        }
-
-        return (
+        return <main>
             <div className="App">
                 <AppBar position="static">
                     <Toolbar style={{display: "flex", justifyContent: "space-between"}}>
-                        <Typography variant="h5">PDF Filling Assistant</Typography>
-                        <UploadPdf loadPdf={pdfClient.loadPdf.bind(pdfClient)} setIsPdfReady={setIsPdfReady}/>
+                        <Typography variant="h5">PDF Form Assistant</Typography>
+                        <List>
+                            <Button component={Link} to={"/"} style={{textDecoration: 'none', color: "white"}}
+                            >PDF befüllen</Button>
+                            <Button component={Link} to={"/variables"} style={{color: "white"}}>Variablen</Button>
+                        </List>
                     </Toolbar>
                 </AppBar>
-                <div className={"flex-container"}
-                     style={{position: "relative", display: "flex", width: "100%", height: "94%"}}>
-
-                    <FormFieldList highlightFormField={highlightFormField}
-                                   resetHighlightFormField={resetHighlightFormField}
-                                   fieldLists={fieldLists}
-                                   fields={fields}
-                                   setFields={setFields}
-                    />
-                    <PdfViewer
-                        setIsPdfReady={setIsPdfReady}
-                        pdfClient={pdfClient}
-                        setFields={setFields}
-                        setFieldLists={setFieldLists}
-                    />
-                </div>
-                {!isPdfReady && renderSpinner()}
+                <Switch>
+                        <Route path="/" component={props => <FormFillingMain {...props} />} exact/>
+                        <Route path="/variables" component={props => <FormVariablesMain {...props} />} exact/>
+                </Switch>
             </div>
-        );
+        </main>
     }
 ;
 

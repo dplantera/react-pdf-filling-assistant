@@ -7,12 +7,16 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {useTheme} from '@material-ui/core/styles';
 import {Typography} from "@material-ui/core";
-import {ClientUpload} from "../utils/ClientUpload";
+import {ClientUpload} from "../../../utils/ClientUpload";
+import {Pdf} from "../../../model/types";
+import {useFormActions} from "../../hooks/FormActionContext";
+
 
 export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const {updatePdfs} = useFormActions();
 
     const clientUpload = new ClientUpload();
     const pdfDrop = () => {
@@ -28,15 +32,17 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
     };
 
     const handleOpenFile = (e) => {
+        setIsPdfReady(false);
         clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
             loadPdf({data: uint8, filename: fileName})
+            updatePdfs([Pdf(fileName, uint8)]);
         })
         handleClose();
     };
 
     return (
         <div>
-            <Button variant="contained" onClick={handleClickOpen}>
+            <Button variant="contained" onClick={handleClickOpen} style={{position: "relative", width: "100%"}}>
                 Upload PDF
             </Button>
             <Dialog
