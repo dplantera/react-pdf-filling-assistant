@@ -8,16 +8,18 @@ const downloadClient = new ClientDownload();
 const downloadCsv = (e, fieldList, variables, fields) => {
     const fieldsInList = fields.filter(field => field.fieldListId === fieldList.id);
     const rows = fieldsInList.map(field => {
-        const getVariable = (field) => variables.find( v => v.id === field.variable);
-        let value = field.variable ? getVariable(field)?.value: field.value || "";
+        const getVariable = (field) => variables.find(v => v.id === field.variable);
+        let value = field.variable ? getVariable(field)?.value : field.value || "";
         value = value.replace(/\r?\n|\r/g, '');
         return [field.name, value, field.description]
     })
-    downloadClient.forCsv.download(rows, fieldList.name);
+    downloadClient.forCsv
+        .changeSettings({useBOM:true})
+        .download(rows, fieldList.name);
 }
 
 const FormListControls = () => {
-    const {state: {fieldLists, variables, fields}, updateFieldList } = useFormActions();
+    const {state: {fieldLists, variables, fields}, updateFieldList} = useFormActions();
 
     const handleDownloadPdf = useCallback((e, index) => {
         downloadCsv(e, fieldLists[index], variables, fields)
@@ -40,13 +42,13 @@ const FormListControls = () => {
                                fullWidth={true}
                                onBlur={(e) => {
                                    fieldList.name = e.currentTarget.value;
-                                   updateFieldList({index, name:e.currentTarget.value})
+                                   updateFieldList({index, name: e.currentTarget.value})
                                }}/>
                     <Button size={"small"} style={{height: "50%"}}
                             onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
                 </div>
             })}
-            <VariablesIO />
+            <VariablesIO/>
         </div>
     );
 };

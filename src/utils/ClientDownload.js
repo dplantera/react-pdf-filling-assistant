@@ -1,36 +1,73 @@
 class LinkDownload {
-    constructor(settings) {
-        this.settings = {...{dataType: "text/csv", encoding: "utf-8"}, ...settings}
-        this.dataMetaString = `data:${this.settings.dataType};charset=${this.settings.dataType},`;
+    static get SETTINGS_DEFAULT() {
+        return {dataType: "text/plain", encoding: "utf-8", useBOM: false};
     }
 
-    download(data, fileName){
-        const blob = new Blob([data], { type: this.dataMetaString });
+    constructor(settings = LinkDownload.SETTINGS_DEFAULT) {
+        this.changeSettings(settings);
+        this.settings = settings;
+    }
+
+    download(data, fileName) {
+        const blob = new Blob([data], {type: this.dataMetaString});
         const encodedUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.setAttribute("href",  encodedUrl);
+        console.log({encodedUrl, settings: this.settings, metaString: this.dataMetaString})
+        link.setAttribute("href", encodedUrl);
         link.setAttribute("download", fileName);
         document.body.appendChild(link); // Required for FF
         link.click();// Required for FF
         link.remove();
     }
+
+    get dataMetaString() {
+        return `data:${this.settings.dataType};charset=${this.settings.encoding},`;
+    }
+
+    changeSettings(settings = {}) {
+        if (!this.settings)
+            this.settings = LinkDownload.SETTINGS_DEFAULT;
+
+        const newSettings = {
+            ...this.settings,
+            ...settings
+        }
+        this.settings = newSettings;
+        return this;
+    }
 }
 
 class CsvDownload {
-    constructor() {
-        this.separator_default = ";";
-        this.settings = {separator: this.separator_default};
-        this.downloadMethod = new LinkDownload();
+    static get SETTINGS_DEFAULT() {
+        return {separator: ";", useBOM: false, dataType: "text/csv"};
     }
 
-    download(rows, fileName, {settings = this.settings} = {}){
+    constructor(settings = CsvDownload.SETTINGS_DEFAULT) {
+        this.settings = settings;
+        this.downloadMethod = new LinkDownload(settings);
+    }
+
+    changeSettings(settings = {}) {
+        const newSettings = {
+            ...this.settings,
+            ...settings
+        }
+        this.settings = newSettings;
+        this.downloadMethod.changeSettings(this.settings)
+        return this;
+    }
+
+    download(rows, fileName, {settings = this.settings} = {}) {
         let csvContent = rows.map(e => e.join(settings.separator)).join("\n");
-        let universalBOM = "\uFEFF";
-        const fileNameTarget = fileName.endsWith(".csv")? fileName: fileName + ".csv";
+        let universalBOM = this.settings.useBOM ? "\uFEFF" : "";
+        const fileNameTarget = fileName.endsWith(".csv") ? fileName : fileName + ".csv";
         this.downloadMethod.download(universalBOM + csvContent, fileNameTarget);
+        return this;
     }
 }
 
 export class ClientDownload {
-    get forCsv () { return new CsvDownload()}
+    get forCsv() {
+        return new CsvDownload()
+    }
 }
