@@ -41,12 +41,6 @@ export const FormVariable = (name, value, description, exampleValue) => {
         exampleValue: exampleValue || ""
     };
 
-    formVariable.isEqual = (other) => {
-        if (!other) return false;
-
-        return formVariable.id === other.id || formVariable.value === other.value;
-    }
-
     return formVariable
 }
 

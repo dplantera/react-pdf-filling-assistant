@@ -1,6 +1,6 @@
-import {dbSchemaMap, Field, FieldList, FormVariable, Pdf} from "../../model/types";
+import {Field, FieldList, FormVariable, Pdf} from "../../model/types";
 import {ClientUpload} from "../../utils/ClientUpload";
-import {ClientStorage} from "../../utils/ClientStorage";
+import {getRepository} from "../../utils/ClientStorage";
 
 export const actionTypes = {
     addAll: "ADD_ALL",
@@ -34,7 +34,11 @@ export const actions = (context) => {
 }
 
 const clientUpload = new ClientUpload();
-const storage = ClientStorage.instance.setSchemaMap(dbSchemaMap);
+
+const pdfRepo = getRepository(Pdf);
+const fieldListRepo = getRepository(FieldList);
+const fieldRepo = getRepository(Field);
+const formVariableRepo = getRepository(FormVariable);
 
 export function initializePdfFormFields({pdfClient, updateFieldLists, updateFields}) {
     pdfClient.onReload = async () => {
@@ -44,23 +48,24 @@ export function initializePdfFormFields({pdfClient, updateFieldLists, updateFiel
                 try {
                     console.log("pdf initialised...");
                     // get current pdf id
-                    const pdfs = await storage.get(Pdf);
+                    // const pdfs = await storage.get(Pdf);
+                    const pdfs = await pdfRepo.getAll();
                     const currentPdf = pdfs[0];
                     // get fieldlist by current pdf id
-                    const fieldLists = await storage.get(FieldList, {keys: [currentPdf.id], useIndex: "pdfId"});
+                    const fieldLists = await fieldListRepo.getByIndex({pdfId: currentPdf.id});
                     console.log({fieldLists, pdfId: currentPdf.id})
                     let selectedList = fieldLists[0];
-                    if(fieldLists.length > 1)
+                    if (fieldLists.length > 1)
                         selectedList = fieldLists.find(list => list.isSelected);
-                    else if(!selectedList.isSelected)
+                    else if (!selectedList.isSelected)
                         selectedList.isSelected = true;
 
-                    if(!selectedList?.pdfId){
+                    if (!selectedList?.pdfId) {
                         console.error("...no field list found: ", {selectedList})
                         resolve(false);
                     }
                     // get fields by id [rawFieldName, fieldListId]
-                    const fieldsFromDb = await storage.get(Field, {keys: [selectedList.id], useIndex: "fieldListId"})
+                    const fieldsFromDb = await fieldRepo.getByIndex( {fieldListId: selectedList.id})
                     console.log("...loaded fields DB: ", {
                         fields: fieldsFromDb,
                         pdfs,
@@ -90,12 +95,12 @@ export function initializePdfFormFields({pdfClient, updateFieldLists, updateFiel
 
         const initField = async () => {
             console.log("loading inital fields")
-            const pdfs = await storage.get(Pdf);
+            const pdfs = await pdfRepo.getAll();
             const currentPdf = pdfs[0];
 
             // todo: handle accordingly when supporting multiple pdfs
-            await storage.delete(FieldList);
-            await storage.delete(Field);
+            await fieldListRepo.deleteAll();
+            await fieldRepo.deleteAll();
 
             const fieldList = FieldList(pdfClient.getPdfName(), currentPdf?.id);
             fieldList.isSelected = true;
@@ -123,7 +128,7 @@ export function initializePdf(updatePdfs) {
                 })
         }
         try {
-            const pdfs = await storage.get(Pdf);
+            const pdfs = await pdfRepo.getAll();
             if (!pdfs[0].binary)
                 loadDefault();
             else
@@ -162,7 +167,7 @@ export function initializeFormVariables(updateVariables) {
     }
     const loadVariablesFromDb = async () => {
         return new Promise(resolve => {
-            const vars = storage.get(FormVariable);
+            const vars = formVariableRepo.getAll();
             resolve(vars);
         })
     }
