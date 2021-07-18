@@ -1,9 +1,8 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
-import {ClientStorage} from "../../utils/ClientStorage";
+import {getRepository} from "../../utils/ClientStorage";
 import {FormVariable} from "../../model/types";
 
-const storage = ClientStorage.instance;
 const defaultColums = [
     {field: 'id', headerName: 'ID', width: 70,},
     {field: 'name', headerName: 'Name', width: 130, description: 'Name der Variable'},
@@ -66,7 +65,7 @@ const FormVariablesList = () => {
         }, [setColumns, columnsRef], )
 
     useEffect(() => {
-        storage.load(FormVariable)
+        getRepository(FormVariable).getAll()
             .then(vars => {
                 vars.map(varr => {
                     console.log(varr.exampleValue, varr.exampleValue.length)

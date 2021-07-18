@@ -1,8 +1,7 @@
 import {actionTypes} from "../actions";
-import {ClientStorage} from "../../../utils/ClientStorage";
+import {getRepository} from "../../../utils/ClientStorage";
 import {dbSchema} from "../../../model/types";
 
-const storage = ClientStorage.instance;
 
 export class BasicReducer {
     get reducer() {
@@ -46,7 +45,7 @@ export class BasicReducer {
         const context = action.context;
         const newState = [...action.payload];
         if (context) {
-            storage.updateObject(context, newState, this.dbParams(action));
+            getRepository(action.context).updateAll(newState)
         }
         return newState
     }
@@ -59,7 +58,7 @@ export class BasicReducer {
         const newState = [...state, ...elements];
         const context = action.context;
         if (context) {
-            storage.storeObject(context, newState, this.dbParams(action));
+            getRepository(action.context).createAll(newState)
         }
         return newState;
     }
@@ -69,7 +68,7 @@ export class BasicReducer {
         if (!variable)
             console.warn("no variable provided")
         if (action.context) {
-            storage.storeObject(action.context, variable, this.dbParams(action));
+            getRepository(action.context).create(variable)
         }
         return [...state, variable];
     }
@@ -89,7 +88,7 @@ export class BasicReducer {
         let newField = {...prevField, ...element};
         state[element.index] = newField;
         if (action.context) {
-            storage.updateObject(action.context, newField, this.dbParams(action));
+            getRepository(action.context).update(newField);
         }
         return state;
     }
