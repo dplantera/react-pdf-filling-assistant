@@ -57,7 +57,11 @@ export default function UploadVariables({formVariables, addVariables}) {
         const overwritten = [];
         const newVariables = [];
         vars.forEach(varCandidate => {
-            const idxExisting = formVariables.findIndex(existVar => existVar.isEqual(varCandidate));
+            const isEqual = (candidate, other) => {
+                if (!other) return false;
+                return candidate.id === other.id || candidate.value === other.value;
+            }
+            const idxExisting = formVariables.findIndex(existVar => isEqual(varCandidate, existVar));
             if (idxExisting === -1) {
                 newVariables.push(varCandidate);
             } else if (overwriteExisting) {
