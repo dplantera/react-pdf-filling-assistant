@@ -4,14 +4,22 @@ import FormItemsControls from "./Controls/FormItemsControls";
 import FormListControls from "./Controls/FormListControls";
 import NewVariableDialog from "./NewVariableDialog";
 import {useAddVariable} from "../../hooks/contextWithState/AddVariableContext";
-import {useFormActions} from "../../hooks/FormActionContext";
+import {useStore} from "../../../store";
+
+const storeSelector = (state) => ({
+    variables: state.variables,
+    fields: state.fields,
+    updateField: state.updateField,
+    addVariableToField: state.addVariableToField
+})
 
 const FormFieldList = memo((
     {
         pdfClient,
     }
 ) => {
-    const {state: {fields, variables}, updateField, addVariableToField} = useFormActions();
+    const {variables, fields, updateField , addVariableToField} = useStore(storeSelector);
+
     const {openVariableDialog} = useAddVariable();
     const [widthFormField, setWidthFormField] = useState(50);
 

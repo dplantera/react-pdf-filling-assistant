@@ -7,10 +7,11 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import {FormVariable} from "../../../model/types";
 import {useAddVariable} from "../../hooks/contextWithState/AddVariableContext";
-import {useFormActions} from "../../hooks/FormActionContext";
+import {useStore} from "../../../store";
 
 const NewVariableDialog = () => {
-    const {addVariable} = useFormActions();
+    const addVariable = useStore(state => state.addVariable)
+
     const {openDialog, setOpenDialog, newValue, setNewValue} = useAddVariable();
     const [dialogValue, setDialogValue] = useState(newValue);
 

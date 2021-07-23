@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import VariablesIO from "./VariablesIO";
 import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
-import {useFormActions} from "../../../hooks/FormActionContext";
+import {useStore} from "../../../../store";
 
 const downloadClient = new ClientDownload();
 const downloadCsv = (e, fieldList, variables, fields) => {
@@ -19,7 +19,9 @@ const downloadCsv = (e, fieldList, variables, fields) => {
 }
 
 const FormListControls = () => {
-    const {state: {fieldLists, variables, fields}, updateFieldList} = useFormActions();
+    const [fieldLists, updateFieldList] = useStore(state => [state.fieldLists, state.updateFieldList ])
+    const variables = useStore(state => state.variables)
+    const fields = useStore(state => state.fields)
 
     const handleDownloadPdf = useCallback((e, index) => {
         downloadCsv(e, fieldLists[index], variables, fields)

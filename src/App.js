@@ -5,8 +5,8 @@ import './App.css';
 import FormFillingMain from "./components/FormFilling/FormFillingMain";
 import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
 
-
 const App = () => {
+
         return <main>
             <div className="App">
                 <AppBar position="static">

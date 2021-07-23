@@ -2,37 +2,6 @@ import {Field, FieldList, FormVariable, Pdf} from "../../model/types";
 import {ClientUpload} from "../../utils/ClientUpload";
 import {getRepository} from "../../utils/ClientStorage";
 
-export const actionTypes = {
-    addAll: "ADD_ALL",
-    addOne: "ADD_ONE",
-    updateAll: "UPDATE_ALL",
-    updateOne: "UPDATE_ONE",
-    addVariableToField: "ADD_VARIABLE_TO_FIELD",
-}
-
-export const noop = () => {
-};
-
-export const actions = (context) => {
-    return {
-        addAll: (payload) => {
-            return {type: actionTypes.addAll, payload, context}
-        },
-        addOne: (payload) => {
-            return {type: actionTypes.addOne, payload, context}
-        },
-        updateAll: (payload) => {
-            return {type: actionTypes.updateAll, payload, context}
-        },
-        updateOne: (payload) => {
-            return {type: actionTypes.updateOne, payload, context}
-        },
-        addVariableToField: (payload) => {
-            return {type: actionTypes.addVariableToField, payload, context}
-        },
-    }
-}
-
 const clientUpload = new ClientUpload();
 
 const pdfRepo = getRepository(Pdf);

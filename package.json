@@ -12,7 +12,8 @@
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zustand": "^3.5.7"
   },
   "devDependencies": {
     "fs-extra": "^7.0.1"

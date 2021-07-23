@@ -9,14 +9,15 @@ import {useTheme} from '@material-ui/core/styles';
 import {Typography} from "@material-ui/core";
 import {ClientUpload} from "../../../utils/ClientUpload";
 import {Pdf} from "../../../model/types";
-import {useFormActions} from "../../hooks/FormActionContext";
+import {useStore} from "../../../store";
 
 
 export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const {updatePdfs} = useFormActions();
+    const updatePdfs = useStore(state => state.updatePdfs)
+
 
     const clientUpload = new ClientUpload();
     const pdfDrop = () => {

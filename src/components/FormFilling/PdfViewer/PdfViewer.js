@@ -1,10 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import UploadPdf from "./UploadPdf";
-import {useFormActions} from "../../hooks/FormActionContext";
+import {useStore} from "../../../store";
 
 
 const PdfViewer = ({pdfClient, setIsPdfReady}) => {
-    const {state: {pdfs}} = useFormActions();
+    const pdfs = useStore(state => state.pdfs)
+
     const [viewerInstance, setViewerInstance] = useState(null)
     const viewerDiv = useRef(null)
 
