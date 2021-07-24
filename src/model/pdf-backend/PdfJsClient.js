@@ -18,7 +18,6 @@ export default class PdfJsClient {
         this.pdfMeta = null;
         this.pages = null;
         this.isReady = false;
-        this.isInitialized = false;
         this.onReload = () => {
         };
     }
@@ -36,11 +35,6 @@ export default class PdfJsClient {
     }
 
     async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
-        if (this.isInitialized) {
-            console.debug("pdfclient already initialized");
-            return this;
-        }
-
         this.viewerDiv = viewerDiv;
         this.urlPath = url || path;
         this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
@@ -58,42 +52,44 @@ export default class PdfJsClient {
     }
 
     async loadPdf({url, data, filename}) {
-        if (filename) this.filename = filename;
+        return new Promise(async resolve => {
+            if (filename) this.filename = filename;
 
-        const cfg = {
-            cMapUrl: CMAP_URL,
-            cMapPacked: CMAP_PACKED
-        }
-        if (url) cfg.url = url
-        else if (data) cfg.data = data
-        const pdf = await pdfjsLib.getDocument(cfg).promise;
-        const pdfMeta = await pdf.getMetadata();
-        const pages = [];
-        for (let i = 1; i <= pdf._pdfInfo.numPages; i++) {
-            const page = await pdf.getPage(i);
-            pages.push(page);
-        }
-        const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
-        console.debug("PdfClient pdf loaded: ", {
-            PDFFormatVersion, IsAcroFormPresent, Title,
-            docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
-            ...pdfMeta.metadata, all_meta: pdfMeta
+            const cfg = {
+                cMapUrl: CMAP_URL,
+                cMapPacked: CMAP_PACKED
+            }
+            if (url) cfg.url = url
+            else if (data) cfg.data = data
+            const pdf = await pdfjsLib.getDocument(cfg).promise;
+            const pdfMeta = await pdf.getMetadata();
+            const pages = [];
+            for (let i = 1; i <= pdf._pdfInfo.numPages; i++) {
+                const page = await pdf.getPage(i);
+                pages.push(page);
+            }
+            const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
+            console.debug("PdfClient pdf loaded: ", {
+                PDFFormatVersion, IsAcroFormPresent, Title,
+                docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
+                ...pdfMeta.metadata, all_meta: pdfMeta
+            })
+
+            this.pdf = pdf;
+            this.pdfMeta = pdfMeta;
+            this.pages = pages;
+
+            let urlPathOrBins;
+            if (data) urlPathOrBins = new Uint8Array(data)
+            else if (url) urlPathOrBins = url;
+
+            if(!this.viewer) {
+                console.warn("viewer not ready");
+                return urlPathOrBins;
+            }
+            await this.viewer.open(urlPathOrBins)
+            resolve(urlPathOrBins);
         })
-
-        this.pdf = pdf;
-        this.pdfMeta = pdfMeta;
-        this.pages = pages;
-
-        let urlPathOrBins;
-        if (data) urlPathOrBins = new Uint8Array(data)
-        else if (url) urlPathOrBins = url;
-
-        if(!this.viewer) {
-            console.warn("viewer not ready");
-            return urlPathOrBins;
-        }
-        await this.viewer.open(urlPathOrBins)
-        return urlPathOrBins;
     }
 
     cleanUpExternListeners(listener) {

@@ -7,15 +7,32 @@ const createPdfSlice = (set, get) => ({
     updatePdfs: async (pdf) => {
 
         let pdfs = [];
-        try{
+        try {
             //todo: fix this workaround when supporting multiple pdfs
             const result = await getRepository(Pdf).deleteAll();
             console.info("all pdfs deleted: ", result)
-
             pdfs = await persist.updateAll([], {payload: pdf, context: Pdf});
             console.info("all pdfs pesisted: ", pdfs)
-        }catch(e){
-            console.error({error:e})
+
+            // switch fieldList
+            const selectedFieldList = get().fieldLists.find(fl => fl?.isSelected);
+            let isSelectedFieldListValid = selectedFieldList?.pdfId === pdf.id;
+            if (selectedFieldList && !isSelectedFieldListValid)
+                selectedFieldList.isSelected = false;
+            if (!selectedFieldList || !isSelectedFieldListValid) {
+                console.info("switch fieldlist");
+                const fieldListForPdf = await getRepository(FieldList).getByIndex({pdfId: pdf.id});
+                if (fieldListForPdf?.length <= 0) {
+                    const newFieldList = FieldList(pdf.name, pdf.id);
+                    console.info("new fieldlist: ", newFieldList)
+                    newFieldList.isSelected = true;
+                    await get().updateFieldLists(newFieldList);
+                }
+                const fieldLists = get().fieldLists;
+                console.log({fieldLists, pdf})
+            }
+        } catch (e) {
+            console.error({error: e})
         }
         set({pdfs: pdfs})
     },
@@ -23,7 +40,12 @@ const createPdfSlice = (set, get) => ({
 
 const createFieldListSlice = (set, get) => ({
     fieldLists: [],
-    updateFieldLists: (fieldLists) => set({fieldLists: persist.updateAll(get().fieldLists, {payload: fieldLists, context: FieldList})}),
+    updateFieldLists: (fieldLists) => set({
+        fieldLists: persist.updateAll(get().fieldLists, {
+            payload: fieldLists,
+            context: FieldList
+        })
+    }),
     updateFieldList: async (fieldList) => {
         const state = get().fieldLists;
         const newState = await persist.updateOne(state, {payload: fieldList, context: FieldList});
@@ -40,9 +62,24 @@ const createFieldSlice = (set, get) => ({
 
 const createVariableSlice = (set, get) => ({
     variables: [],
-    addVariables: (variables) =>set({variables: persist.addAll(get().variables, {payload: variables, context: FormVariable})}),
-    updateVariables: (variables) => set({variables: persist.updateAll(get().variables, {payload: variables, context: FormVariable})}),
-    addVariable: (variable) => set({variables: persist.addOne(get().variables, {payload: variable, context: FormVariable})}),
+    addVariables: (variables) => set({
+        variables: persist.addAll(get().variables, {
+            payload: variables,
+            context: FormVariable
+        })
+    }),
+    updateVariables: (variables) => set({
+        variables: persist.updateAll(get().variables, {
+            payload: variables,
+            context: FormVariable
+        })
+    }),
+    addVariable: (variable) => set({
+        variables: persist.addOne(get().variables, {
+            payload: variable,
+            context: FormVariable
+        })
+    }),
 });
 
 const createFormActionSlice = (set, get) => ({
@@ -123,7 +160,7 @@ const persist = {
 }
 
 
-export const useStore = create( (set, get) => ({
+export const useStore = create((set, get) => ({
     ...createPdfSlice(set, get),
     ...createFieldListSlice(set, get),
     ...createFieldSlice(set, get),

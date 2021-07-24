@@ -21,10 +21,10 @@ export function initializePdfFormFields({pdfClient, updateFieldLists, updateFiel
                     const currentPdf = pdfs[0];
                     // get fieldlist by current pdf id
                     const fieldLists = await fieldListRepo.getByIndex({pdfId: currentPdf.id});
-                    let selectedList = fieldLists[0];
+                    let selectedList = fieldLists.length > 0 ? fieldLists[0]: FieldList(currentPdf.name, currentPdf.id);
                     if (fieldLists.length > 1)
                         selectedList = fieldLists.find(list => list.isSelected);
-                    else if (!selectedList.isSelected)
+                    else if (!selectedList?.isSelected)
                         selectedList.isSelected = true;
 
                     if (!selectedList?.pdfId) {
