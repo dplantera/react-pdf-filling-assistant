@@ -36,7 +36,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setIsPdfReady(false);
         clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
             loadPdf({data: uint8, filename: fileName})
-            updatePdfs([Pdf(fileName, uint8)]);
+            updatePdfs([Pdf(fileName, uint8)]).then(() => console.info("UploadPdf: pdf updated"));
         })
         handleClose();
     };

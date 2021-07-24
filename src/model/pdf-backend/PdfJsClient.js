@@ -35,20 +35,24 @@ export default class PdfJsClient {
     }
 
     async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
-        this.viewerDiv = viewerDiv;
-        this.urlPath = url || path;
-        this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
-        const iframe = document.createElement('iframe')
-        // using the default viewer for rendering
-        iframe.src = `/pdfjs-2.8.335-dist/web/viewer.html`;
-        iframe.width = '100%';
-        iframe.height = '100%';
-        this.viewerDiv.current.appendChild(iframe);
-        this._iframe = iframe;
+        return new Promise(async resolve => {
+            this.isReady = false;
+            this.viewerDiv = viewerDiv;
+            this.urlPath = url || path;
+            this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
+            const iframe = document.createElement('iframe')
+            // using the default viewer for rendering
+            iframe.src = `/pdfjs-2.8.335-dist/web/viewer.html`;
+            iframe.width = '100%';
+            iframe.height = '100%';
+            this.viewerDiv.current.appendChild(iframe);
+            this._iframe = iframe;
 
-        await this.loadPdf({url: this.urlPath, data, fileName})
-        console.debug("pdfjs backend initialized")
-        return this;
+            const urlOrBins = await this.loadPdf({url: this.urlPath, data, fileName})
+            console.debug("pdfjs backend initialized - loaded: ", urlOrBins)
+            this.isReady = true;
+            resolve(this)
+        })
     }
 
     async loadPdf({url, data, filename}) {
@@ -114,32 +118,34 @@ export default class PdfJsClient {
     }
 
     async getFormFields(includeReadOnly = false) {
-        // todo:optimize - a lot of loops
-        // according to SO, should run in parallel and sequentially resolving promises
-        const allAnnotations = []
-        await this.pages.reduce(async (promise, page) => {
-            await promise;
-            const annos = await page.getAnnotations();
-            allAnnotations.push(...annos.map(anno => {
-                return {...anno, pageNum: page.pageNumber}
-            }))
-        }, Promise.resolve())
+       return new Promise(async resolve => {
+           // todo:optimize - a lot of loops
+           // according to SO, should run in parallel and sequentially resolving promises
+           const allAnnotations = []
+           await this.pages.reduce(async (promise, page) => {
+               await promise;
+               const annos = await page.getAnnotations();
+               allAnnotations.push(...annos.map(anno => {
+                   return {...anno, pageNum: page.pageNumber}
+               }))
+           }, Promise.resolve())
 
-        const formFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
-        //remove duplicates
-        const names = formFields.map(field => {
-            return field.fieldName
-        });
-        let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
-        console.debug("loaded fields:", {
-            formFields,
-            excluded: allAnnotations.filter(e => !formFields.includes(e)),
-            dups: filtered
-        })
+           const formFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
+           //remove duplicates
+           const names = formFields.map(field => {
+               return field.fieldName
+           });
+           let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
+           console.debug("loaded fields:", {
+               formFields,
+               excluded: allAnnotations.filter(e => !formFields.includes(e)),
+               dups: filtered
+           })
 
-        return filtered.map(field => {
-            return Field(field, field.fieldName, field.fieldValue, {pageNum: field.pageNum})
-        });
+           resolve(filtered.map(field => {
+               return Field(field, field.fieldName, field.fieldValue, {pageNum: field.pageNum})
+           }))
+       })
     }
 
     selectField(field) {
