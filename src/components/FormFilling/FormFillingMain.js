@@ -4,7 +4,7 @@ import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
 import Spinner from "../commons/Spinner";
 import {AddVariableProvider} from "../hooks/contextWithState/AddVariableContext";
-import {initializePdfFormFields} from "../hooks/actions";
+import {initializePdfFormFields} from "../hooks/startupActions";
 import {useStore} from "../../store";
 
 

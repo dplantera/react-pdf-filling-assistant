@@ -8,7 +8,7 @@ const downloadClient = new ClientDownload();
 
 const VariablesIO = () => {
     const [fileName, setFileName] = useState("variables")
-    const [variables, addVariables] = useStore( state => [state.variables, state.addVariables])
+    const [variables, updateVariables] = useStore( state => [state.variables, state.updateVariables])
 
     const downloadCsv = (e, variables) => {
         const rows = variables.map(variable => {
@@ -31,7 +31,7 @@ const VariablesIO = () => {
                        }}/>
             <Button id="btn-vars-download" size={"small"} style={{height: "50%"}}
                     onClick={(e) => downloadCsv(e, variables)}>Download</Button>
-            <UploadVariables formVariables={variables} addVariables={addVariables}/>
+            <UploadVariables formVariables={variables} addVariables={updateVariables}/>
         </div>
     );
 };

@@ -5,7 +5,7 @@ import './App.css';
 import FormFillingMain from "./components/FormFilling/FormFillingMain";
 import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
 import {useStore} from "./store";
-import {initializeFormVariables, initializePdf} from "./components/hooks/actions";
+import {initializeFormVariables, initializePdf} from "./components/hooks/startupActions";
 
 const App = () => {
         const refUpdateVariables = useRef(useStore.getState().updateVariables)
