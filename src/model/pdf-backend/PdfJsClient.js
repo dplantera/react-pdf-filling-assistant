@@ -6,7 +6,7 @@ const CMAP_URL = "../../node_modules/pdfjs-dist/cmaps/";
 const CMAP_PACKED = true;
 
 // there is known issue with react directly using the lib for worker https://github.com/mozilla/pdf.js/issues/10997
-pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.worker.js'
+pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.8.335/build/pdf.worker.js'
 
 export default class PdfJsClient {
     constructor() {
@@ -46,7 +46,7 @@ export default class PdfJsClient {
         this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
         const iframe = document.createElement('iframe')
         // using the default viewer for rendering
-        iframe.src = `/pdfjs-2.6.347-dist/web/viewer.html`;
+        iframe.src = `/pdfjs-2.8.335-dist/web/viewer.html`;
         iframe.width = '100%';
         iframe.height = '100%';
         this.viewerDiv.current.appendChild(iframe);
