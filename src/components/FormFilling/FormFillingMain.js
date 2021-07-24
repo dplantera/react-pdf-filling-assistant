@@ -11,15 +11,15 @@ import {useStore} from "../../store";
 const pdfClient = new PdfJsClient();
 
 const FormFillingMain = () => {
-    const refUpdateFieldLists = useRef(useStore.getState().updateFieldLists)
+    const refSwitchFieldList = useRef(useStore.getState().switchFieldList)
     const refUpdateFields = useRef(useStore.getState().updateFields)
 
     const [isPdfReady, setIsPdfReady] = useState(false);
 
     useEffect(() =>
         useStore.subscribe(
-            updateFieldLists => (refUpdateFieldLists.current = updateFieldLists) ,
-            state => state.updateFieldList
+            switchFieldList => (refSwitchFieldList.current = switchFieldList) ,
+            state => state.switchFieldList
         ), [])
 
     useEffect(() =>
@@ -31,7 +31,7 @@ const FormFillingMain = () => {
     useEffect(() => {
         initializePdfFormFields({
             pdfClient,
-            updateFieldLists: refUpdateFieldLists.current,
+            switchFieldList: refSwitchFieldList.current,
             updateFields: refUpdateFields.current});
     }, [])
 

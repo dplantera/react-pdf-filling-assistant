@@ -48,8 +48,8 @@ export default class PdfJsClient {
             this.viewerDiv.current.appendChild(iframe);
             this._iframe = iframe;
 
-            const urlOrBins = await this.loadPdf({url: this.urlPath, data, fileName})
-            console.debug("pdfjs backend initialized - loaded: ", urlOrBins)
+            await this.loadPdf({url: this.urlPath, data, fileName})
+            console.debug("PdfJsClient: initialized backend.")
             this.isReady = true;
             resolve(this)
         })
@@ -73,7 +73,7 @@ export default class PdfJsClient {
                 pages.push(page);
             }
             const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
-            console.debug("PdfClient pdf loaded: ", {
+            console.debug("PdfJsClient: pdf loaded:", {
                 PDFFormatVersion, IsAcroFormPresent, Title,
                 docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
                 ...pdfMeta.metadata, all_meta: pdfMeta
@@ -88,7 +88,7 @@ export default class PdfJsClient {
             else if (url) urlPathOrBins = url;
 
             if(!this.viewer) {
-                console.warn("viewer not ready");
+                console.warn("PdfJsClient: viewer not ready");
                 return urlPathOrBins;
             }
             await this.viewer.open(urlPathOrBins)
@@ -103,7 +103,7 @@ export default class PdfJsClient {
         this.viewer.eventBus._listeners[listener] = filtered;
 
         if (allListener.length !== filtered.length)
-            console.debug("cleaned up event listeners: " + listener, {allListener, filtered})
+            console.debug("PdfJsClient: cleaned-up event listeners: " + listener, {allListener, filtered})
     }
 
     goToPage(num, callback) {
@@ -136,7 +136,7 @@ export default class PdfJsClient {
                return field.fieldName
            });
            let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
-           console.debug("loaded fields:", {
+           console.debug("PdfJsClient: loaded fields:", {
                formFields,
                excluded: allAnnotations.filter(e => !formFields.includes(e)),
                dups: filtered
@@ -173,7 +173,7 @@ export default class PdfJsClient {
         const fieldName = field.name ?? field;
         let elements = this._iframe.contentDocument.getElementsByName(fieldName);
         if (!elements || elements.length < 1) {
-            console.error("select field failed for: ", fieldName)
+            console.error("PdfJsClient: select field failed for: ", fieldName)
             return document.createElement("div")
         }
         return elements[0].parentNode;

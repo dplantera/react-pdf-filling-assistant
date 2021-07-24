@@ -11,14 +11,16 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
 
     useEffect(() => {
         if (viewerInstance) {
-            console.debug("pdf viewer already initialized")
+            console.debug("PdfViewer: already initialized")
             return
         }
         const initPdf = (fileName, data) => {
+            console.debug("PdfViewer: initPdf")
             pdfClient.init({viewerDiv, fileName, data})
                 .then(pdfClient => {
                     setViewerInstance(pdfClient);
                     pdfClient.on("documentinit", async () => {
+                        console.debug("PdfViewer: documentinit")
                         await pdfClient.onReload();
                         setIsPdfReady(true);
                     })

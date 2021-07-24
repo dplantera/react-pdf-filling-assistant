@@ -9,7 +9,7 @@ import {initializeFormVariables, initializePdf} from "./components/hooks/startup
 
 const App = () => {
         const refUpdateVariables = useRef(useStore.getState().updateVariables)
-        const refUpdatePdfs = useRef(useStore.getState().updatePdfs)
+        const refSelectPdf = useRef(useStore.getState().selectPdf)
 
         // prevent rerender by 'hooks changed'
         useEffect(() => useStore.subscribe(
@@ -17,13 +17,13 @@ const App = () => {
             state => state.updateVariables
         ), [])
         useEffect(() => useStore.subscribe(
-            updatePdfs => (refUpdatePdfs.current = updatePdfs),
-            state => state.updatePdfs
+            selectPdf => (refSelectPdf.current = selectPdf),
+            state => state.selectPdf
         ), [])
 
         // reload variables and fields from storage
         useEffect(() => initializeFormVariables(refUpdateVariables.current), []);
-        useEffect(() => initializePdf(refUpdatePdfs.current), []);
+        useEffect(() => initializePdf(refSelectPdf.current), []);
 
         console.debug("App rendered")
         return <main>

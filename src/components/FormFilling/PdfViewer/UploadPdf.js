@@ -16,7 +16,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const updatePdfs = useStore(state => state.updatePdfs)
+    const addPdfs = useStore(state => state.addPdfs)
 
 
     const clientUpload = new ClientUpload();
@@ -36,7 +36,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setIsPdfReady(false);
         clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
             loadPdf({data: uint8, filename: fileName})
-            updatePdfs([Pdf(fileName, uint8)]).then(() => console.info("UploadPdf: pdf updated"));
+            addPdfs([Pdf(fileName, uint8)]).then(() => console.info("UploadPdf: added pdf"));
         })
         handleClose();
     };

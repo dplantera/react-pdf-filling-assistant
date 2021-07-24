@@ -4,38 +4,25 @@ import {Field, FieldList, FormVariable, Pdf} from "./model/types";
 
 const createPdfSlice = (set, get) => ({
     pdfs: [],
-    updatePdfs: async (pdf) => {
-
-        let pdfs = [];
-        try {
-            //todo: fix this workaround when supporting multiple pdfs
-            const result = await getRepository(Pdf).deleteAll();
-            console.info("all pdfs deleted: ", result)
-            pdfs = await persist.updateAll([], {payload: pdf, context: Pdf});
-            console.info("all pdfs pesisted: ", pdfs)
-
-            // switch fieldList
-            const selectedFieldList = get().fieldLists.find(fl => fl?.isSelected);
-            let isSelectedFieldListValid = selectedFieldList?.pdfId === pdf.id;
-            if (selectedFieldList && !isSelectedFieldListValid)
-                selectedFieldList.isSelected = false;
-            if (!selectedFieldList || !isSelectedFieldListValid) {
-                console.info("switch fieldlist");
-                const fieldListForPdf = await getRepository(FieldList).getByIndex({pdfId: pdf.id});
-                if (fieldListForPdf?.length <= 0) {
-                    const newFieldList = FieldList(pdf.name, pdf.id);
-                    console.info("new fieldlist: ", newFieldList)
-                    newFieldList.isSelected = true;
-                    await get().updateFieldLists(newFieldList);
-                }
-                const fieldLists = get().fieldLists;
-                console.log({fieldLists, pdf})
-            }
-        } catch (e) {
-            console.error({error: e})
-        }
-        set({pdfs: pdfs})
+    addPdfs: (pdfs) => set({pdfs: persist.addAll(get().pdfs, {payload: pdfs, context: Pdf})}),
+    updatePdf: (pdf) => set({pdfs: persist.updateOne(get().pdfs, {payload: pdf, context: Pdf})}),
+    updatePdfs: async (pdfs) => {
+        //todo: fix this workaround when supporting multiple pdfs
+        await getRepository(Pdf).deleteAll();
+        await getRepository(FieldList).deleteAll();
+        set({pdfs: persist.updateAll(get().pdfs, {payload: pdfs, context: Pdf})})
     },
+    selectPdf: async (pdf) => {
+        if (!get().pdfs.find(p => p.id === pdf.id))
+            await get().updatePdf(pdf)
+        // switch fieldList
+        get().switchFieldList(pdf)
+            .then(() => console.debug("Store.selectPdf: done"))
+            .catch((err) => console.error(err))
+            .finally(() => {
+                return pdf;
+            })
+    }
 });
 
 const createFieldListSlice = (set, get) => ({
@@ -46,11 +33,30 @@ const createFieldListSlice = (set, get) => ({
             context: FieldList
         })
     }),
-    updateFieldList: async (fieldList) => {
-        const state = get().fieldLists;
-        const newState = await persist.updateOne(state, {payload: fieldList, context: FieldList});
-        set({fieldLists: newState})
-    },
+    updateFieldList: (fieldList) => set({
+        fieldLists: persist.updateOne(get().fieldLists, {
+            payload: fieldList,
+            context: FieldList
+        })
+    }),
+    switchFieldList: async (pdf) => {
+        const selectedFieldList = get().fieldLists.find(fl => fl?.isSelected);
+
+        let isSelectedFieldListValid = selectedFieldList?.pdfId === pdf.id;
+        if(selectedFieldList)
+            return selectedFieldList;
+
+        console.debug("Store.switchFieldList: ", {isSelectedFieldListValid})
+        if (selectedFieldList && !isSelectedFieldListValid)
+            selectedFieldList.isSelected = false;
+        if (!selectedFieldList || !isSelectedFieldListValid) {
+            const fieldListsFromStore = await getRepository(FieldList).getByIndex({pdfId: pdf.id});
+            let newFieldList = fieldListsFromStore?.length <= 0 ? FieldList(pdf.name, pdf.id) : fieldListsFromStore[0];
+            newFieldList.isSelected = true;
+            await get().updateFieldList(newFieldList);
+            return newFieldList;
+        }
+    }
 });
 
 const createFieldSlice = (set, get) => ({
@@ -86,7 +92,7 @@ const createFormActionSlice = (set, get) => ({
     addVariableToField: async (variable, currentField) => {
         const fields = get().fields;
         if (!currentField || !variable) {
-            console.warn("no field or variable provided")
+            console.warn("Store.addVariableToField: no field or variable provided")
             return;
         }
         currentField.variable = variable.id;
@@ -96,7 +102,7 @@ const createFormActionSlice = (set, get) => ({
         // update state
         let idxPrvField = currentField.index ?? fields.findIndex(field => field.id === currentField.id);
         if (idxPrvField == null || idxPrvField === -1) {
-            console.warn("field not found")
+            console.warn("Store.addVariableToField: field not found")
             return;
         }
         const prvField = fields[idxPrvField];
@@ -110,6 +116,7 @@ const createFormActionSlice = (set, get) => ({
 
 const persist = {
     updateAll(state, action) {
+        console.debug("Store.updateAll: ", {state, action})
         const context = action.context;
         const newState = [...action.payload];
         if (context) {
@@ -118,6 +125,7 @@ const persist = {
         return newState
     },
     addAll(state, action) {
+        console.debug("Store.addAll: ", {state, action})
         let elements = action.payload;
         if (!elements || elements?.size < 1)
             return state;
@@ -130,24 +138,27 @@ const persist = {
         return newState;
     },
     addOne(state, action) {
+        console.debug("Store.addOne: ", {state, action})
         const variable = action.payload;
         if (!variable)
-            console.warn("no variable provided")
+            console.warn("addOne: no variable provided")
         if (action.context) {
             getRepository(action.context).create(variable)
         }
         return [...state, variable];
     },
     updateOne(state, action) {
+        console.debug("Store.updateOne: ", {state, action})
         const element = action.payload;
         if (!element)
-            console.warn("no element provided")
+            console.warn("Store.updateOne: no element provided")
         let index = element.index ?? state.findIndex(f => f.id === element.id);
         // if state is empty - add it
         if (index < 0)
-            console.warn("element not found")
-        if (index < 0 && state.size < 1)
+            console.warn("Store.updateOne: element not found")
+        if (index < 0 && state.length < 1)
             index = 0
+        console.warn({index, state, element})
 
         const prevField = state[index];
         let newField = {...prevField, ...element};
@@ -155,7 +166,7 @@ const persist = {
         if (action.context) {
             getRepository(action.context).update(newField);
         }
-        return state;
+        return [...state];
     }
 }
 
