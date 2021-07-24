@@ -1,12 +1,31 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Link, Route, Switch} from 'react-router-dom';
 import {AppBar, Button, List, Toolbar, Typography} from "@material-ui/core";
 import './App.css';
 import FormFillingMain from "./components/FormFilling/FormFillingMain";
 import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
+import {useStore} from "./store";
+import {initializeFormVariables, initializePdf} from "./components/hooks/actions";
 
 const App = () => {
+        const refUpdateVariables = useRef(useStore.getState().updateVariables)
+        const refUpdatePdfs = useRef(useStore.getState().updatePdfs)
 
+        // prevent rerender by 'hooks changed'
+        useEffect(() => useStore.subscribe(
+            updateVariables => (refUpdateVariables.current = updateVariables),
+            state => state.updateVariables
+        ), [])
+        useEffect(() => useStore.subscribe(
+            updatePdfs => (refUpdatePdfs.current = updatePdfs),
+            state => state.updatePdfs
+        ), [])
+
+        // reload variables and fields from storage
+        useEffect(() => initializeFormVariables(refUpdateVariables.current), []);
+        useEffect(() => initializePdf(refUpdatePdfs.current), []);
+
+        console.debug("App rendered")
         return <main>
             <div className="App">
                 <AppBar position="static">
@@ -20,8 +39,8 @@ const App = () => {
                     </Toolbar>
                 </AppBar>
                 <Switch>
-                        <Route path="/" component={props => <FormFillingMain {...props} />} exact/>
-                        <Route path="/variables" component={props => <FormVariablesMain {...props} />} exact/>
+                    <Route path="/" component={props => <FormFillingMain {...props} />} exact/>
+                    <Route path="/variables" component={props => <FormVariablesMain {...props} />} exact/>
                 </Switch>
             </div>
         </main>

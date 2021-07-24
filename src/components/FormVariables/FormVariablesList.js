@@ -68,7 +68,6 @@ const FormVariablesList = () => {
         getRepository(FormVariable).getAll()
             .then(vars => {
                 vars.map(varr => {
-                    console.log(varr.exampleValue, varr.exampleValue.length)
                     return varr;
                 })
                 setVariables(vars);

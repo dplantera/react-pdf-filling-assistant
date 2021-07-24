@@ -5,13 +5,13 @@ import {Field, FieldList, FormVariable, Pdf} from "./model/types";
 const createPdfSlice = (set, get) => ({
     pdfs: [],
     updatePdfs: async (pdf) => {
-        const idsPdf = get().pdfs.map(pdf => pdf.id);
-        //todo: fix this workaround when supporting multiple pdfs
 
         let pdfs = [];
         try{
-            const result = await getRepository(Pdf).delete(idsPdf);
+            //todo: fix this workaround when supporting multiple pdfs
+            const result = await getRepository(Pdf).deleteAll();
             console.info("all pdfs deleted: ", result)
+
             pdfs = await persist.updateAll([], {payload: pdf, context: Pdf});
             console.info("all pdfs pesisted: ", pdfs)
         }catch(e){
@@ -73,7 +73,6 @@ const createFormActionSlice = (set, get) => ({
 
 const persist = {
     updateAll(state, action) {
-        console.log("payload", action)
         const context = action.context;
         const newState = [...action.payload];
         if (context) {
@@ -89,7 +88,7 @@ const persist = {
         const newState = [...state, ...elements];
         const context = action.context;
         if (context) {
-            getRepository(action.context).createAll(newState).then(res => console.log(`persited ${newState}`))
+            getRepository(action.context).createAll(newState).then(res => console.debug(`persited ${newState}`))
         }
         return newState;
     },

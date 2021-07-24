@@ -27,7 +27,6 @@ const FormFieldItem = memo((
         highlightFormField(fieldName, fieldPageNum);
     }
     const handleInput = (inputVal) => {
-        console.log("handleInput", inputVal)
         if (!inputVal)
             return;
 

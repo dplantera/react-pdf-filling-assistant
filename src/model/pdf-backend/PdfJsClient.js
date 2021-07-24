@@ -37,7 +37,7 @@ export default class PdfJsClient {
 
     async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
         if (this.isInitialized) {
-            console.log("pdfclient already initialized");
+            console.debug("pdfclient already initialized");
             return this;
         }
 
@@ -53,7 +53,7 @@ export default class PdfJsClient {
         this._iframe = iframe;
 
         await this.loadPdf({url: this.urlPath, data, fileName})
-        console.log("pdfjs backend initialized")
+        console.debug("pdfjs backend initialized")
         return this;
     }
 
@@ -74,7 +74,7 @@ export default class PdfJsClient {
             pages.push(page);
         }
         const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
-        console.log({
+        console.debug("PdfClient pdf loaded: ", {
             PDFFormatVersion, IsAcroFormPresent, Title,
             docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
             ...pdfMeta.metadata, all_meta: pdfMeta
@@ -103,7 +103,7 @@ export default class PdfJsClient {
         this.viewer.eventBus._listeners[listener] = filtered;
 
         if (allListener.length !== filtered.length)
-            console.log("cleaned up event listeners: " + listener, {allListener, filtered})
+            console.debug("cleaned up event listeners: " + listener, {allListener, filtered})
     }
 
     goToPage(num, callback) {
@@ -135,7 +135,7 @@ export default class PdfJsClient {
             return field.fieldName
         });
         let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
-        console.log("loaded fields:", {
+        console.debug("loaded fields:", {
             formFields,
             excluded: allAnnotations.filter(e => !formFields.includes(e)),
             dups: filtered

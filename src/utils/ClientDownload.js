@@ -12,7 +12,6 @@ class LinkDownload {
         const blob = new Blob([data], {type: this.dataMetaString});
         const encodedUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        console.log({encodedUrl, settings: this.settings, metaString: this.dataMetaString})
         link.setAttribute("href", encodedUrl);
         link.setAttribute("download", fileName);
         document.body.appendChild(link); // Required for FF

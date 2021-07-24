@@ -11,7 +11,7 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
 
     useEffect(() => {
         if (viewerInstance) {
-            console.log("pdf viewer already initialized")
+            console.debug("pdf viewer already initialized")
             return
         }
         const initPdf = (fileName, data) => {

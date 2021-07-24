@@ -7,25 +7,21 @@ class FileUpload {
     readUnit8(file, callback) {
         const fileReader = new FileReader();
         fileReader.onload = (progressEvent) => {
-            console.log("done reading: ", file.name)
             const result = progressEvent.target.result;
             callback(this.asUnit8(result), file.name);
         };
 
         fileReader.readAsArrayBuffer(file)
-        console.log("reading: ", file.name)
     }
 
     uploadAsText(file, callback) {
         const fileReader = new FileReader();
         fileReader.onload = (progressEvent) => {
             const result = progressEvent.target.result;
-            console.log({result})
             callback(result, file.name);
         };
 
         fileReader.readAsText(file)
-        console.log("reading: ", file.name)
     }
 }
 
@@ -67,7 +63,6 @@ class FilePickerUpload {
 
     uploadAsUint8(e, callback) {
         let file = e.target.files[0];
-        console.log({file})
         this.uploadMethod.readUnit8(file, callback)
         return file;
     }

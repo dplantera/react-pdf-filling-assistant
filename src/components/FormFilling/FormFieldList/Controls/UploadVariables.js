@@ -73,7 +73,6 @@ export default function UploadVariables({formVariables, addVariables}) {
             }
         })
 
-        console.log({newVariables, overwritten, ignored})
         addVariables(newVariables);
         //todo: update overwritten
     }

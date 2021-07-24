@@ -11,18 +11,16 @@ const formVariableRepo = getRepository(FormVariable);
 
 export function initializePdfFormFields({pdfClient, updateFieldLists, updateFields}) {
     pdfClient.onReload = async () => {
-        console.log("pdf initialised...");
         const loadFromDb = async () => {
             return new Promise(async resolve => {
                 try {
-                    console.log("pdf initialised...");
+                    console.debug("pdf initialised...");
                     // get current pdf id
                     // const pdfs = await storage.get(Pdf);
                     const pdfs = await pdfRepo.getAll();
                     const currentPdf = pdfs[0];
                     // get fieldlist by current pdf id
                     const fieldLists = await fieldListRepo.getByIndex({pdfId: currentPdf.id});
-                    console.log({fieldLists, pdfId: currentPdf.id})
                     let selectedList = fieldLists[0];
                     if (fieldLists.length > 1)
                         selectedList = fieldLists.find(list => list.isSelected);
@@ -35,7 +33,7 @@ export function initializePdfFormFields({pdfClient, updateFieldLists, updateFiel
                     }
                     // get fields by id [rawFieldName, fieldListId]
                     const fieldsFromDb = await fieldRepo.getByIndex( {fieldListId: selectedList.id})
-                    console.log("...loaded fields DB: ", {
+                    console.debug("...loaded fields DB: ", {
                         fields: fieldsFromDb,
                         pdfs,
                         currentPdf,
@@ -56,14 +54,14 @@ export function initializePdfFormFields({pdfClient, updateFieldLists, updateFiel
                     pdfClient.isReady = true;
                     resolve(true);
                 } catch (err) {
-                    console.log("failed loading fields from db", err)
+                    console.error("failed loading fields from db", err)
                     resolve(false);
                 }
             })
         }
 
         const initField = async () => {
-            console.log("loading inital fields")
+            console.debug("loading inital fields")
             const pdfs = await pdfRepo.getAll();
             const currentPdf = pdfs[0];
 
@@ -75,14 +73,12 @@ export function initializePdfFormFields({pdfClient, updateFieldLists, updateFiel
             fieldList.isSelected = true;
             const fieldsRaw = await pdfClient.getFormFields();
             const fieldsDomain = fieldsRaw.map(fieldRaw => ({...fieldRaw, ...{fieldListId: fieldList.id}}));
-            console.log({fieldsRaw, fieldsDomain, fieldList})
             updateFieldLists([fieldList]);
             updateFields(fieldsDomain);
             pdfClient.isReady = true;
         }
         const isLoadedFromDB = await loadFromDb();
         if (!isLoadedFromDB) await initField();
-        console.log("....fieldLoaded: ", isLoadedFromDB);
     }
 }
 
@@ -100,14 +96,16 @@ export function initializePdf(updatePdfs) {
             const pdfs = await pdfRepo.getAll();
             if (!pdfs[0].binary)
                 loadDefault();
-            else
+            else{
+                console.debug("PDF: loaded from storage")
                 updatePdfs(pdfs);
+            }
         } catch (error) {
             console.error(error)
             loadDefault();
         }
     }
-    loadInitialPdf().then(() => console.log("initial pdf loaded..."))
+    loadInitialPdf().then(() => console.debug("initial pdf loaded..."))
 }
 
 export function initializeFormVariables(updateVariables) {
@@ -159,7 +157,7 @@ export function initializeFormVariables(updateVariables) {
 
                 return acc;
             }, []);
-
+            console.debug("Variables loaded...")
             resolve([...mergedFromFileAndDB, ...onlyInDb]);
         })
     }

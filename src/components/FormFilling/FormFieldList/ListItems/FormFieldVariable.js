@@ -19,7 +19,6 @@ const FormFieldVariable = memo((
     }) => {
     const selectVariable = (formVariable) => {
         if (!formVariable) {
-            console.log("selectVariable", {formVariable})
             console.trace()
             return;
         }
@@ -27,7 +26,6 @@ const FormFieldVariable = memo((
     }
 
     const onAddVariable = (e) => {
-        console.log("event..", e);
         selectVariable(e.detail);
 
         document.removeEventListener("add-variable", onAddVariable);
@@ -40,7 +38,6 @@ const FormFieldVariable = memo((
 
     const _onBlurInput = (e) => {
         // setFormVariable({name: e.target.value});
-        console.log({e}, e.target.value)
         onInputSet(e.target.value);
         onBlur(e);
     }

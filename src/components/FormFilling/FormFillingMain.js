@@ -1,37 +1,40 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import PdfJsClient from "../../model/pdf-backend/PdfJsClient";
 import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
 import Spinner from "../commons/Spinner";
 import {AddVariableProvider} from "../hooks/contextWithState/AddVariableContext";
-import {initializeFormVariables, initializePdf, initializePdfFormFields} from "../hooks/actions";
+import {initializePdfFormFields} from "../hooks/actions";
 import {useStore} from "../../store";
 
 
 const pdfClient = new PdfJsClient();
 
-const storeSelector = (state) => ({
-    updatePdfs:state.updatePdfs,
-    updateFields: state.updateFields,
-    updateFieldLists: state.updateFieldLists,
-    updateVariables: state.updateVariables
-})
-
 const FormFillingMain = () => {
+    const refUpdateFieldLists = useRef(useStore.getState().updateFieldLists)
+    const refUpdateFields = useRef(useStore.getState().updateFields)
+
     const [isPdfReady, setIsPdfReady] = useState(false);
-    const {updatePdfs, updateFields , updateFieldLists, updateVariables} = useStore(storeSelector)
+
+    useEffect(() =>
+        useStore.subscribe(
+            updateFieldLists => (refUpdateFieldLists.current = updateFieldLists) ,
+            state => state.updateFieldList
+        ), [])
+
+    useEffect(() =>
+        useStore.subscribe(
+            updateFieldLists => (refUpdateFields.current = updateFieldLists) ,
+            state => state.updateFields
+        ), [])
 
     useEffect(() => {
-        initializePdfFormFields({pdfClient, updateFieldLists, updateFields});
-    }, [updateFieldLists, updateFields])
+        initializePdfFormFields({
+            pdfClient,
+            updateFieldLists: refUpdateFieldLists.current,
+            updateFields: refUpdateFields.current});
+    }, [])
 
-    useEffect(() => {
-        initializeFormVariables(updateVariables);
-    }, [updateVariables]);
-
-    useEffect(() => {
-        initializePdf(updatePdfs);
-    }, [updatePdfs]);
 
     return (
         <div className="form-filling-main" style={{position: "relative", display: "flex", justifyContent: "center"}}>
