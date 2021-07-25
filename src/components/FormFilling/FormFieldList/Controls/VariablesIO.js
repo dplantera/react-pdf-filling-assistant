@@ -92,10 +92,6 @@ const VariablesIO = () => {
                               overwriteExisting: {
                                   value: false,
                                   label: "Bestehende Variablen überschreiben?"
-                              },
-                              test: {
-                                  value: false,
-                                  label: "test?"
                               }
                           }}
                           title={"Variablen Hochladen"}/>

@@ -105,7 +105,7 @@ export default function UploadDialog({handleUpload, uploadOptions, title}) {
                 <DialogActions>
                     <label htmlFor="var-file-upload">
                         <Button variant="contained" color="primary" component="span">
-                            Upload Variables
+                            Upload
                         </Button>
                     </label>
                     <input accept=".csv" style={{display: "none"}} id="var-file-upload" type="file"
