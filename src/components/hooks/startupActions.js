@@ -70,7 +70,7 @@ export function initializePdf(selectPdf) {
     const loadInitialPdf = async () => {
         const loadDefault = () => {
             clientUpload.forStaticFile
-                .uploadAsUint8('/files/form2.pdf')
+                .uploadAsUint8('/files/pdf-form-assistant_example.pdf')
                 .then(([data, fileName]) => {
                     console.info("Startup.initializePdf: loading default pdf ", fileName);
                     selectPdf(Pdf(fileName, data));
