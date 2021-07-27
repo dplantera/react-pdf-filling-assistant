@@ -4,7 +4,11 @@ import {Field, FieldList, FormVariable, Pdf} from "./model/types";
 
 const createPdfSlice = (set, get) => ({
     pdfs: [],
-    updatePdf: async (pdf) => set({pdfs: persist.updateOne(get().pdfs, {payload: pdf, context: Pdf})}),
+    updatePdf: async (pdf) => {
+        //todo: fix this workaround when supporting multiple pdfs
+        await getRepository(Pdf).deleteAll();
+        set({pdfs: persist.updateOne(get().pdfs, {payload: pdf, context: Pdf})})
+    },
     updatePdfs: async (pdfs) => {
         //todo: fix this workaround when supporting multiple pdfs
         await getRepository(Pdf).deleteAll();

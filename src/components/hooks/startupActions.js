@@ -28,15 +28,19 @@ export function initializePdfFormFields({pdfClient, switchFieldList, updateField
                     }
 
                     const fieldsFromDb = await fieldRepo.getByIndex( {fieldListId: selectedList.id})
-
                     // merge fields by name with dbFields
                     const fieldsRaw = await pdfClient.getFormFields();
                     const mergedFields = fieldsRaw.map(fieldRaw => {
                         const fieldDomain = fieldsFromDb.find(fieldDb => fieldDb.name === fieldRaw.name);
-                        if (!fieldRaw.fieldListId && !fieldDomain)
+                        let isNewField = !fieldRaw.fieldListId && !fieldDomain;
+                        if (isNewField)
                             return {...fieldRaw, fieldListId: selectedList.id}
+
+                        delete fieldDomain.refPdf
+                        delete fieldDomain.location
                         return {...fieldRaw, ...fieldDomain};
                     })
+                    console.debug("Startup.pdfClient.onReload: ", {fieldsFromDb, fieldsRaw, mergedFields})
                     // update fields with mergedFields
                     updateFields(mergedFields);
                     pdfClient.isReady = true;

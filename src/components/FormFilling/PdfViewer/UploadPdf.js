@@ -32,14 +32,30 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setOpen(false);
     };
 
+    const handleLoadPdf = (fileName, uint8) => {
+        selectPdf(Pdf(fileName, uint8)).then(() => {
+            console.info("UploadPdf: added pdf")
+            loadPdf({data: uint8, filename: fileName})
+        });
+    }
     const handleOpenFile = (e) => {
         setIsPdfReady(false);
         clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
-            loadPdf({data: uint8, filename: fileName})
-            selectPdf(Pdf(fileName, uint8)).then(() => console.info("UploadPdf: added pdf"));
+            handleLoadPdf(fileName, uint8);
         })
         handleClose();
     };
+
+    const handleDropFile = (e) => {
+        //https://stackoverflow.com/questions/22048395/how-to-open-a-local-pdf-in-pdfjs-using-file-input
+        e.preventDefault();
+        pdfDrop().style.backgroundColor = "none";
+        handleClose();
+        setIsPdfReady(false);
+        clientUpload.forDropEvent.uploadAsUint8(e, (uint8, fileName) => {
+            handleLoadPdf(fileName, uint8);
+        })
+    }
 
     return (
         <div>
@@ -68,16 +84,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                              pdfDrop().style.backgroundColor = "gray";
                              pdfDrop().style.opacity = "60%"
                          }}
-                         onDrop={(e) => {
-                             //https://stackoverflow.com/questions/22048395/how-to-open-a-local-pdf-in-pdfjs-using-file-input
-                             e.preventDefault();
-                             pdfDrop().style.backgroundColor = "none";
-                             setIsPdfReady(false);
-                             setOpen(false);
-                             clientUpload.forDropEvent.uploadAsUint8(e, (uint8, fileName) => {
-                                 loadPdf({data: uint8, filename: fileName})
-                             })
-                         }}
+                         onDrop={handleDropFile}
                     >
                         <Typography>Drag and Drop</Typography>
                     </div>
