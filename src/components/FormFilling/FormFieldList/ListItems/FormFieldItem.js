@@ -47,13 +47,12 @@ const FormFieldItem = memo((
         updateField({index: idx, id: fieldId, description});
         setFieldDesc(description);
     }
-
     return (
         <div style={{position: "relative", display: "flex", width: "100%"}}>
             <ResizeableDiv overflow={"visible"} width={widthFormField}>
                 <FormFieldVariable
                     fieldName={fieldName}
-                    fieldValue={fieldVal}
+                    fieldValue={fieldVal || fieldValue} // fieldValue is default to fieldVal but when fieldValue changes from extern than fieldVal wont update
                     formVariables={variables}
                     onVariableSet={handleNewVariable}
                     onInputSet={handleInput}
@@ -65,7 +64,7 @@ const FormFieldItem = memo((
                 />
             </ResizeableDiv>
             {widthFormField < 100 && <FormFieldDesc id={"desc-" + fieldName}
-                                                    descValue={fieldDesc}
+                                                    descValue={fieldDesc || fieldDescription} // when fieldDescription changes from extern than fieldDesc wont update
                                                     onBlur={handleNewDescription}
                                                     onFocus={handleFocus}
             />}

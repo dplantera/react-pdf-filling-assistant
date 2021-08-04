@@ -73,13 +73,11 @@ const FormListControls = () => {
 
             const existingField = fields[idxExistingField];
             const isValueMatching = existingField && existingField.value === fieldCandidate.value;
-            console.debug("isValueMating: ", {isValueMatching,exist: existingField.value, newy:fieldCandidate.value, existingField  })
             if (isValueMatching) {
                 ignoredField.push(existingField);
                 return;
             }
 
-            console.debug("FormListControl: ", {isValueMatching, existingField, fieldCandidate})
             if (!isValueMatching) {
                 fieldCandidate.id = null;
                 newFields.push(fieldCandidate);
