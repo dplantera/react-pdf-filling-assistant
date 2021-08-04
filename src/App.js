@@ -5,25 +5,27 @@ import './App.css';
 import FormFillingMain from "./components/FormFilling/FormFillingMain";
 import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
 import {useStore} from "./store";
-import {initializeFormVariables, initializePdf} from "./components/hooks/startupActions";
 
 const App = () => {
-        const refUpdateVariables = useRef(useStore.getState().updateVariables)
-        const refSelectPdf = useRef(useStore.getState().selectPdf)
+        const refLoadPdfs = useRef(useStore.getState().loadPdfs)
+        const refLoadVariables = useRef(useStore.getState().loadVariables)
 
-        // prevent rerender by 'hooks changed'
         useEffect(() => useStore.subscribe(
-            updateVariables => (refUpdateVariables.current = updateVariables),
-            state => state.updateVariables
+            loadPdfs => (refLoadPdfs.current = loadPdfs),
+            state => state.loadPdfs
         ), [])
         useEffect(() => useStore.subscribe(
-            selectPdf => (refSelectPdf.current = selectPdf),
-            state => state.selectPdf
+            loadVariables => (refLoadVariables.current = loadVariables),
+            state => state.loadVariables
         ), [])
 
-        // reload variables and fields from storage
-        useEffect(() => initializeFormVariables(refUpdateVariables.current), []);
-        useEffect(() => initializePdf(refSelectPdf.current), []);
+        useEffect(() => {
+            const loadInitialData = async () => {
+                await refLoadPdfs.current();
+                await refLoadVariables.current();
+            }
+            loadInitialData().then(() => console.debug("App: data loaded"))
+        }, []);
 
         console.debug("App rendered")
         return <main>

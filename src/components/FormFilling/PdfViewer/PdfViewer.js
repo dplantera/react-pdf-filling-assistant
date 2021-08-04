@@ -5,30 +5,33 @@ import {useStore} from "../../../store";
 
 const PdfViewer = ({pdfClient, setIsPdfReady}) => {
     const pdfs = useStore(state => state.pdfs)
+    const loadFields = useStore(state => state.loadFields);
 
     const [viewerInstance, setViewerInstance] = useState(null)
     const viewerDiv = useRef(null)
 
     useEffect(() => {
-        if (viewerInstance) {
+        if (viewerInstance && pdfClient.isInitialized) {
             console.debug("PdfViewer: already initialized")
             return
         }
+        const lastPDF = pdfs?.[pdfs?.length - 1] ?? {}
         const initPdf = (fileName, data) => {
             console.debug("PdfViewer: initPdf")
             pdfClient.init({viewerDiv, fileName, data})
                 .then(pdfClient => {
                     setViewerInstance(pdfClient);
                     pdfClient.on("documentinit", async () => {
+                        let rawFields = await pdfClient.getFormFields();
+                        await loadFields(lastPDF, rawFields);
                         console.debug("PdfViewer: documentinit")
-                        await pdfClient.onReload();
                         setIsPdfReady(true);
                     })
                 })
         }
         if (pdfs?.length > 0)
-            initPdf(pdfs[0].name, pdfs[0].binary)
-    }, [pdfs, pdfClient, setIsPdfReady, viewerInstance])
+            initPdf(lastPDF.name, lastPDF.binary)
+    }, [pdfs, pdfClient, setIsPdfReady, viewerInstance, loadFields])
 
     return (
         <div id="viewerContainer" style={{

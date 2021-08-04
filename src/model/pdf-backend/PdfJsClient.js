@@ -17,9 +17,7 @@ export default class PdfJsClient {
         this.pdf = null;
         this.pdfMeta = null;
         this.pages = null;
-        this.isReady = false;
-        this.onReload = () => {
-        };
+        this.isInitialized = false;
     }
 
     get viewer() {
@@ -36,7 +34,7 @@ export default class PdfJsClient {
 
     async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
         return new Promise(async resolve => {
-            this.isReady = false;
+            this.isInitialized = false;
             this.viewerDiv = viewerDiv;
             this.urlPath = url || path;
             this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
@@ -50,7 +48,7 @@ export default class PdfJsClient {
 
             await this.loadPdf({url: this.urlPath, data, fileName})
             console.debug("PdfJsClient: initialized backend.")
-            this.isReady = true;
+            this.isInitialized = true;
             resolve(this)
         })
     }

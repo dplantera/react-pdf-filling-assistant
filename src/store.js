@@ -1,6 +1,11 @@
 import create from "zustand";
 import {getRepository} from "./utils/ClientStorage";
 import {Field, FieldList, FormVariable, Pdf} from "./model/types";
+import {
+    retrieveInitialFormFields,
+    retrieveInitialFormVariables,
+    retrieveInitialPdfs
+} from "./components/hooks/startupActions";
 
 const createPdfSlice = (set, get) => ({
     pdfs: [],
@@ -25,6 +30,9 @@ const createPdfSlice = (set, get) => ({
             .finally(() => {
                 return pdf;
             })
+    },
+    loadPdfs: () => {
+        retrieveInitialPdfs().then(pdfs => set({pdfs}))
     }
 });
 
@@ -46,7 +54,7 @@ const createFieldListSlice = (set, get) => ({
         const selectedFieldList = get().fieldLists.find(fl => fl?.isSelected);
 
         let isSelectedFieldListValid = selectedFieldList?.pdfId === pdf.id;
-        if(selectedFieldList)
+        if (selectedFieldList)
             return selectedFieldList;
 
         console.debug("Store.switchFieldList: ", {isSelectedFieldListValid})
@@ -67,6 +75,12 @@ const createFieldSlice = (set, get) => ({
     addFields: (fields) => set({fields: persist.addAll(get().fields, {payload: fields, context: Field})}),
     updateFields: (fields) => set({fields: persist.updateAll(get().fields, {payload: fields, context: Field})}),
     updateField: (field) => set({fields: persist.updateOne(get().fields, {payload: field, context: Field})}),
+    loadFields: async (pdf, fieldsRaw) => {
+        const selectedList = await get().switchFieldList(pdf);
+        const fields = await retrieveInitialFormFields({selectedList, fieldsRaw});
+        console.debug("Store.loadFields: ", {selectedList, fields})
+        set({fields: fields ?? []})
+    }
 });
 
 const createVariableSlice = (set, get) => ({
@@ -89,6 +103,7 @@ const createVariableSlice = (set, get) => ({
             context: FormVariable
         })
     }),
+    loadVariables: () => retrieveInitialFormVariables().then(variables => set({variables}))
 });
 
 const createFormActionSlice = (set, get) => ({
