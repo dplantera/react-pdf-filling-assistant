@@ -1,0 +1,11 @@
+﻿Text1;ani.fname;Firstname of an Animal;
+Text2;ani.lname;Lastname of an Animal;
+Text3;birthdate;DD.MM.YYYY;01.01.1990
+Text4;street;;example street 1
+Text5;zip;;
+Text6;;;
+Text7;;;
+Text8;;;
+Group1;Choice1;;
+Check Box1;Off;;
+Check Box2;Off;;
