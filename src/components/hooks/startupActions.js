@@ -44,7 +44,7 @@ export async function retrieveInitialFormFields({selectedList, fieldsRaw}) {
         // update fields with mergedFields
 
         fieldRepo.updateAll(mergedFields)
-            .then((res) => console.debug("StartupAction: done persist mergedFields", {res}) )
+            .then((res) => console.debug("StartupAction: done persist mergedFields", {res}))
             .catch(error => console.error("StartupAction: failed persist mergedFields", {error}))
         resolve(mergedFields);
     })
@@ -63,7 +63,12 @@ export async function retrieveInitialPdfs() {
             const pdfs = await pdfRepo.getAll();
             const hasStoredPdfs = pdfs?.length > 0;
             console.debug(`Startup.initializePdf: loading from ${hasStoredPdfs ? 'storage' : 'default'}`)
-            const initialPdf = !hasStoredPdfs ? [await loadDefault()] : pdfs;
+            let defaultPDF;
+            if (!hasStoredPdfs) {
+                defaultPDF = await loadDefault();
+                pdfRepo.create(defaultPDF)
+            }
+            const initialPdf = hasStoredPdfs ? pdfs : [defaultPDF];
             resolve(initialPdf);
         } catch (error) {
             console.error(error)

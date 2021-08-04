@@ -65,26 +65,26 @@ const FormFieldList = memo((
                 overflow: "auto",
                 paddingTop: "10px"
             }}>
-                    {fields.map((field, idx) => {
-                        return <FormFieldItem
-                            key={"field-" + field.name}
-                            idx={idx}
-                            fieldId={field.id}
-                            fieldValue={field.value}
-                            fieldName={field.name}
-                            fieldDescription={field.description}
-                            fieldPageNum={field.location?.pageNum}
-                            variables={variables}
-                            //causes rerender
-                            openVariableDialog={openVariableDialog}
-                            addVariableToField={addVariableToField}
-                            updateField={updateField}
-                            widthFormField={widthFormField}
-                            resetHighlightFormField={_resetHighlightFormField}
-                            highlightFormField={_highlightFormField}
-                        />
-                    })}
-                    <NewVariableDialog/>
+                {fields.map((field, idx) => {
+                    return <FormFieldItem
+                        key={"field-" + field.name}
+                        idx={idx}
+                        fieldId={field.id}
+                        fieldValue={field.value}
+                        fieldName={field.name}
+                        fieldDescription={field.description}
+                        fieldPageNum={field.location?.pageNum}
+                        variables={variables}
+                        //causes rerender
+                        openVariableDialog={openVariableDialog}
+                        addVariableToField={addVariableToField}
+                        updateField={updateField}
+                        widthFormField={widthFormField}
+                        resetHighlightFormField={_resetHighlightFormField}
+                        highlightFormField={_highlightFormField}
+                    />
+                })}
+                <NewVariableDialog/>
             </div>
         </div>
     );
