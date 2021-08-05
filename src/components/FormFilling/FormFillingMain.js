@@ -3,7 +3,7 @@ import PdfJsClient from "../../model/pdf-backend/PdfJsClient";
 import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
 import Spinner from "../commons/Spinner";
-import {AddVariableProvider} from "../hooks/contextWithState/AddVariableContext";
+import {AddVariableProvider} from "../hooks/AddVariableContext";
 
 
 const pdfClient = new PdfJsClient();

@@ -6,7 +6,7 @@ import {Dialog, TextField} from "@material-ui/core";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import {FormVariable} from "../../../model/types";
-import {useAddVariable} from "../../hooks/contextWithState/AddVariableContext";
+import {useAddVariable} from "../../hooks/AddVariableContext";
 import {useStore} from "../../../store";
 
 const NewVariableDialog = () => {

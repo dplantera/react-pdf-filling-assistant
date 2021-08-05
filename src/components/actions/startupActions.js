@@ -26,7 +26,7 @@ async function loadFormFieldsFromDB(selectedList) {
 }
 
 export async function retrieveInitialFormFields({selectedList, fieldsRaw}) {
-    console.debug("Startup.retrieveInitialFormFields")
+    console.debug("Startup.retrieveInitialFormFields", {selectedList, fieldsRaw})
     return new Promise(async resolve => {
         const fieldsFromDb = await loadFormFieldsFromDB(selectedList)
 

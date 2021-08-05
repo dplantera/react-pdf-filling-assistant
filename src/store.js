@@ -5,7 +5,8 @@ import {
     retrieveInitialFormFields,
     retrieveInitialFormVariables,
     retrieveInitialPdfs
-} from "./components/hooks/startupActions";
+} from "./components/actions/startupActions";
+import {addVariableToField, switchFieldList} from "./components/actions/transformActions";
 
 const createPdfSlice = (set, get) => ({
     pdfs: [],
@@ -51,22 +52,9 @@ const createFieldListSlice = (set, get) => ({
         })
     }),
     switchFieldList: async (pdf) => {
-        const selectedFieldList = get().fieldLists.find(fl => fl?.isSelected);
-
-        let isSelectedFieldListValid = selectedFieldList?.pdfId === pdf.id;
-        if (selectedFieldList)
-            return selectedFieldList;
-
-        console.debug("Store.switchFieldList: ", {isSelectedFieldListValid})
-        if (selectedFieldList && !isSelectedFieldListValid)
-            selectedFieldList.isSelected = false;
-        if (!selectedFieldList || !isSelectedFieldListValid) {
-            const fieldListsFromStore = await getRepository(FieldList).getByIndex({pdfId: pdf.id});
-            let newFieldList = fieldListsFromStore?.length <= 0 ? FieldList(pdf.name, pdf.id) : fieldListsFromStore[0];
-            newFieldList.isSelected = true;
-            await get().updateFieldList(newFieldList);
-            return newFieldList;
-        }
+        const newFieldList = await switchFieldList(get().fieldLists, pdf);
+        await get().updateFieldList(newFieldList);
+        return newFieldList;
     }
 });
 
@@ -109,25 +97,9 @@ const createVariableSlice = (set, get) => ({
 const createFormActionSlice = (set, get) => ({
     addVariableToField: async (variable, currentField) => {
         const fields = get().fields;
-        if (!currentField || !variable) {
-            console.warn("Store.addVariableToField: no field or variable provided")
-            return;
-        }
-        currentField.variable = variable.id;
-        currentField.description = currentField.description || variable.description;
-        currentField.value = variable.value;
-
-        // update state
-        let idxPrvField = currentField.index ?? fields.findIndex(field => field.id === currentField.id);
-        if (idxPrvField == null || idxPrvField === -1) {
-            console.warn("Store.addVariableToField: field not found")
-            return;
-        }
-        const prvField = fields[idxPrvField];
-        let updatedField = {...prvField, ...currentField};
-
-        const newState = await persist.updateOne(fields, {payload: updatedField, context: Field})
-        set({fields: newState});
+        const updatedField = addVariableToField(fields, currentField, variable)
+        if (!updatedField) return
+        set({fields: await persist.updateOne(fields, {payload: updatedField, context: Field})});
     }
 });
 
