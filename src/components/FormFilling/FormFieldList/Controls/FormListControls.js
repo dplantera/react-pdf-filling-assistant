@@ -4,7 +4,7 @@ import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
 import {useStore} from "../../../../store";
 import UploadDialog from "../../../commons/UploadDialog";
-import {importFieldsFromCsv} from "../../../../model/import";
+import {importFieldsAndVarsFromCsv} from "../../../../components/actions/importActions";
 
 const downloadClient = new ClientDownload();
 const downloadCsv = (e, fieldList, variables, fields) => {
@@ -32,9 +32,9 @@ const FormListControls = () => {
 
     // todo: refactor - move into own file
     const handleUploadCsv = (text, filename, options) => {
-        const importResult = importFieldsFromCsv(text, fields, variables, addVariableToField);
-        updateVariables(importResult.variables);
-        updateFields(importResult.fields);
+        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, addVariableToField);
+        updateVariables(importResult.newVariables);
+        updateFields(importResult.newFields);
     };
 
     return (

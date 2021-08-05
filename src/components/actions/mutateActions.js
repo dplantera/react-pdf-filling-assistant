@@ -9,7 +9,7 @@ export function switchFieldList(fieldLists, pdf) {
         if (selectedFieldList)
             resolve(selectedFieldList);
 
-        console.debug("Store.switchFieldList: ", {isSelectedFieldListValid})
+        console.debug("MutateAction.switchFieldList: ", {isSelectedFieldListValid})
         if (selectedFieldList && !isSelectedFieldListValid)
             selectedFieldList.isSelected = false;
 
@@ -22,8 +22,8 @@ export function switchFieldList(fieldLists, pdf) {
 
 export function addVariableToField(fields, currentField, variable) {
     if (!currentField || !variable) {
-        console.warn("Store.addVariableToField: no field or variable provided")
-        return null;
+        console.warn("MutateAction.addVariableToField: no field or variable provided")
+        return {};
     }
     currentField.variable = variable.id;
     currentField.description = currentField.description || variable.description;
@@ -32,10 +32,13 @@ export function addVariableToField(fields, currentField, variable) {
     // update state
     let idxPrvField = currentField.index ?? fields.findIndex(field => field.id === currentField.id);
     if (idxPrvField == null || idxPrvField === -1) {
-        console.warn("Store.addVariableToField: field not found")
-        return null;
+        console.warn("MutateAction.addVariableToField: field not found")
+        return {};
     }
-    const prvField = fields[idxPrvField];
 
-    return {...prvField, ...currentField};
+    const prvField = fields[idxPrvField];
+    const newField = {...prvField, ...currentField};
+    fields[idxPrvField] = newField;
+
+    return {updatedField: newField, updatedFields: [...fields]};
 }

@@ -6,7 +6,7 @@ import {
     retrieveInitialFormVariables,
     retrieveInitialPdfs
 } from "./components/actions/startupActions";
-import {addVariableToField, switchFieldList} from "./components/actions/transformActions";
+import {addVariableToField, switchFieldList} from "./components/actions/mutateActions";
 
 const createPdfSlice = (set, get) => ({
     pdfs: [],
@@ -97,9 +97,10 @@ const createVariableSlice = (set, get) => ({
 const createFormActionSlice = (set, get) => ({
     addVariableToField: async (variable, currentField) => {
         const fields = get().fields;
-        const updatedField = addVariableToField(fields, currentField, variable)
+        const {updatedFields, updatedField} = addVariableToField(fields, currentField, variable)
         if (!updatedField) return
-        set({fields: await persist.updateOne(fields, {payload: updatedField, context: Field})});
+        await persist.updateOne(fields, {payload: updatedField, context: Field})
+        set({fields: updatedFields});
     }
 });
 
@@ -108,7 +109,28 @@ const persist = {
     updateAll(state, action) {
         console.debug("Store.updateAll: ", {state, action})
         const context = action.context;
-        const newState = [...action.payload];
+        const updated = action.payload;
+        // using map to access updates in constant time
+        const idToUpdatedElement = updated.reduce((map, element) => {
+            if (!element.id) {
+                const newObject = Object.assign(element, context())
+                map[newObject.id] = newObject;
+                console.warn("Store.updateAll: do not use update to create objects...", {newObject})
+            } else
+                map[element.id] = element
+            return map;
+        }, {});
+        // determine updates
+        const updatedState = state.reduce((prvState, prvElement, index) => {
+            if (idToUpdatedElement[prvElement.id])
+                prvState[index] = {...prvElement, ...idToUpdatedElement[prvElement.id]}
+            return prvState;
+        }, [...state])
+        // determine new elements
+        const existingIds = state.map( element => element.id);
+        const newElements = Object.values(idToUpdatedElement).filter(element => !existingIds.includes(element.id));
+
+        const newState = [...updatedState, ...newElements]
         if (context) {
             getRepository(action.context).updateAll(newState)
         }
