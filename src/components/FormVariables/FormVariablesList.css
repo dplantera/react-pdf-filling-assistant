@@ -1,0 +1,12 @@
+:root {
+    --page-padding: 30px
+}
+.form-variables-list{
+    position: relative;
+    padding-top: var(--page-padding);
+    padding-bottom: var(--page-padding);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - calc(var(--height-appbar) * 1.1) - calc(var(--page-padding) * 2.5) );
+    width: 100vw;
+}

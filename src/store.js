@@ -91,7 +91,13 @@ const createVariableSlice = (set, get) => ({
             context: FormVariable
         })
     }),
-    loadVariables: () => retrieveInitialFormVariables().then(variables => set({variables}))
+    loadVariables: () => retrieveInitialFormVariables().then(variables => set({variables})),
+    deleteVariables: (variables) => set({
+        variables: persist.deleteAll(get().variables, {
+            payload: variables,
+            context: FormVariable
+        })
+    })
 });
 
 const createFormActionSlice = (set, get) => ({
@@ -127,7 +133,7 @@ const persist = {
             return prvState;
         }, [...state])
         // determine new elements
-        const existingIds = state.map( element => element.id);
+        const existingIds = state.map(element => element.id);
         const newElements = Object.values(idToUpdatedElement).filter(element => !existingIds.includes(element.id));
 
         const newState = [...updatedState, ...newElements]
@@ -179,6 +185,21 @@ const persist = {
             getRepository(action.context).update(newField);
         }
         return [...state];
+    },
+    deleteAll(state, action) {
+        const elements = action.payload;
+        const getId = (element) => {
+            if (typeof element === "string" || typeof element === "number")
+                return element;
+            return element?.id
+        }
+        const idsToDelete = elements.map(getId);
+        console.debug("Store: ", {idsToDelete});
+
+        if (action.context)
+            getRepository(action.context).deleteAll(idsToDelete.map(id => ({id})))
+
+        return [...state.filter(el => !idsToDelete.includes(el.id))]
     }
 }
 

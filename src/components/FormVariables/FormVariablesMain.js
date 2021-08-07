@@ -3,9 +3,8 @@ import FormVariablesList from "./FormVariablesList";
 
 const FormVariablesMain = () => {
 
-
     return (
-        <FormVariablesList></FormVariablesList>
+        <FormVariablesList/>
     );
 };
 
