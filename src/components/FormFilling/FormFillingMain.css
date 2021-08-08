@@ -1,0 +1,15 @@
+.form-filling-main {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    height: calc(100vh - var(--height-appbar));
+}
+
+.form-filling-container {
+    position: relative;
+    display: flex;
+    width: 98%;
+    height: 98%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}

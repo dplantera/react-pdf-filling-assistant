@@ -5,6 +5,7 @@ import FormListControls from "./Controls/FormListControls";
 import NewVariableDialog from "./NewVariableDialog";
 import {useAddVariable} from "../../hooks/AddVariableContext";
 import {useStore} from "../../../store";
+import "./FormFieldList.css"
 
 const storeSelector = (state) => ({
     variables: state.variables,
@@ -33,38 +34,10 @@ const FormFieldList = memo((
 
 
     return (
-        <div style={{
-            position: "relative",
-            display: "flex",
-            flexDirection: "column",
-            width: `50%`,
-            top: "10px",
-            /*
-                todo: get rid of that by a more sophisticated resizing logic
-                this is a workaround: so the css resizing corner is more prominent to the user
-                viewHeight - borderFieldList - top - parentTop - heightAppBar
-            */
-            height: `calc(100vh - 2px - 10px - 10px - 64px)`,
-            minWidth: "35%",
-            gap: "10px",
-            resize: "horizontal",
-            borderTop: "1px",
-            borderBottom: "1px",
-            overflow: "auto",
-        }}
-        >
+        <div className={"field-list-container"}>
             <FormListControls formVariables={variables}/>
             <FormItemsControls widthFormField={widthFormField} setWidthFormField={setWidthFormField}/>
-            <div className={"field-list"} style={{
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                height: "100%",
-                gap: "10px",
-                overflow: "auto",
-                paddingTop: "10px"
-            }}>
+            <div className={"field-list"} >
                 {fields.map((field, idx) => {
                     return <FormFieldItem
                         key={"field-" + field.name}

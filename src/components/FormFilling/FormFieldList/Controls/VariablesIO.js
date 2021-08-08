@@ -85,8 +85,7 @@ const VariablesIO = () => {
                        onBlur={(e) => {
                            setFileName(e.currentTarget.value)
                        }}/>
-            <Button id="btn-vars-download" size={"small"} style={{height: "50%"}}
-                    onClick={(e) => downloadCsv(e, variables)}>Download</Button>
+
             <UploadDialog handleUpload={handleUploadCsv}
                           uploadOptions={{
                               overwriteExisting: {
@@ -95,6 +94,8 @@ const VariablesIO = () => {
                               }
                           }}
                           title={"Variablen Hochladen"}/>
+            <Button id="btn-vars-download" size={"small"} style={{height: "50%"}}
+                    onClick={(e) => downloadCsv(e, variables)}>Download</Button>
         </div>
     );
 };

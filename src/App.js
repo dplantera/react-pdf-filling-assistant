@@ -30,8 +30,8 @@ const App = () => {
         console.debug("App rendered")
         return <main>
             <div className="App">
-                <AppBar position="static">
-                    <Toolbar style={{display: "flex", justifyContent: "space-between"}}>
+                <AppBar className={"app-bar"} position="static">
+                    <Toolbar className={"app-bar-menu"}>
                         <Typography variant="h5">PDF Form Assistant</Typography>
                         <List>
                             <Button component={Link} to={"/"} style={{textDecoration: 'none', color: "white"}}

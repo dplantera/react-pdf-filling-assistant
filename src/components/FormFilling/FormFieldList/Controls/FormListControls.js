@@ -37,29 +37,32 @@ const FormListControls = () => {
         updateFields(importResult.newFields);
     };
 
+    const makeNameWithExtension = (name) => {
+        if(!name)
+            return "template.csv"
+        if(name.endsWith(".csv"))
+            return name;
+        if(name.endsWith(".pdf"))
+            return name.replace(".pdf", ".csv")
+        return name + ".csv";
+    }
+
+    console.debug("rendered", {fieldLists})
     return (
-        <div className={"field-list-controls"} style={{
-            position: "relative",
-            display: "flex",
-            width: "98%",
-            maxHeight: "10%",
-            gap: "10px",
-            flexDirection: "column",
-            // border: "3px solid"
-        }}>
+        <div className={"field-list-controls"} >
             {fieldLists.map((fieldList, index) => {
                 return <div key={fieldList.name}
                             style={{position: "relative", display: "flex", width: "100%", alignItems: "center", gap: "20px"}}>
-                    <TextField id="standard-basic" label={`CSV ${fieldList.id}`} defaultValue={fieldList.name + ".csv"}
+                    <TextField id="standard-basic" label={`CSV ${index}`} defaultValue={makeNameWithExtension(fieldList.name)}
                                fullWidth={true}
                                onBlur={(e) => {
                                    fieldList.name = e.currentTarget.value;
                                    updateFieldList({index, name: e.currentTarget.value})
                                }}/>
-                    <Button size={"small"} style={{height: "50%"}}
-                            onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
                     <UploadDialog handleUpload={handleUploadCsv}
                                   title={"Template Hochladen"}/>
+                    <Button size={"small"} style={{height: "50%"}}
+                            onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
                 </div>
             })}
             <VariablesIO/>

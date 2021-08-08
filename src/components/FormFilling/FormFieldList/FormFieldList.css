@@ -1,0 +1,31 @@
+.field-list-container {
+    --boarder: 2px;
+    --top: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    top: var(--top);
+    min-width: 35%;
+    gap: 10px;
+    resize: horizontal;
+    overflow: auto;
+}
+
+.field-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: auto;
+    padding-top: var(--top);
+}
+
+.field-list-controls,
+.field-items-controls {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    padding-right: 10px;
+}
+

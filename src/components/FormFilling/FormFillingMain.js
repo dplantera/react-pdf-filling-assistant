@@ -4,7 +4,7 @@ import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
 import Spinner from "../commons/Spinner";
 import {AddVariableProvider} from "../hooks/AddVariableContext";
-
+import "./FormFillingMain.css"
 
 const pdfClient = new PdfJsClient();
 
@@ -13,9 +13,8 @@ const FormFillingMain = () => {
     const [isPdfReady, setIsPdfReady] = useState(false);
 
     return (
-        <div className="form-filling-main" style={{position: "relative", display: "flex", justifyContent: "center"}}>
-            <div className={"form-filling-container"}
-                 style={{position: "relative", display: "flex", width: "98%", height: "98%", top: "10px"}}>
+        <div className="form-filling-main">
+            <div className={"form-filling-container"}>
                 <AddVariableProvider>
                     <FormFieldList pdfClient={pdfClient}/>
                 </AddVariableProvider>

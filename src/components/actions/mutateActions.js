@@ -9,13 +9,15 @@ export function switchFieldList(fieldLists, pdf) {
         if (selectedFieldList)
             resolve(selectedFieldList);
 
-        console.debug("MutateAction.switchFieldList: ", {isSelectedFieldListValid})
         if (selectedFieldList && !isSelectedFieldListValid)
             selectedFieldList.isSelected = false;
 
         const fieldListsFromStore = await getRepository(FieldList).getByIndex({pdfId: pdf.id});
         let newFieldList = fieldListsFromStore?.length <= 0 ? FieldList(pdf.name, pdf.id) : fieldListsFromStore[0];
+        newFieldList.name = pdf.name.replace(".pdf", ".csv");
         newFieldList.isSelected = true;
+        console.debug("MutateAction.switchFieldList: ", {isSelectedFieldListValid, newFieldList, pdf})
+
         resolve(newFieldList);
     })
 }
