@@ -62,10 +62,24 @@ registerRoute(
     plugins: [
       // Ensure that once this runtime cache reaches a maximum size the
       // least-recently used images are removed.
-      new ExpirationPlugin({ maxEntries: 50 }),
+      new ExpirationPlugin({ maxAgeSeconds: 60*60*24 }),
     ],
   })
 );
+
+
+registerRoute(
+    ({ url }) => (url.pathname.endsWith('.pdf') ),
+    new StaleWhileRevalidate({
+        cacheName: 'pdfs',
+        plugins: [
+            // Ensure that once this runtime cache reaches a maximum size the
+            // least-recently used images are removed.
+            new ExpirationPlugin({ maxAgeSeconds: 60*60*24 }),
+        ],
+    })
+);
+
 
 // This allows the web app to trigger skipWaiting via
 // registration.waiting.postMessage({type: 'SKIP_WAITING'})
