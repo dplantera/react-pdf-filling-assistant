@@ -29,7 +29,7 @@ const FormVariablesList = () => {
     }
     return (
         <div className={"form-variables-list"}>
-            <div style={{width: "50%", paddingLeft: "25px"}}>
+            <div className={"variables-in-out"}>
                 <VariablesIO/>
             </div>
             <DataTable tableData={variables} tableSchema={columns} onDelete={handleDelete}

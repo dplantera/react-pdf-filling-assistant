@@ -1,12 +1,21 @@
 :root {
     --page-padding: 30px
 }
-.form-variables-list{
+
+.form-variables-list {
     position: relative;
     padding-top: var(--page-padding);
     padding-bottom: var(--page-padding);
     display: flex;
     flex-direction: column;
-    height: calc(100vh - calc(var(--height-appbar) * 1.1) - calc(var(--page-padding) * 2.5) );
+    height: calc(100vh - calc(var(--height-appbar) * 1.1) - calc(var(--page-padding) * 2.5));
     width: 100vw;
 }
+
+.variables-in-out {
+    --padding: 25;
+    --width-offset: calc(var(--padding) * 1.5px);
+    width: min(calc(100% - var(--width-offset)), 600px);
+    padding-left: calc(var(--padding) * 1px);
+}
+
