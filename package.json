@@ -15,6 +15,10 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
     "uuid": "^8.3.2",
+    "workbox-core": "^5.1.4",
+    "workbox-expiration": "^5.1.4",
+    "workbox-precaching": "^5.1.4",
+    "workbox-routing": "^5.1.4",
     "zustand": "^3.5.7"
   },
   "devDependencies": {
@@ -25,11 +29,13 @@
     "@material-ui/icons": "^4.11.2",
     "dotenv": "^8.2.0",
     "fs-extra": "^7.0.1",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "workbox-strategies": "^5.1.4"
   },
   "scripts": {
     "pre_dev": "npx babel-node ./dev/testdata.js",
     "start": "react-scripts start",
+    "serve": "npm run build && serve -l 5001 -s build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scriptsts eject"

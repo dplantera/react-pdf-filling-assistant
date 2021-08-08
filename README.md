@@ -8,21 +8,24 @@
 
 [comment]: <> (body)
 # PDF Form Assistant
+A complete client-side Progressive Web App to facilitate preparing PDF forms for automated form filling.  
 ## Demo
 [pdf-filling-assistant.web.app/ ](https://pdf-filling-assistant.web.app/)
 
 ## Features
 ![][features]
 * Known issue: When loading the app for the first time, a scientific paper appears (The default PDF of `pdf.js`). Reloading the page once should load the project sample PDF.
-## Intro
+## Introduction
 This started as a quick project to make the life of my team easier and to learn about FE development with react. `PDF Form Assistant` is an integration tool for PDF form filling automation. I've decided to work a little more on it and dive deeper into FE development and react.
 
 `PDF Form Assistant` targets a legacy software tech stack which takes a third-party PDF Form and a Java Velocity template to fill the form with data from a database. 
 
 Since it shall be usable in an enterprise environment, I focus on a fully functional client side SPA without a backend or any other server request besides the initial delivery of the SPA. 
 
-Yet, an app without a DB isn't quite productive, wherefore it does have client side persistence by depending on [client-persistence] (A wrapper for [IndexedDB] also authored by me). 
-I plan to make it installable as a [PWA].
+Yet, an app without a DB isn't quite productive, wherefore it does have client side persistence by depending on [client-persistence] (A wrapper for [IndexedDB] also authored by me).
+
+`PDF Form Assistant` is a Progressive WEb App [PWA], thus can even be installed when using a chrome based browser.
+
 
 
 ### How does this app help?
