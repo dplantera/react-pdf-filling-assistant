@@ -1,10 +1,14 @@
 .form-filling-main {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     height: calc(100vh - var(--height-appbar));
+    width: 100%;
+    max-width: 100rem;
 }
 
+/*left-side*/
 .form-filling-container {
     position: relative;
     display: flex;
@@ -12,4 +16,49 @@
     height: 98%;
     padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.field-list-container {
+    --boarder: 2px;
+    --top: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    top: var(--top);
+    min-width: 35%;
+    gap: 10px;
+    resize: horizontal;
+    overflow: auto;
+}
+
+.field-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: auto;
+    padding-top: var(--top);
+}
+
+.field-list-controls,
+.field-items-controls {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    padding-right: 10px;
+}
+
+/*right-side*/
+.pdf-viewer-container{
+    position: relative;
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center
+}
+
+.pdf-viewer{
+    position: relative; width: 99%; height: 100%
 }

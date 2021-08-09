@@ -5,7 +5,6 @@ import FormListControls from "./Controls/FormListControls";
 import NewVariableDialog from "./NewVariableDialog";
 import {useAddVariable} from "../../hooks/AddVariableContext";
 import {useStore} from "../../../store";
-import "./FormFieldList.css"
 
 const storeSelector = (state) => ({
     variables: state.variables,
