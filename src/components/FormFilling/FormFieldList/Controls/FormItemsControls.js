@@ -8,7 +8,7 @@ const FormItemsControls = ({widthFormField, setWidthFormField}) => {
                 if (widthFormField <= 50)
                     setWidthFormField(100)
                 else setWidthFormField(50)
-            }}>Beschreibung umschalten</Button>
+            }}>Toggle Description</Button>
         </div>
     );
 };

@@ -1,34 +1,35 @@
+/*whole side*/
 .form-filling-main {
     position: relative;
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     height: calc(100vh - var(--height-appbar));
     width: 100%;
     max-width: 100rem;
 }
 
-/*left-side*/
 .form-filling-container {
+    --gap-boarder: 10px;
     position: relative;
     display: flex;
-    width: 98%;
-    height: 98%;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    width: calc(100% - var(--gap-boarder) * 2);
+    height: calc(100% - var(--gap-boarder) * 2);
+    flex-wrap: wrap-reverse;
+    overflow: auto;
 }
 
+/*left-side*/
 .field-list-container {
-    --boarder: 2px;
     --top: 10px;
     position: relative;
     display: flex;
     flex-direction: column;
-    top: var(--top);
-    min-width: 35%;
     gap: 10px;
-    resize: horizontal;
     overflow: auto;
+    min-width: 300px;
+    height: 100%;
+    flex: 5 0;
 }
 
 .field-list {
@@ -50,15 +51,31 @@
 }
 
 /*right-side*/
-.pdf-viewer-container{
+.pdf-viewer-container {
     position: relative;
-    width: 65%;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    justify-content: center
+    justify-content: center;
+    min-width: 300px;
+    height: 100%;
+    flex: 8 0;
+    align-self: start;
+}
+@media only screen and (max-width: 600px) {
+    .pdf-viewer-container {
+        height: 40%;
+    }
+}
+.pdf-viewer {
+    position: relative;
+    width: 99%;
+    height: 100%;
 }
 
-.pdf-viewer{
-    position: relative; width: 99%; height: 100%
+.dialog-upload{
+    width: min(400px, 80%);
+    height: min(200px, 80%);
+    min-width: 200px;
+    min-height: 150px;
 }

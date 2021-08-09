@@ -60,7 +60,7 @@ const FormListControls = () => {
                                    updateFieldList({index, name: e.currentTarget.value})
                                }}/>
                     <UploadDialog handleUpload={handleUploadCsv}
-                                  title={"Template Hochladen"}/>
+                                  title={"Upload Template"}/>
                     <Button size={"small"} style={{height: "50%"}}
                             onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
                 </div>

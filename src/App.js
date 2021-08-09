@@ -35,8 +35,9 @@ const App = () => {
                         <Typography variant="h5">PDF Form Assistant</Typography>
                         <List>
                             <Button component={Link} to={"/"} style={{textDecoration: 'none', color: "white"}}
-                            >PDF befüllen</Button>
-                            <Button component={Link} to={"/variables"} style={{color: "white"}}>Variablen</Button>
+                            >Fill Form</Button>
+                            <Button component={Link} to={"/variables"} style={{color: "white"}}
+                            >Manage Variables</Button>
                         </List>
                     </Toolbar>
                 </AppBar>

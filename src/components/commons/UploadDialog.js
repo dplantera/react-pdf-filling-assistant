@@ -4,16 +4,12 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import {useTheme} from '@material-ui/core/styles';
 import {Checkbox, FormControlLabel, Typography} from "@material-ui/core";
 import {ClientUpload} from "../../utils/ClientUpload";
 
 export default function UploadDialog({handleUpload, uploadOptions, title}) {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = useState({...uploadOptions});
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const clientUpload = new ClientUpload();
     const varDrop = () => {
@@ -75,10 +71,11 @@ export default function UploadDialog({handleUpload, uploadOptions, title}) {
                 Upload
             </Button>
             <Dialog
-                fullScreen={fullScreen}
+                fullScreen={false}
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="upload-var-title"
+                classes={{paper: "dialog-upload"}}
             >
                 <DialogTitle id="upload-var-title">{title}</DialogTitle>
 
@@ -89,8 +86,6 @@ export default function UploadDialog({handleUpload, uploadOptions, title}) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: "400px",
-                        height: "200px"
                     }}
                          onDragOver={(e) => {
                              e.preventDefault();

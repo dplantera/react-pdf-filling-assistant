@@ -13,9 +13,18 @@
 
 .app-bar {
     height: var(--height-appbar);
+    align-items: center;
+    align-content: space-between;
+    justify-content: center;
+    padding: 10px 10px 10px 10px;
 }
 
 .app-bar-menu {
     display: flex;
     justify-content: space-between;
+    width: 100%;
+    max-width: 100rem;
+    padding: 10px 10px 10px 10px;
+
 }
+

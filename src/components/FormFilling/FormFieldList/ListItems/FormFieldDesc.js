@@ -13,7 +13,7 @@ const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
             fullWidth={true}
             onBlur={onBlur}
             onFocus={onFocus}
-            label={"Beschreibung"}
+            label={"Description"}
             /*  without it - label wont move (shrink) when value updates from outside   */
             InputLabelProps={{
                 shrink: true

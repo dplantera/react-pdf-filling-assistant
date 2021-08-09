@@ -45,7 +45,7 @@ const NewVariableDialog = () => {
                 <DialogTitle id="new-variable-dialog">Add a new film</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Neue Feldvariable anlegen
+                        Add Form-Field Variable
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -74,7 +74,7 @@ const NewVariableDialog = () => {
                         fullWidth
                         value={dialogValue.description ?? ""}
                         onChange={(event) => setDialogValue({...dialogValue, description: event.target.value})}
-                        label="Beschreibung"
+                        label="Description"
                         type="string"
                     />
                     <TextField
@@ -84,7 +84,7 @@ const NewVariableDialog = () => {
                         onChange={(event) => {
                             setDialogValue({...dialogValue, exampleValue: event.target.value});
                         }}
-                        label="Beispiel Wert"
+                        label="Example Value"
                         type="string"
                     />
                 </DialogContent>

@@ -4,20 +4,14 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import {useTheme} from '@material-ui/core/styles';
 import {Typography} from "@material-ui/core";
 import {ClientUpload} from "../../../utils/ClientUpload";
 import {Pdf} from "../../../model/types";
 import {useStore} from "../../../store";
 
-
 export default function UploadPdf({loadPdf, setIsPdfReady}) {
     const [open, setOpen] = React.useState(false);
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const selectPdf = useStore(state => state.selectPdf)
-
 
     const clientUpload = new ClientUpload();
     const pdfDrop = () => {
@@ -63,21 +57,21 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                 Upload PDF
             </Button>
             <Dialog
-                fullScreen={fullScreen}
+                fullScreen={false}
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="upload-pdf-title"
+                classes={{paper: "dialog-upload"}}
             >
-                <DialogTitle id="upload-pdf-title">{"PDF Hochladen"}</DialogTitle>
+                <DialogTitle id="upload-pdf-title">{"Upload PDF"}</DialogTitle>
 
-                <DialogContent>
+                <DialogContent
+                >
                     <input type="file" id="file" name="file" encType="multipart/form-data" hidden={true}/>
                     <div className={"drop-zone"} id={"drop-zone-pdf"} style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: "400px",
-                        height: "200px"
                     }}
                          onDragOver={(e) => {
                              e.preventDefault();

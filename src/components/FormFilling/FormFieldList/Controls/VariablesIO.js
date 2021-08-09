@@ -90,10 +90,10 @@ const VariablesIO = () => {
                           uploadOptions={{
                               overwriteExisting: {
                                   value: false,
-                                  label: "Bestehende Variablen überschreiben?"
+                                  label: "Overwrite existing?"
                               }
                           }}
-                          title={"Variablen Hochladen"}/>
+                          title={"Upload Variables"}/>
             <Button id="btn-vars-download" size={"small"} style={{height: "50%"}}
                     onClick={(e) => downloadCsv(e, variables)}>Download</Button>
         </div>
