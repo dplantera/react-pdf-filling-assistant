@@ -15,6 +15,7 @@ const FormFieldVariable = memo((
         onInputSet,
         onBlur,
         onFocus,
+        onClear,
         openVariableDialog
     }) => {
     const selectVariable = (formVariable) => {
@@ -40,6 +41,16 @@ const FormFieldVariable = memo((
         // setFormVariable({name: e.target.value});
         onInputSet(e.target.value);
         onBlur(e);
+    }
+
+    const handleInputChanged = (event, value, reason) => {
+        switch (reason){
+            case "clear": onClear(); break;
+            case "reset": break;
+            case "input": break;
+            default:
+                console.error("handleInputChanged: unknown reason", {reason});
+        }
     }
 
     return (
@@ -97,6 +108,7 @@ const FormFieldVariable = memo((
                 renderOption={(option) => option.name}
                 style={{fontFamily: 'Source Code Pro'}}
                 freeSolo
+                onInputChange={handleInputChanged}
                 renderInput={(params) => (
                     <TextField {...params}
                                multiline={true}

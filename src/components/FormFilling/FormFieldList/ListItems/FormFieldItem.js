@@ -47,6 +47,17 @@ const FormFieldItem = memo((
         updateField({index: idx, id: fieldId, description});
         setFieldDesc(description);
     }
+
+    const handleClear = () => {
+        console.group("handleClear")
+
+        setFieldVal("");
+        setFieldDesc("");
+        updateField({index: idx, id: fieldId, variable: "", value: "", description: ""})
+        console.groupEnd();
+    }
+
+
     return (
         <div style={{position: "relative", display: "flex", width: "100%"}}>
             <ResizeableDiv overflow={"visible"} width={widthFormField}>
@@ -59,6 +70,7 @@ const FormFieldItem = memo((
                     onBlur={(e) => {
                         resetHighlightFormField(fieldName)
                     }}
+                    onClear={handleClear}
                     onFocus={handleFocus}
                     openVariableDialog={openVariableDialog}
                 />
