@@ -6,7 +6,7 @@
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "lang": "de",
-  "orientation": "portrait",
+  "orientation": "any",
   "categories": [
     "business",
     "utilities"
