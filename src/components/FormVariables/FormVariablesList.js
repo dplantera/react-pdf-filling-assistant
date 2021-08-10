@@ -8,17 +8,12 @@ const defaultColumns = [
     {field: 'id', headerName: 'ID', width: 70,},
     {field: 'name', headerName: 'Name', width: 130, description: 'Name der Variable', editable: true},
     {field: 'value', headerName: 'Value', width: 130, description: 'Definition der Variable', editable: true},
-    {field: 'exampleValue', headerName: 'Example', width: 130, description: 'Ausprägung der Variable'},
-    {
-        field: 'description',
-        headerName: 'Description',
-        sortable: false,
-        width: 160,
-    },
+    {field: 'exampleValue', headerName: 'Example', width: 130, description: 'Ausprägung der Variable', editable: true},
+    {field: 'description', headerName: 'Description', sortable: false, width: 160, editable: true},
 ];
 
 const FormVariablesList = () => {
-    const [variables, deleteVariables] = useStore(state => [state.variables, state.deleteVariables])
+    const [variables, deleteVariables, updateVariable] = useStore(state => [state.variables, state.deleteVariables, state.updateVariable])
     const [columns] = useState(defaultColumns)
 
     const handleDelete = (idsToDelete) => {
@@ -32,7 +27,13 @@ const FormVariablesList = () => {
             <div className={"variables-in-out"}>
                 <VariablesIO/>
             </div>
-            <DataTable tableData={variables} tableSchema={columns} onDelete={handleDelete}
+            <DataTable tableData={variables} tableSchema={columns}
+                       onDelete={handleDelete}
+                       onCellEditCommit={(cell) => {
+                           console.log({cell})
+                           updateVariable({id: cell.id, [cell.field]: cell.value})
+                       }
+                       }
             />
         </div>
     );

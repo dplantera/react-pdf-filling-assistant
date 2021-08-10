@@ -1,5 +1,4 @@
 import React, {useCallback} from 'react';
-import VariablesIO from "./VariablesIO";
 import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
 import {useStore} from "../../../../store";
@@ -64,7 +63,6 @@ const FormListControls = () => {
                             onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
                 </div>
             })}
-            <VariablesIO/>
         </div>
     );
 };

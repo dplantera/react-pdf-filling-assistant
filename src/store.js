@@ -121,6 +121,12 @@ const createVariableSlice = (set, get) => ({
             context: FormVariable
         })
     }),
+    updateVariable: (variable) => set({
+        variables: persist.updateOne(get().variables, {
+            payload: variable,
+            context: FormVariable
+        })
+    }),
     addVariable: (variable) => set({
         variables: persist.addOne(get().variables, {
             payload: variable,
@@ -214,13 +220,14 @@ const persist = {
             index = 0
         console.warn({index, state, element})
 
-        const prevField = state[index];
+        const newState = [...state];
+        const prevField = newState[index];
         let newField = {...prevField, ...element};
-        state[index] = newField;
+        newState[index] = newField;
         if (action.context) {
             getRepository(action.context).update(newField);
         }
-        return [...state];
+        return newState;
     },
     deleteAll(state, action) {
         const elements = action.payload;
