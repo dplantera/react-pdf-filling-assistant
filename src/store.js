@@ -12,7 +12,7 @@ const createPdfSlice = (set, get) => ({
     pdfs: [],
     updatePdf: async (pdf) => {
         //todo: fix this workaround when supporting multiple pdfs
-        await getRepository(Pdf).deleteAll();
+        await get().deletePdfs(get().pdfs);
         set({pdfs: persist.updateOne(get().pdfs, {payload: pdf, context: Pdf})})
     },
     updatePdfs: async (pdfs) => {
@@ -34,6 +34,16 @@ const createPdfSlice = (set, get) => ({
     },
     loadPdfs: () => {
         retrieveInitialPdfs().then(pdfs => set({pdfs}))
+    },
+    deletePdfs: async (pdfs) => {
+        // handle relations
+        const fieldListsToDelete = [];
+        pdfs.forEach(pdf =>
+            fieldListsToDelete.push(...get().fieldLists.filter(list => list.pdfId === pdf.id))
+        )
+        await get().deleteFieldLists(fieldListsToDelete);
+        // delete
+        set({pdfs: persist.deleteAll(get().pdfs, {payload: pdfs, context: Pdf})})
     }
 });
 
@@ -52,9 +62,30 @@ const createFieldListSlice = (set, get) => ({
         })
     }),
     switchFieldList: async (pdf) => {
-        const newFieldList = await switchFieldList(get().fieldLists, pdf);
-        await get().updateFieldList(newFieldList);
-        return newFieldList;
+        return new Promise(async (resolve) => {
+            const {fieldLists, selectedFieldList} = await switchFieldList(get().fieldLists, pdf);
+            console.debug({fieldLists, selectedFieldList})
+            await get().updateFieldLists(fieldLists);
+            resolve(selectedFieldList)
+        })
+
+    },
+    deleteFieldLists: async (fieldLists) => {
+        // handle relations
+        const fieldsToDelete = [];
+        fieldLists.forEach(list => {
+            let foundFields = get().fields.filter(field => field.fieldListId === list.id);
+            console.debug({foundFields, fieldLists, list})
+            fieldsToDelete.push(...foundFields)
+        })
+        await get().deleteFields(fieldsToDelete);
+        // delete
+        set({
+            fieldLists: persist.deleteAll(get().fieldLists, {
+                payload: fieldLists,
+                context: FieldList
+            })
+        })
     }
 });
 
@@ -64,10 +95,15 @@ const createFieldSlice = (set, get) => ({
     updateFields: (fields) => set({fields: persist.updateAll(get().fields, {payload: fields, context: Field})}),
     updateField: (field) => set({fields: persist.updateOne(get().fields, {payload: field, context: Field})}),
     loadFields: async (pdf, fieldsRaw) => {
+        console.group("Store.loadFields")
         const selectedList = await get().switchFieldList(pdf);
         const fields = await retrieveInitialFormFields({selectedList, fieldsRaw});
         console.debug("Store.loadFields: ", {selectedList, fields})
         set({fields: fields ?? []})
+        console.groupEnd()
+    },
+    deleteFields: (fields) => {
+        set({fields: persist.deleteAll(get().fields, {payload: fields, context: Field})})
     }
 });
 
