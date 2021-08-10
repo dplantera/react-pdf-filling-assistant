@@ -47,7 +47,6 @@ const FormListControls = () => {
         return name + ".csv";
     }
 
-    console.debug("rendered", {fieldLists})
     return (
         <div className={"field-list-controls"} >
             {fieldLists.map((fieldList, index) => {

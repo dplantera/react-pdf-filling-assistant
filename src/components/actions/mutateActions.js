@@ -6,8 +6,10 @@ export function switchFieldList(fieldLists, pdf) {
         const selectedFieldList = fieldLists.find(fl => fl?.isSelected);
 
         let isSelectedFieldListValid = selectedFieldList?.pdfId === pdf.id;
-        if (selectedFieldList)
-            resolve(selectedFieldList);
+        if (selectedFieldList){
+            console.debug("MutateAction.switchFieldList: field list up-to-date", {selectedFieldList})
+            resolve({fieldLists, selectedFieldList });
+        }
 
         if (selectedFieldList && !isSelectedFieldListValid)
             selectedFieldList.isSelected = false;
@@ -18,7 +20,13 @@ export function switchFieldList(fieldLists, pdf) {
         newFieldList.isSelected = true;
         console.debug("MutateAction.switchFieldList: ", {isSelectedFieldListValid, newFieldList, pdf})
 
-        resolve(newFieldList);
+        const updatedFieldLists = [...fieldLists];
+        const idxListFromState = fieldLists.findIndex(fl => fl.pdfId === pdf.id);
+        if(idxListFromState > -1)
+            updatedFieldLists[idxListFromState] = newFieldList;
+        else
+            updatedFieldLists.push(newFieldList)
+        resolve({fieldLists: updatedFieldLists, selectedFieldList: newFieldList});
     })
 }
 

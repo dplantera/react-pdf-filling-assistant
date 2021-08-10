@@ -33,11 +33,12 @@ export default class PdfJsClient {
     }
 
     async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
+        console.group("PdfJsClient.init")
         return new Promise(async resolve => {
             this.isInitialized = false;
             this.viewerDiv = viewerDiv;
             this.urlPath = url || path;
-            this.filename = this.urlPath? this.urlPath.split("/").reverse()[0]: fileName;
+            this.filename = this.urlPath ? this.urlPath.split("/").reverse()[0] : fileName;
             const iframe = document.createElement('iframe')
             // using the default viewer for rendering
             iframe.src = `/pdfjs-2.9.359-dist/web/viewer.html`;
@@ -49,48 +50,61 @@ export default class PdfJsClient {
             await this.loadPdf({url: this.urlPath, data, fileName})
             console.debug("PdfJsClient: initialized backend.")
             this.isInitialized = true;
+
+            console.groupEnd();
             resolve(this)
         })
     }
 
     async loadPdf({url, data, filename}) {
         return new Promise(async resolve => {
-            if (filename) this.filename = filename;
+            const loadPdfIntoBackend = async () => {
+                if (filename) this.filename = filename;
 
-            const cfg = {
-                cMapUrl: CMAP_URL,
-                cMapPacked: CMAP_PACKED
+                const cfg = {
+                    cMapUrl: CMAP_URL,
+                    cMapPacked: CMAP_PACKED
+                }
+                if (url) cfg.url = url
+                else if (data) cfg.data = data
+                const pdf = await pdfjsLib.getDocument(cfg).promise;
+                const pdfMeta = await pdf.getMetadata();
+
+                const pages = [];
+                for (let i = 1; i <= pdf._pdfInfo.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    pages.push(page);
+                }
+                const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
+                console.debug("PdfJsClient: pdf loaded:", {
+                    PDFFormatVersion,
+                    IsAcroFormPresent,
+                    Title,
+                    docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "",
+                    pages: pdf._pdfInfo.numPages,
+                    ...pdfMeta.metadata,
+                    all_meta: pdfMeta
+                })
+
+                this.pdf = pdf;
+                this.pdfMeta = pdfMeta;
+                this.pages = pages;
             }
-            if (url) cfg.url = url
-            else if (data) cfg.data = data
-            const pdf = await pdfjsLib.getDocument(cfg).promise;
-            const pdfMeta = await pdf.getMetadata();
-            const pages = [];
-            for (let i = 1; i <= pdf._pdfInfo.numPages; i++) {
-                const page = await pdf.getPage(i);
-                pages.push(page);
+
+            const loadPdfIntoViewer = async () => {
+                let urlPathOrBins;
+                if (data) urlPathOrBins = new Uint8Array(data)
+                else if (url) urlPathOrBins = url;
+
+                if (!this.viewer) {
+                    console.warn("PdfJsClient: viewer not ready");
+                    return
+                }
+                await this.viewer.open(urlPathOrBins)
             }
-            const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
-            console.debug("PdfJsClient: pdf loaded:", {
-                PDFFormatVersion, IsAcroFormPresent, Title,
-                docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "", pages: pdf._pdfInfo.numPages,
-                ...pdfMeta.metadata, all_meta: pdfMeta
-            })
-
-            this.pdf = pdf;
-            this.pdfMeta = pdfMeta;
-            this.pages = pages;
-
-            let urlPathOrBins;
-            if (data) urlPathOrBins = new Uint8Array(data)
-            else if (url) urlPathOrBins = url;
-
-            if(!this.viewer) {
-                console.warn("PdfJsClient: viewer not ready");
-                return urlPathOrBins;
-            }
-            await this.viewer.open(urlPathOrBins)
-            resolve(urlPathOrBins);
+            await loadPdfIntoBackend();
+            await loadPdfIntoViewer();
+            resolve(true);
         })
     }
 
@@ -116,34 +130,34 @@ export default class PdfJsClient {
     }
 
     async getFormFields(includeReadOnly = false) {
-       return new Promise(async resolve => {
-           // todo:optimize - a lot of loops
-           // according to SO, should run in parallel and sequentially resolving promises
-           const allAnnotations = []
-           await this.pages.reduce(async (promise, page) => {
-               await promise;
-               const annos = await page.getAnnotations();
-               allAnnotations.push(...annos.map(anno => {
-                   return {...anno, pageNum: page.pageNumber}
-               }))
-           }, Promise.resolve())
+        return new Promise(async resolve => {
+            // todo:optimize - a lot of loops
+            // according to SO, should run in parallel and sequentially resolving promises
+            const allAnnotations = []
+            await this.pages.reduce(async (promise, page) => {
+                await promise;
+                const annos = await page.getAnnotations();
+                allAnnotations.push(...annos.map(anno => {
+                    return {...anno, pageNum: page.pageNumber}
+                }))
+            }, Promise.resolve())
 
-           const formFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
-           //remove duplicates
-           const names = formFields.map(field => {
-               return field.fieldName
-           });
-           let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
-           console.debug("PdfJsClient: loaded fields:", {
-               formFields,
-               excluded: allAnnotations.filter(e => !formFields.includes(e)),
-               dups: filtered
-           })
+            const formFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
+            //remove duplicates
+            const names = formFields.map(field => {
+                return field.fieldName
+            });
+            let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
+            console.debug("PdfJsClient: loaded fields:", {
+                formFields,
+                excluded: allAnnotations.filter(e => !formFields.includes(e)),
+                dups: filtered
+            })
 
-           resolve(filtered.map(field => {
-               return Field(field, field.fieldName, field.fieldValue, {pageNum: field.pageNum})
-           }))
-       })
+            resolve(filtered.map(field => {
+                return Field(field, field.fieldName, field.fieldValue, {pageNum: field.pageNum})
+            }))
+        })
     }
 
     selectField(field) {

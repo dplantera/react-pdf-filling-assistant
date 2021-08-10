@@ -13,13 +13,13 @@ async function loadFormFieldsFromDB(selectedList) {
         try {
             // get fields by id [rawFieldName, fieldListId]
             if (!selectedList?.pdfId) {
-                console.warn("Startup.handleReloadPdf: ...no field list found: ", {selectedList})
+                console.warn("Startup.loadFormFieldsFromDB: ...no field list found: ", {selectedList})
                 resolve([]);
             }
             const fieldsFromDb = await fieldRepo.getByIndex({fieldListId: selectedList.id})
             resolve(fieldsFromDb);
         } catch (err) {
-            console.error("Startup.handleReloadPdf^failed loading fields", err)
+            console.error("Startup.loadFormFieldsFromDB: failed loading fields", err)
             resolve([]);
         }
     })
@@ -40,7 +40,7 @@ export async function retrieveInitialFormFields({selectedList, fieldsRaw}) {
             delete fieldDomain.location
             return {...fieldRaw, ...fieldDomain};
         })
-        console.debug("Startup.handleReloadPdf: ", {fieldsFromDb, fieldsRaw, mergedFields})
+        console.debug("Startup.retrieveInitialFormFields: ", {fieldsFromDb, fieldsRaw, mergedFields})
         // update fields with mergedFields
 
         fieldRepo.updateAll(mergedFields)
@@ -55,14 +55,14 @@ export async function retrieveInitialPdfs() {
         const loadDefault = () => {
             return new Promise(async resolve => {
                 const [data, fileName] = await clientUpload.forStaticFile.uploadAsUint8('/files/pdf-form-assistant_example.pdf')
-                console.info("Startup.initializePdf: loading default pdf ", fileName);
+                console.info("Startup.retrieveInitialPdfs: loading default pdf ", fileName);
                 resolve(Pdf(fileName, data));
             })
         }
         try {
             const pdfs = await pdfRepo.getAll();
             const hasStoredPdfs = pdfs?.length > 0;
-            console.debug(`Startup.initializePdf: loading from ${hasStoredPdfs ? 'storage' : 'default'}`)
+            console.debug(`Startup.retrieveInitialPdfs: loading from ${hasStoredPdfs ? 'storage' : 'default'}`)
             let defaultPDF;
             if (!hasStoredPdfs) {
                 defaultPDF = await loadDefault();
@@ -124,7 +124,7 @@ export async function retrieveInitialFormVariables() {
 
                 return acc;
             }, []);
-            console.debug("Startup.loadVariables: done.")
+            console.debug("Startup.retrieveInitialFormVariables: done - loadVariables.")
             resolve([...mergedFromFileAndDB, ...onlyInDb]);
         })
     }

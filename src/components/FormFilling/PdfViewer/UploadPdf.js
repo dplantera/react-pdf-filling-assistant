@@ -26,16 +26,17 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         setOpen(false);
     };
 
-    const handleLoadPdf = (fileName, uint8) => {
-        selectPdf(Pdf(fileName, uint8)).then(() => {
-            console.info("UploadPdf: added pdf")
-            loadPdf({data: uint8, filename: fileName})
-        });
+    const handleLoadPdf = async (fileName, uint8) => {
+        await selectPdf(Pdf(fileName, uint8));
+        await loadPdf({data: uint8, filename: fileName})
+        console.info("UploadPdf: done")
     }
-    const handleOpenFile = (e) => {
+    const handleOpenFile =  (e) => {
+        console.group("handleOpenFile")
         setIsPdfReady(false);
-        clientUpload.forFilePicker.uploadAsUint8(e, (uint8, fileName) => {
-            handleLoadPdf(fileName, uint8);
+        clientUpload.forFilePicker.uploadAsUint8(e, async (uint8, fileName) => {
+            await handleLoadPdf(fileName, uint8);
+            console.groupEnd()
         })
         handleClose();
     };
@@ -46,8 +47,8 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         pdfDrop().style.backgroundColor = "none";
         handleClose();
         setIsPdfReady(false);
-        clientUpload.forDropEvent.uploadAsUint8(e, (uint8, fileName) => {
-            handleLoadPdf(fileName, uint8);
+        clientUpload.forDropEvent.uploadAsUint8(e, async (uint8, fileName) => {
+            await handleLoadPdf(fileName, uint8);
         })
     }
 
