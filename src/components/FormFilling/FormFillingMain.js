@@ -6,10 +6,9 @@ import Spinner from "../commons/Spinner";
 import {AddVariableProvider} from "../hooks/AddVariableContext";
 import "./FormFillingMain.css"
 
-const pdfClient = new PdfJsClient();
 
 const FormFillingMain = () => {
-
+    const [pdfClient] = useState(new PdfJsClient())
     const [isPdfReady, setIsPdfReady] = useState(false);
 
     return (

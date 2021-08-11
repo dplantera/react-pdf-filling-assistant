@@ -27,12 +27,16 @@ const App = () => {
             loadInitialData().then(() => console.debug("App: data loaded"))
         }, []);
 
-        console.debug("App rendered")
+        const handleReload = () => {
+            window.location.reload();
+        }
+
         return <main>
             <div className="App">
                 <AppBar className={"app-bar"} position="static">
                     <Toolbar className={"app-bar-menu"}>
-                        <Typography variant="h5">PDF Form Assistant</Typography>
+                        <Typography onClick={handleReload} onTouchEnd={handleReload} variant="h5">PDF Form
+                            Assistant</Typography>
                         <List>
                             <Button component={Link} to={"/"} style={{textDecoration: 'none', color: "white"}}
                             >Fill Form</Button>
