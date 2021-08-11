@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import {
     DataGrid,
     GridFooterContainer,
@@ -12,12 +13,13 @@ import {determineTableSchema, updateColumnsWidth} from "./dataTableHelper";
 import PropTypes from "prop-types";
 import {Button} from "@material-ui/core";
 
-const MyFooter = ({onDelete, ...rest}) => {
+const MyFooter = ({onDelete, onEdit, ...rest}) => {
     const {state} = useGridSlotComponentProps();
     const hasSelectedRows = () => state?.selection?.length > 0;
+    const isOnlyOneRowSelected = () => state?.selection?.length === 1;
 
     return <GridFooterContainer>
-        <div style={{display: "flex", flexDirection: "column", paddingTop: "1rem"}}>
+        <div style={{display: "flex", paddingTop: "1rem"}}>
             <GridSelectedRowCount selectedRowCount={state?.selection?.length ?? 0}/>
             {hasSelectedRows() && <Button
                 color="secondary"
@@ -26,15 +28,23 @@ const MyFooter = ({onDelete, ...rest}) => {
                 onClick={() => {
                     onDelete?.(state?.selection)
                 }}
-            >
-                Delete
-            </Button>}
+            >Delete </Button>}
+            {isOnlyOneRowSelected() && <Button
+                color="primary"
+                startIcon={<EditIcon/>}
+                size={"small"}
+                onClick={() => {
+                    console.log({state})
+                    const idSelectedRow = state?.selection?.[0] ?? "";
+                    onEdit?.(state?.rows.idRowsLookup?.[idSelectedRow])
+                }}
+            >Edit</Button>}
         </div>
         <GridPagination {...rest}/>
     </GridFooterContainer>
 }
 
-const DataTable = ({tableData, tableSchema, onDelete, ...rest}) => {
+const DataTable = ({tableData, tableSchema, onDelete, onEdit, ...rest}) => {
     const [columns, setColumns] = useState(determineTableSchema(tableData, tableSchema))
     const {pages, setPages} = useState(100);
 
@@ -57,7 +67,7 @@ const DataTable = ({tableData, tableSchema, onDelete, ...rest}) => {
                 Footer: MyFooter,
             }}
             componentsProps={{
-                footer: {rows: tableData, onDelete: onDelete},
+                footer: {rows: tableData, onDelete: onDelete, onEdit: onEdit},
             }}
             density={"compact"}
             {...rest}
