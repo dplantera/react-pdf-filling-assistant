@@ -30,11 +30,10 @@ const makeId = (val) => {
     return val?.toLowerCase().replace(/\s/g, "");
 }
 
-let varId = 1;
 export const FormVariable = (name, value, description, exampleValue) => {
 
     const formVariable = {
-        id: makeId(name) ?? makeId(value) ?? varId++,
+        id: makeId(name) ?? makeId(value) ?? uuidv4(),
         name: name || value || "",
         value: value || name || "",
         description: description || "",

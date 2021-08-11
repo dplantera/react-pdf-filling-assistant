@@ -1,6 +1,8 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from '@material-ui/icons/Add';
+
 import {
     DataGrid,
     GridFooterContainer,
@@ -13,14 +15,27 @@ import {determineTableSchema, updateColumnsWidth} from "./dataTableHelper";
 import PropTypes from "prop-types";
 import {Button} from "@material-ui/core";
 
-const MyFooter = ({onDelete, onEdit, ...rest}) => {
+const MyFooter = ({onDelete, onEdit, onCreate, ...rest}) => {
     const {state} = useGridSlotComponentProps();
     const hasSelectedRows = () => state?.selection?.length > 0;
     const isOnlyOneRowSelected = () => state?.selection?.length === 1;
 
+    const getFirstSelectedRowData = () => {
+        const idSelectedRow = state?.selection?.[0] ?? "";
+        return state?.rows.idRowsLookup?.[idSelectedRow] ?? {};
+    }
+
     return <GridFooterContainer>
         <div style={{display: "flex", paddingTop: "1rem"}}>
             <GridSelectedRowCount selectedRowCount={state?.selection?.length ?? 0}/>
+            {(!hasSelectedRows() || isOnlyOneRowSelected()) && <Button
+                color="primary"
+                startIcon={<AddIcon/>}
+                size={"small"}
+                onClick={() => {
+                    onCreate?.(getFirstSelectedRowData())
+                }}
+            >{isOnlyOneRowSelected() ? "Copy" : "Add"} </Button>}
             {hasSelectedRows() && <Button
                 color="secondary"
                 startIcon={<DeleteIcon/>}
@@ -34,9 +49,7 @@ const MyFooter = ({onDelete, onEdit, ...rest}) => {
                 startIcon={<EditIcon/>}
                 size={"small"}
                 onClick={() => {
-                    console.log({state})
-                    const idSelectedRow = state?.selection?.[0] ?? "";
-                    onEdit?.(state?.rows.idRowsLookup?.[idSelectedRow])
+                    onEdit?.(getFirstSelectedRowData())
                 }}
             >Edit</Button>}
         </div>
@@ -44,7 +57,7 @@ const MyFooter = ({onDelete, onEdit, ...rest}) => {
     </GridFooterContainer>
 }
 
-const DataTable = ({tableData, tableSchema, onDelete, onEdit, ...rest}) => {
+const DataTable = ({tableData, tableSchema, onDelete, onEdit, onCreate, ...rest}) => {
     const [columns, setColumns] = useState(determineTableSchema(tableData, tableSchema))
     const {pages, setPages} = useState(100);
 
@@ -67,7 +80,7 @@ const DataTable = ({tableData, tableSchema, onDelete, onEdit, ...rest}) => {
                 Footer: MyFooter,
             }}
             componentsProps={{
-                footer: {rows: tableData, onDelete: onDelete, onEdit: onEdit},
+                footer: {rows: tableData, onDelete, onEdit, onCreate},
             }}
             density={"compact"}
             {...rest}
