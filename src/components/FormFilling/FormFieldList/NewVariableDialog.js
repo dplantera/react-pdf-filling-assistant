@@ -9,6 +9,9 @@ import {FormVariable} from "../../../model/types";
 import {useAddVariable} from "../../hooks/AddVariableContext";
 import {useStore} from "../../../store";
 
+/**
+ * @deprecated - replaced by hook useVariableDialog
+ */
 const NewVariableDialog = () => {
     const addVariable = useStore(state => state.addVariable)
 

@@ -1,5 +1,8 @@
 import React, {createContext, useCallback, useState} from 'react';
 
+/**
+ * @deprecated - replaced by hook useVariableDialog
+ */
 const AddVariableProvider = ({children}) => {
     const [openDialog, setOpenDialog] = useState(false);
     const [newValue, setNewValue] = useState({});
@@ -25,6 +28,9 @@ const AddVariableProvider = ({children}) => {
 
 const AddVariableContext = createContext();
 
+/**
+ * @deprecated - replaced by hook useVariableDialog
+ */
 function useAddVariable() {
     // returns values from provider - so evererything in value
     const context = React.useContext(AddVariableContext)

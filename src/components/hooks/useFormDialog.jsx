@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {Dialog, TextField} from "@material-ui/core";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -23,11 +23,11 @@ export const useFormDialog = ({
     const refFormData = useRef({});
 
     const actions = {
-        hide: () => setOpen(false),
-        show: (_defaultFormData = {}) => {
+        hide: useCallback(() => setOpen(false), [setOpen]),
+        show: useCallback((_defaultFormData = {}) => {
             refFormData.current = {..._defaultFormData}
             setOpen(true);
-        },
+        }, [setOpen]),
     }
 
     const renderInputFields = () => {
@@ -73,7 +73,7 @@ export const useFormDialog = ({
                             Cancel
                         </Button>
                         <Button type="submit" color="primary">
-                            Add
+                            Submit
                         </Button>
                     </DialogActions>
                 </form>
