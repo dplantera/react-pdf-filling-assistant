@@ -36,7 +36,7 @@ const FormFieldItem = memo((
 
     const handleNewVariable = (formVariable) => {
         addVariableToField(formVariable, {id: fieldId, index: idx});
-        // setFieldVal(formVariable.name);
+        setFieldVal(formVariable.name);
         setFieldDesc(formVariable.description);
     }
 
