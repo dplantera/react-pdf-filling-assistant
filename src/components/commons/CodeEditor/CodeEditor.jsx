@@ -20,12 +20,19 @@ const switchLanguage = async (codeLanguage) => {
                 grammar: Prism.languages.velocity,
                 language: "velocity"
             }
-        case "velocityJs":
+        case "velocityJs"://customized definition
             console.debug("switchLanguage: ", "velocityJs")
             await import("./custom-definitions/prism-velocityJs");
             return {
                 grammar: Prism.languages.velocityJs,
                 language: "velocityJs"
+            }
+        case "javascript":
+            console.debug("switchLanguage: default -", "javascript")
+            await import("prismjs/components/prism-javascript")
+            return {
+                grammar: Prism.languages.js,
+                language: "javascript"
             }
         default:
             console.debug("switchLanguage: default -", "javascript")
@@ -39,10 +46,7 @@ const switchLanguage = async (codeLanguage) => {
 
 const useStyles = makeStyles((theme) => ({
     modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: "100%",
+        display: 'flex', alignItems: 'center', justifyContent: 'center', height: "100%",
     },
     paper: {
         backgroundColor: theme.palette.background.paper,
@@ -55,6 +59,31 @@ const useStyles = makeStyles((theme) => ({
         display: "flex",
         flexDirection: "column",
     },
+    codeEditor: {
+        position: "relative",
+        fontFamily: '"Fira code", "Fira Mono", monospace',
+        fontSize: 12,
+        height: "100%",
+        minHeight: 200,
+    },
+    codePreTag: {
+        height: "100%",
+    },
+    codeEditorHeader: {
+        position: "relative"
+    },
+    codeEditorSave: {
+        position: "absolute", right: 0, top: 0
+    },
+    codeEditorContent: {
+        position: "relative", overflow: "auto", minHeight: "200px"
+    },
+    codeEditorFooter: {
+        position: "relative", display: "flex", justifyContent: "flex-end"
+    },
+    codeEditorControls: {
+        position: "relative", alignSelf: "end",
+    }
 }));
 
 const createHighlightForLang = async (lang) => {
@@ -71,7 +100,7 @@ export const CodeEditor = memo(({
                                     onBlur,
                                     onSubmit,
                                     onSave,
-                                     onClose,
+                                    onClose,
                                     ...rest
                                 }) => {
     const {show: showSaveIcon, RenderSave} = useSave();
@@ -107,33 +136,26 @@ export const CodeEditor = memo(({
     }, [codeLanguage, setIsInitialized])
 
     return isInitialized && <Modal open={open} className={classes.modal}>
-        <Paper className={classes.paper} onKeyDown={handleSaveKeyPress}
-        >
-            <div className={"useCodeEditor-header"} style={{position: "relative"}}>
+        <Paper className={classes.paper} onKeyDown={handleSaveKeyPress}>
+            <div className={classes.codeEditorHeader}>
                 {header}
-                <RenderSave style={{position: "absolute", right: 0, top: 0}}/>
+                <RenderSave className={classes.codeEditorSave}/>
             </div>
-            <div className={"useCodeEditor-content"}
-                 style={{position: "relative", overflow: "auto", minHeight: "200px"}}>
+            <div className={classes.codeEditorContent}>
                 <Editor value={code} t
                         onValueChange={(code) => {
                             setCode(code)
                         }}
                         highlight={refHighlight.current}
                         padding={10}
-                        style={{
-                            position: "relative",
-                            fontFamily: '"Fira code", "Fira Mono", monospace',
-                            fontSize: 12,
-                            height: "100%"
-                        }}
                         onBlur={() => onBlur?.(code, codeString)}
+                        className={classes.codeEditor}
+                        preClassName={classes.codePreTag}
                         {...rest}
                 />
             </div>
-            <div className={"useCodeEditor-footer"}
-                 style={{position: "relative", display: "flex", justifyContent: "flex-end"}}>
-                <div style={{position: "relative", alignSelf: "end"}}>
+            <div className={classes.codeEditorFooter}>
+                <div className={classes.codeEditorControls}>
                     <Button onClick={handleClose}>Close</Button>
                     <Button onClick={handleSave}>Save</Button>
                     <Button onClick={handleSubmit}>Submit</Button>

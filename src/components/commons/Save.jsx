@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
     fabProgress: {
         color: green[300],
         position: 'absolute',
-        left: -3
+        left: -3,
+        top: -3
     }
 }));
 
