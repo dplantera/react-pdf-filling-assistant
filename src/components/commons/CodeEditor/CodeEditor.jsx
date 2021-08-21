@@ -142,7 +142,7 @@ export const CodeEditor = memo(({
                 <RenderSave className={classes.codeEditorSave}/>
             </div>
             <div className={classes.codeEditorContent}>
-                <Editor value={code} t
+                <Editor value={code}
                         onValueChange={(code) => {
                             setCode(code)
                         }}
