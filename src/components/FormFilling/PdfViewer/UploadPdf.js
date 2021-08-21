@@ -73,6 +73,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        height: "100%"
                     }}
                          onDragOver={(e) => {
                              e.preventDefault();

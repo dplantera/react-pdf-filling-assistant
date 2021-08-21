@@ -86,6 +86,7 @@ export default function UploadDialog({handleUpload, uploadOptions, title}) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        height: "100%"
                     }}
                          onDragOver={(e) => {
                              e.preventDefault();
