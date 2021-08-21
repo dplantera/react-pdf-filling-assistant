@@ -57,7 +57,7 @@ const MyFooter = ({onDelete, onEdit, onCreate, ...rest}) => {
     </GridFooterContainer>
 }
 
-const DataTable = ({tableData, tableSchema, onDelete, onEdit, onCreate, ...rest}) => {
+const DataTable = ({tableData, tableSchema, onDelete, onEdit, onCreate, onCellDoubleClick, ...rest}) => {
     const [columns, setColumns] = useState(determineTableSchema(tableData, tableSchema))
     const {pages, setPages} = useState(100);
 
@@ -74,6 +74,7 @@ const DataTable = ({tableData, tableSchema, onDelete, onEdit, onCreate, ...rest}
     return (
         <DataGrid
             rows={tableData} columns={columns} checkboxSelection pageSize={pages} onPageSizeChange={setPages}
+            onCellDoubleClick={onCellDoubleClick}
             classes={{}}
             components={{
                 Toolbar: GridToolbar,
@@ -94,7 +95,9 @@ export default DataTable;
 DataTable.propTypes = {
     tableData: PropTypes.array,
     tableSchema: PropTypes.array,
+    onEdit: PropTypes.func,
+    onCreate: PropTypes.func,
+    onDelete: PropTypes.func,
+    onCellDoubleClick: PropTypes.func,
     onCellEditCommit: PropTypes.func,
-    onSelectionModelChange: PropTypes.func,
-    onDelete: PropTypes.func
 };

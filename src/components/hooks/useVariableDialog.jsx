@@ -1,10 +1,12 @@
 import React, {memo, useState} from 'react';
-import {useStore} from "../../store";
 import {useFormDialog} from "./useFormDialog";
 
-
-export const useVariableDialog = ({defaultType} = {defaultType: "new"}) => {
-    const [updateVariable, deleteVariables, addVariable] = useStore(state => [state.updateVariable, state.deleteVariables, state.addVariable])
+export const useVariableDialog = ({
+                                      defaultType,
+                                      updateVariable,
+                                      deleteVariables,
+                                      addVariable
+                                  } = {defaultType: "new"}) => {
     const [dialogType, setDialogType] = useState(defaultType)
     const {RenderFormDialog, show: _show, hide} = useFormDialog({
         title: `${dialogType === "new" ? "Add" : "Edit"} Form-Field Variable`,
@@ -18,28 +20,21 @@ export const useVariableDialog = ({defaultType} = {defaultType: "new"}) => {
         fieldBlacklist: ["id"]
     })
 
-    const maybeDeleted = (formData) => {
-        if (!formData.value || !formData.name) {
-            deleteVariables([formData])
-            return true;
-        }
-        return false;
-    }
-    const doDeleteUpdateOrCreate = (formData) => {
-        if (!formData || !formData?.id){
+
+    const updateOrCreate = (formData) => {
+        if (!formData || !formData?.id) {
             console.error("useVariableDialog: no id found")
             return;
         }
-        if (!maybeDeleted(formData))
-            dialogType === "new" ? addVariable(formData) : updateVariable(formData);
+        dialogType === "new" ? addVariable(formData) : updateVariable(formData);
     }
 
     const handleClose = (formData) => {
-        doDeleteUpdateOrCreate(formData)
+        updateOrCreate(formData)
         hide();
     }
     const handleSubmit = (formData) => {
-        doDeleteUpdateOrCreate(formData)
+        updateOrCreate(formData)
         hide();
     }
     const handleCancel = (formData) => {
@@ -53,9 +48,11 @@ export const useVariableDialog = ({defaultType} = {defaultType: "new"}) => {
         _show(formData);
     }
 
-    const VariableDialog = memo(() => <RenderFormDialog onClose={handleClose}
-                                                        onSubmit={handleSubmit}
-                                                        onCancel={handleCancel}/>)
+    const VariableDialog = memo(() => <div>
+        <RenderFormDialog onClose={handleClose}
+                          onSubmit={handleSubmit}
+                          onCancel={handleCancel}/>
+    </div>)
     return {
         show,
         hide,
