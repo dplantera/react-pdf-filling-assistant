@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {Checkbox, IconButton, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText} from "@material-ui/core";
 import {InsertDriveFile, PictureAsPdf} from "@material-ui/icons";
 import {makeStyles} from "@material-ui/core/styles";
+import {isPdfMimeType} from "../../../utils/upload";
 
 //https://stackoverflow.com/a/8471438
 const bytesToMegaBytes = (bytes, digits = 2) => (bytes / (1024 * 1024)).toFixed(digits);
@@ -15,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 );
 
 const renderIconByFileType = (fileType) => {
-    if (fileType?.endsWith("pdf"))
+    if (isPdfMimeType(fileType))
         return <PictureAsPdf color={"secondary"} />
     return <InsertDriveFile/>
 }

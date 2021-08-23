@@ -23,7 +23,7 @@ const VariablesIO = () => {
         downloadClient.forCsv.download(rows, fileName);
     }
 
-    function handleUploadCsv(text, filename, options) {
+    function handleUploadCsv(text, filename) {
         //name;value;desc;example
         const rows = text.split("\n");
         const vars = rows.reduce((result, row) => {
@@ -50,26 +50,24 @@ const VariablesIO = () => {
         const ignored = [];
         const overwritten = [];
         const newVariables = [];
+        const existingVariables = [...variables];
         vars.forEach(varCandidate => {
             const isEqual = (candidate, other) => {
                 if (!other) return false;
                 return candidate.id === other.id || candidate.value === other.value;
             }
-            const idxExisting = variables.findIndex(existVar => isEqual(varCandidate, existVar));
+            const idxExisting = existingVariables.findIndex(existVar => isEqual(varCandidate, existVar));
             const isNewVariable = idxExisting === -1;
-            const ignoreVariable = idxExisting >= 0 && !options.overwriteExisting?.value;
             if (isNewVariable) {
                 newVariables.push(varCandidate);
-            } else if (!ignoreVariable) {
-                const existing = variables[idxExisting];
+            } else {
+                const existing = existingVariables[idxExisting];
                 overwritten.push(existing);
-                variables[idxExisting] = {...existing, ...varCandidate};
-            } else if (ignoreVariable) {
-                ignored.push(varCandidate);
+                existingVariables[idxExisting] = {...existing, ...varCandidate};
             }
         })
 
-        if(newVariables.length <= 0 && overwritten.length <= 0) {
+        if (newVariables.length <= 0 && overwritten.length <= 0) {
             console.info("VariablesIO: variables up-to-date.", {newVariables, overwritten, ignored})
             return
         }
@@ -86,13 +84,8 @@ const VariablesIO = () => {
                            setFileName(e.currentTarget.value)
                        }}/>
 
-            <UploadDialog handleUpload={handleUploadCsv}
-                          uploadOptions={{
-                              overwriteExisting: {
-                                  value: false,
-                                  label: "Overwrite existing?"
-                              }
-                          }}
+            <UploadDialog onUploadText={handleUploadCsv}
+                          acceptedFileExt={[".csv"]}
                           title={"Upload Variables"}/>
             <Button id="btn-vars-download" size={"small"} style={{height: "50%"}}
                     onClick={(e) => downloadCsv(e, variables)}>Download</Button>

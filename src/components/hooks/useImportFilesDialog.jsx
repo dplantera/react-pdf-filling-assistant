@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {ImportFilesDialog} from "./ImportFilesDialog";
 import PropTypes from "prop-types";
+import {ImportFilesDialog} from "../commons/Import/ImportFilesDialog";
 
 export const useImportFilesDialog = () => {
     const [isOpen, setIsOpen] = useState(false);

@@ -3,7 +3,7 @@ import {Button, TextField} from "@material-ui/core";
 import {ClientDownload} from "../../../../utils/ClientDownload";
 import {useStore} from "../../../../store";
 import UploadDialog from "../../../commons/UploadDialog";
-import {importFieldsAndVarsFromCsv} from "../../../../components/actions/importActions";
+import {importFieldsAndVarsFromCsv} from "../../../actions/importActions";
 
 const downloadClient = new ClientDownload();
 const downloadCsv = (e, fieldList, variables, fields) => {
@@ -29,8 +29,7 @@ const FormListControls = () => {
         downloadCsv(e, fieldLists[index], variables, fields)
     }, [variables, fieldLists, fields])
 
-    // todo: refactor - move into own file
-    const handleUploadCsv = (text, filename, options) => {
+    const handleUploadCsv = (text, filename) => {
         const importResult = importFieldsAndVarsFromCsv(text, fields, variables, addVariableToField);
         updateVariables(importResult.newVariables);
         updateFields(importResult.newFields);
@@ -57,8 +56,9 @@ const FormListControls = () => {
                                    fieldList.name = e.currentTarget.value;
                                    updateFieldList({index, name: e.currentTarget.value})
                                }}/>
-                    <UploadDialog handleUpload={handleUploadCsv}
-                                  title={"Upload Template"}/>
+                    <UploadDialog onUploadText={handleUploadCsv}
+                                  acceptedFileExt={[".csv"]}
+                                  title={"Upload Variables"}/>
                     <Button size={"small"} style={{height: "50%"}}
                             onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
                 </div>

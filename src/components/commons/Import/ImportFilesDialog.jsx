@@ -6,9 +6,9 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import PropTypes from "prop-types";
 import {makeStyles} from "@material-ui/core/styles";
-import {Upload} from "../../utils/ClientUpload";
 import DisplayFileList from "./DisplayFileList";
 import {Typography} from "@material-ui/core";
+import {Upload} from "../../../utils/upload";
 
 
 const getDropZone = () => {
@@ -49,17 +49,20 @@ export const ImportFilesDialog = ({
 
     const assertFileExtension = (_files) => {
         const filetype = (file) => file?.name?.replace(/.*(?=\.)/g, "") || file?.type?.replace(/.*\//g, ".");
-        if (_files.some(file => {
-            console.log({filetype: filetype(file)})
-            return !acceptedFileExt.includes(filetype(file))
-        }))
-            console.error(new Error("file type not supported"));
+        return _files.filter(file => {
+            if(!acceptedFileExt.includes(filetype(file))) {
+                console.error(new Error("file type not supported"), {file});
+                return false;
+            }
+            return true;
+        })
     }
 
     const onUpload = async (e) => {
         const _filesToRead = Upload.getFilesToRead(e);
-        assertFileExtension(_filesToRead);
-        setFiles([...files, ..._filesToRead])
+        const _filesToReadValid = assertFileExtension(_filesToRead);
+        setFiles([...files, ..._filesToReadValid])
+        setFilesSelected([...filesSelected, ..._filesToReadValid])
     }
 
     const onDrop = async (e) => {

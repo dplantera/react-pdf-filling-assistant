@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {List, ListSubheader} from "@material-ui/core";
 import DisplayFileItem from "./DisplayFileItem";
-import {Upload} from "../../utils/ClientUpload";
-
+import {Upload} from "../../../utils/upload";
 
 
 const DisplayFileList = ({files, subheader, onSelectionChanged}) => {
