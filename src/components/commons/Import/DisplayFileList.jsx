@@ -1,29 +1,33 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {List, ListSubheader} from "@material-ui/core";
 import DisplayFileItem from "./DisplayFileItem";
 import {Upload} from "../../../utils/upload";
 
 
-const DisplayFileList = ({files, subheader, onSelectionChanged}) => {
-    const [selectedFiles, setSelectedFiles] = useState([]);
+const DisplayFileList = ({files, selectedFiles, subheader, onSelectionChanged}) => {
 
-    const getFilesFromSelection = (selection) => selection.sort().map(idxSelection => files[idxSelection]);
+    const findByNameAndSize = (_files, name, size) => {
+        return _files.find(file => file.name === name && file.size === size)
+    }
+    const containsByNameAndSize = (_selection, fileName, fileSize) => {
+        return _selection.some(file => file.name === fileName && file.size === fileSize);
+    }
 
-    const handleChecked = (checked, index) => {
-        const isInSelection = selectedFiles.includes(index);
+    const handleChecked = (checked, fileName, fileSize) => {
+        const isInSelection = containsByNameAndSize(selectedFiles, fileName, fileSize);
         if (checked && isInSelection)
             return
-        const newSelection = checked
-            ? [...selectedFiles, index]
-            : selectedFiles.filter(idxSelection => idxSelection !== index);
-        setSelectedFiles(newSelection)
 
-        onSelectionChanged?.(getFilesFromSelection(newSelection))
+        const selectedFile = findByNameAndSize(files, fileName, fileSize);
+        const newSelection = checked
+            ? [...selectedFiles, selectedFile]
+            : selectedFiles.filter(file => file.name !== selectedFile.name && file.size !== selectedFile.size);
+        onSelectionChanged?.(newSelection);
     };
 
-    const handleAction = async (fileId) => {
-        const fileToOpen = files[fileId];
+    const handleAction = async (_fileName, _fileSize) => {
+        const fileToOpen = findByNameAndSize(files, _fileName, _fileSize);
         const [data, fileName] = await Upload.uploadAsUint8(fileToOpen);
         console.debug("DisplayFileList.handleAction: ", {fileToOpen, fileName})
 
@@ -44,18 +48,16 @@ const DisplayFileList = ({files, subheader, onSelectionChanged}) => {
         )
     }
 
-    useEffect(() => {
-        const selection = files.map((file,idx) => {return idx});
-        setSelectedFiles(selection);
-        onSelectionChanged?.(getFilesFromSelection(selection))
-    }, [files, setSelectedFiles])
+    const isSelected = (fileName, size) => {
+        return containsByNameAndSize(selectedFiles, fileName, size);
+    }
 
     return (
         <React.Fragment>
             <List subheader={renderSubHeader()}>
                 {files.map(({name, size, type}, idx) => <DisplayFileItem key={idx}
                                                                          itemId={idx}
-                                                                         checked={selectedFiles.includes(idx)}
+                                                                         checked={isSelected(name, size)}
                                                                          fileName={name}
                                                                          fileType={type} fileSize={size}
                                                                          onChecked={handleChecked}

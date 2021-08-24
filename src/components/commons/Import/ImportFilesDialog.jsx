@@ -74,10 +74,6 @@ export const ImportFilesDialog = ({
         await onUpload(e);
     }
 
-    const handleFileSelection = (selectedFiles) => {
-        setFilesSelected(selectedFiles);
-    }
-
     const handleImport = () => {
         onImport?.(filesSelected);
     }
@@ -104,8 +100,9 @@ export const ImportFilesDialog = ({
             <DialogTitle>{title}</DialogTitle>
             <DialogContent id={"import-file-dialog"}>
                 <DisplayFileList files={files}
+                                 selectedFiles={filesSelected}
                                  subheader={<h2>Select files for import</h2>}
-                                 onSelectionChanged={handleFileSelection}
+                                 onSelectionChanged={setFilesSelected}
                 />
                 <input type="file" id="file" name="file" encType="multipart/form-data" hidden={true}/>
                 {files.length <= 0 && <div className={classes.dragDrop}>
