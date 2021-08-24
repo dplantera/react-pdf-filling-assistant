@@ -1,8 +1,7 @@
 import {Field, FormVariable, Pdf} from "../../model/types";
-import {ClientUpload} from "../../utils/ClientUpload";
 import {getRepository} from "../../utils/ClientStorage";
+import {Upload} from "../../utils/upload";
 
-const clientUpload = new ClientUpload();
 
 const pdfRepo = getRepository(Pdf);
 const fieldRepo = getRepository(Field);
@@ -54,7 +53,7 @@ export async function retrieveInitialPdfs() {
     return new Promise(async resolve => {
         const loadDefault = () => {
             return new Promise(async resolve => {
-                const [data, fileName] = await clientUpload.forStaticFile.uploadAsUint8('/files/pdf-form-assistant_example.pdf')
+                const [data, fileName] = await Upload.uploadAsUint8('/files/pdf-form-assistant_example.pdf')
                 console.info("Startup.retrieveInitialPdfs: loading default pdf ", fileName);
                 resolve(Pdf(fileName, data));
             })
@@ -80,7 +79,9 @@ export async function retrieveInitialPdfs() {
 export async function retrieveInitialFormVariables() {
     const loadVariablesFromFile = async () => {
         return new Promise(async (resolve) => {
-            const data = await clientUpload.forStaticFile.uploadAsJson("/variables.json")
+            const [data, fileName] = await Upload.uploadAsJson("/variables.json")
+            console.debug(`Startup.retrieveInitialFormVariables: loaded: ${fileName}`)
+
             const variablesFromDB = Object.keys(data).reduce((acc, key) => {
                 const entityType = data[key].type;
                 const attributes = data[key].attributes;
@@ -124,7 +125,7 @@ export async function retrieveInitialFormVariables() {
 
                 return acc;
             }, []);
-            console.debug("Startup.retrieveInitialFormVariables: done - loadVariables.")
+            console.debug("Startup.retrieveInitialFormVariables: done.")
             resolve([...mergedFromFileAndDB, ...onlyInDb]);
         })
     }

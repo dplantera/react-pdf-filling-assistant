@@ -12,6 +12,7 @@ Upload.getFilesToRead = (eventOrFileOrPath) => {
         return ClientUpload.forFilePicker.getFiles(eventOrFileOrPath);
     if (isFilePath(eventOrFileOrPath))
         return ClientUpload.forStaticFile.getFiles(eventOrFileOrPath);
+    console.error("cant resolve input: ", {eventOrFileOrPath})
 }
 Upload.uploadAsText = async (eventOrFileOrPath) => {
     if (isFileOrFileList(eventOrFileOrPath))
@@ -22,7 +23,7 @@ Upload.uploadAsText = async (eventOrFileOrPath) => {
         return ClientUpload.forFilePicker.uploadAsText(eventOrFileOrPath);
     if (isFilePath(eventOrFileOrPath))
         return ClientUpload.forStaticFile.uploadAsText(eventOrFileOrPath);
-    console.error("cant resolve input: ", {eventOrFile: eventOrFileOrPath})
+    console.error("cant resolve input: ", {eventOrFileOrPath})
     return [];
 }
 Upload.uploadAsUint8 = async (eventOrFileOrPath) => {
@@ -34,7 +35,7 @@ Upload.uploadAsUint8 = async (eventOrFileOrPath) => {
         return ClientUpload.forFilePicker.uploadAsUint8(eventOrFileOrPath);
     if (isFilePath(eventOrFileOrPath))
         return ClientUpload.forStaticFile.uploadAsUint8(eventOrFileOrPath);
-    console.error("cant resolve input: ", {eventOrFile: eventOrFileOrPath})
+    console.error("cant resolve input: ", {eventOrFileOrPath})
     return [];
 }
 Upload.uploadAsJson = async (eventOrFile) => {
@@ -66,12 +67,12 @@ function hasFilesFromFilePickerEvent(eventOrFile) {
 function isFilePath(eventOrFile) {
     if (typeof eventOrFile !== "string")
         return false;
-    /* matched => from
-    * tes12t\affe123\31file.ext => c:\tes12t\affe123\31file.ext
-    * test/affe/file.ext => /c/test/affe/file.ext
-    * ./resource/file.x
-    * ./../test.x
-    * www.test.de/hold/of.de
+    /* matches:
+    *   tes12t\affe123\31file.ext
+    *   test/affe/file.ext
+    *   ./resource/file.x
+    *   ./../test.x
+    *   www.test.de/hold/of.de
     * */
-    return null !== eventOrFile?.match(/(([\w|\d]|\.)+[\\|/]([\w|\d]|\.)+)([\\|/]([\w|\d]|\.)+\.[\w|\d]+)/gm)
+    return null !== eventOrFile?.match(/^[\w|.]*(([\\/])[a-z0-9\s_@\-^!#$%&+={}[\].]+)+\.[\w\d]+$/igm)
 }
