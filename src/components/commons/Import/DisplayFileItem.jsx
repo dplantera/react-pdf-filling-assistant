@@ -24,8 +24,8 @@ const DisplayFileItem = ({itemId, fileName, fileSize, fileType, onChecked, onAct
     const byteToMb = bytesToMegaBytes(fileSize ?? 0, 4);
     const classes = useStyles();
 
-    const handleCheckedChange = useCallback((e) => onChecked?.(e.target.checked, fileName, fileSize), [onChecked, itemId, fileName, fileSize]);
-    const handleAction = useCallback(() => onAction?.(fileName, fileSize), [onAction, itemId, fileName, fileSize]);
+    const handleCheckedChange = useCallback((e) => onChecked?.(e.target.checked, fileName, fileSize), [onChecked, fileName, fileSize]);
+    const handleAction = useCallback(() => onAction?.(fileName, fileSize), [onAction, fileName, fileSize]);
 
     return (
         <ListItem classes={{container: classes.container}} divider>
