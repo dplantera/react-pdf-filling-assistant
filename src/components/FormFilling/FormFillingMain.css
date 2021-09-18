@@ -14,9 +14,8 @@
     display: flex;
     width: calc(100% - var(--gap-boarder) * 2);
     flex-wrap: wrap-reverse;
-    /*overflow: auto;*/
     padding-top: 10px;
-    align-items: start;
+    align-items: self-start;
 }
 
 /*left and right side*/

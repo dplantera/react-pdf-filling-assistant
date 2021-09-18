@@ -31,7 +31,7 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
             if (pdfs?.length > 0)
                 initPdf(lastPDF.name, lastPDF.binary)
         }
-    , [pdfs, loadFields])
+    , [pdfs, lastPDF.binary, lastPDF.name, pdfClient])
 
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>

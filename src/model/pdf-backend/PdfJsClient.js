@@ -1,12 +1,7 @@
 import {Field} from "../types";
 
-const pdfjsLib = require('pdfjs-dist')
-
 const CMAP_URL = "../../node_modules/pdfjs-dist/cmaps/";
 const CMAP_PACKED = true;
-
-// there is known issue with react directly using the lib for worker https://github.com/mozilla/pdf.js/issues/10997
-pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.9.359/build/pdf.worker.js'
 
 export default class PdfJsClient {
     constructor() {
@@ -48,7 +43,7 @@ export default class PdfJsClient {
                 }
                 if (url) cfg.url = url
                 else if (data) cfg.data = data
-                const pdf = await pdfjsLib.getDocument(cfg).promise;
+                const pdf = await this.viewer.pdfjs.getDocument(cfg).promise;
                 const pdfMeta = await pdf.getMetadata();
 
                 const pages = [];

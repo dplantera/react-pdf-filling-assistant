@@ -1,6 +1,6 @@
 import {Document, Page, pdfjs} from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import React, {createRef, useCallback, useRef, useState} from "react";
+import React, {createRef, useRef, useState} from "react";
 import {ViewerToolbar} from "./ViewerToolbar";
 import {Card, CircularProgress, Drawer} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
@@ -41,8 +41,8 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
         for (let i = 0; i < numPages; i++) {
             refPages.current[i] = createRef();
             Pages.push(
-                <Card>
-                    <Page key={i}
+                <Card key={i}>
+                    <Page
                           inputRef={refPages.current[i]}
                           pageNumber={i + 1}
                           scale={scale}
@@ -65,15 +65,12 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
         }
     }
 
-    const handlePageNumberChanged = useCallback(
-        (newPageNum) => {
-            console.debug("ReactPdfViewer.handlePageNumberChanged ", newPageNum)
-            refPageNum.current = newPageNum;
-            setPageNumber(newPageNum);
-            scrollIntoView(newPageNum);
-        },
-        [setPageNumber, scrollIntoView],
-    );
+    const handlePageNumberChanged = (newPageNum) => {
+        console.debug("ReactPdfViewer.handlePageNumberChanged ", newPageNum)
+        refPageNum.current = newPageNum;
+        setPageNumber(newPageNum);
+        scrollIntoView(newPageNum);
+    };
 
     function handleDocumentLoadSuccess(pdfProxy) {
         setNumPages(pdfProxy.numPages);
@@ -84,7 +81,7 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
     }
 
     if (!file)
-        onInit?.({loadPdf: setFile, goToPage: handlePageNumberChanged, getPageCanvas, refDocument, refPageNum})
+        onInit?.({pdfjs, loadPdf: setFile, goToPage: handlePageNumberChanged, getPageCanvas, refDocument, refPageNum})
 
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>
