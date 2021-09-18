@@ -11,7 +11,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.9.
 export default class PdfJsClient {
     constructor() {
         this.viewerDiv = null;
-        this._iframe = null;
         this.urlPath = null;
         this.filename = null;
         this.pdf = null;
@@ -20,32 +19,13 @@ export default class PdfJsClient {
         this.isInitialized = false;
     }
 
-    get viewer() {
-        return this._iframe.contentWindow.PDFViewerApplication
-    };
-
-    get on() {
-        return this.viewer.eventBus.on.bind(this.viewer.eventBus)
-    }
-
-    get off() {
-        return this.viewer.eventBus.off.bind(this.viewer.eventBus)
-    }
-
-    async init({viewerDiv, url, path, data, fileName = "unnamed.pdf"}) {
+    async init({pdfViewer, url, path, data, fileName = "unnamed.pdf"}) {
         console.group("PdfJsClient.init")
         return new Promise(async resolve => {
             this.isInitialized = false;
-            this.viewerDiv = viewerDiv;
             this.urlPath = url || path;
             this.filename = this.urlPath ? this.urlPath.split("/").reverse()[0] : fileName;
-            const iframe = document.createElement('iframe')
-            // using the default viewer for rendering
-            iframe.src = `/pdfjs-2.9.359-dist/web/viewer.html`;
-            iframe.width = '100%';
-            iframe.height = '100%';
-            this.viewerDiv.current.appendChild(iframe);
-            this._iframe = iframe;
+            this.viewer = pdfViewer;
 
             await this.loadPdf({url: this.urlPath, data, fileName})
             console.debug("PdfJsClient: initialized backend.")
@@ -58,6 +38,7 @@ export default class PdfJsClient {
 
     async loadPdf({url, data, filename}) {
         return new Promise(async resolve => {
+            console.debug("PdfJsClient.loadPDf")
             const loadPdfIntoBackend = async () => {
                 if (filename) this.filename = filename;
 
@@ -93,40 +74,24 @@ export default class PdfJsClient {
 
             const loadPdfIntoViewer = async () => {
                 let urlPathOrBins;
-                if (data) urlPathOrBins = new Uint8Array(data)
+                if (data) urlPathOrBins = new Uint8Array(data).buffer
                 else if (url) urlPathOrBins = url;
 
                 if (!this.viewer) {
                     console.warn("PdfJsClient: viewer not ready");
                     return
                 }
-                await this.viewer.open(urlPathOrBins)
+                await this.viewer.loadPdf(urlPathOrBins)
             }
             await loadPdfIntoBackend();
             await loadPdfIntoViewer();
+            console.debug("PdfJsClient.loadPDf: done")
             resolve(true);
         })
     }
 
-    cleanUpExternListeners(listener) {
-        const allListener = this.viewer.eventBus._listeners[listener];
-        const filtered = allListener.filter((el, idx) => !el.external || (el.external && (idx === allListener.length - 1))
-        );
-        this.viewer.eventBus._listeners[listener] = filtered;
-
-        if (allListener.length !== filtered.length)
-            console.debug("PdfJsClient: cleaned-up event listeners: " + listener, {allListener, filtered})
-    }
-
-    goToPage(num, callback) {
-        // we need to wait for form fields to be rendered...
-        this.cleanUpExternListeners("pagechanging")
-        this.on('pagechanging', () => {
-            if (num !== this.viewer.page)
-                return
-            callback()
-        });
-        this.viewer.pdfViewer.currentPageNumber = num;
+    async goToPage(num) {
+        this.viewer.goToPage(num);
     }
 
     async getFormFields(includeReadOnly = false) {
@@ -164,31 +129,28 @@ export default class PdfJsClient {
         const doSelectField = (fieldName) => {
             const el = this.getElement(fieldName);
             el.style.backgroundColor = "yellow";
-            el.scrollIntoView({
-                behavior: 'auto',
-                block: 'nearest',
-                inline: 'center'
-            });
+            el.scrollIntoView();
         }
         const fieldName = field.name ?? field;
         let fieldPageNum = field.location.pageNum;
-        if (this.viewer.page === fieldPageNum) {
+        if (this.viewer.refPageNum.current === fieldPageNum) {
             doSelectField(fieldName);
         } else {
-            this.goToPage(fieldPageNum, (e) => {
-                doSelectField(fieldName)
-            });
+            this.goToPage(fieldPageNum)
+                .then(() => doSelectField(fieldName));
         }
     }
 
     getElement(field) {
         const fieldName = field.name ?? field;
-        let elements = this._iframe.contentDocument.getElementsByName(fieldName);
+        let elements = this.viewer.refDocument.current?.querySelector(`[name='${fieldName}']`);
         if (!elements || elements.length < 1) {
             console.error("PdfJsClient: select field failed for: ", fieldName)
             return document.createElement("div")
         }
-        return elements[0].parentNode;
+        if(Array.isArray(elements))
+            return elements[0].parentNode;
+        return elements.parentNode;
     }
 
     unselectField(field) {
@@ -196,10 +158,6 @@ export default class PdfJsClient {
         const el = this.getElement(fieldName);
         if (!el) return
         el.style.backgroundColor = "";
-    }
-
-    getPdfName() {
-        return this.filename.replace(".pdf", "");
     }
 }
 

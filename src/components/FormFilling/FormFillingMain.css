@@ -16,12 +16,14 @@
     flex-wrap: wrap-reverse;
     /*overflow: auto;*/
     padding-top: 10px;
+    align-items: start;
 }
 
 /*left and right side*/
 .field-list-container,
 .pdf-viewer-container {
     --top: 10px;
+    --height-toolbar: 35px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -56,7 +58,7 @@
 
 /*right side*/
 .pdf-viewer-container {
-    justify-content: center;
+    height: calc(100vh - var(--height-appbar) * 1.5 - var(--height-toolbar));
     flex: 8 0;
 }
 @media only screen and (max-width: 600px) {
@@ -65,10 +67,13 @@
     }
 }
 
-.pdf-viewer {
+
+/*right side*/
+.react-pdf-viewer {
     position: relative;
     width: 99%;
     height: 100%;
+    overflow: scroll;
 }
 
 .dialog-upload {
@@ -77,3 +82,33 @@
     min-width: 200px;
     min-height: 150px;
 }
+
+.viewer-toolbar {
+    position: relative;
+    display: flex;
+    height: 32px;
+    background-color: #eee;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.document-container {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+}
+
+.page-container {
+    padding: 25px;
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+    gap: 25px;
+}
+
+.viewer-sidebar {
+    position: absolute;
+}
+

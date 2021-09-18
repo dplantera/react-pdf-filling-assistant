@@ -1,47 +1,39 @@
 import {Document, Page, pdfjs} from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import React, {createRef, useRef, useState} from "react";
-import UploadPdf from "./UploadPdf";
+import React, {createRef, useCallback, useRef, useState} from "react";
 import {ViewerToolbar} from "./ViewerToolbar";
 import {Card, CircularProgress, Drawer} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-window.refPages = {};
 
 const useStyles = makeStyles(() => {
-    let offsetTop = 80;
+    let heightToolbar = 35;
     return {
         sidebar: {
             position: "absolute",
-            top: offsetTop,
+            top: heightToolbar,
             backgroundColor: "#eee",
             minWidth: 25,
-            height: `calc(100% - ${offsetTop}px)`
+            height: `calc(100% - ${heightToolbar}px)`
         },
     }
 })
 
-const ReactPdfViewer = ({pdfClient, setIsPdfReady}) => {
+const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
+    const [file, setFile] = useState(pdfSource);
     const [scale, setScale] = useState(1);
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const refPages = useRef([]);
-
+    const refDocument = useRef(null);
     const classes = useStyles();
+
+    const refPageNum = useRef(pageNumber);
 
     const getPageCanvas = (page = pageNumber) => {
         const indexPage = page <= 0 ? 0 : page - 1;
         return refPages.current[indexPage].current
-    }
-
-    function onDocumentLoadSuccess(pdfProxy) {
-        console.log({pdfProxy})
-        pdfProxy.getPage(1).then(rest => {
-            console.log({page: rest})
-        })
-        window.refPages = refPages.current;
-        setNumPages(pdfProxy.numPages);
     }
 
     const renderPages = () => {
@@ -56,7 +48,7 @@ const ReactPdfViewer = ({pdfClient, setIsPdfReady}) => {
                           scale={scale}
                           renderTextLayer={false}
                           renderAnnotationLayer renderInteractiveForms
-                          onGetAnnotationsSuccess={(annotations) => console.log({annotations})}
+                          onGetAnnotationsSuccess={(annotations) => console.debug("ReactPdfViewer.onGetAnnotationsSuccess")}
                     />
                 </Card>
             )
@@ -73,14 +65,29 @@ const ReactPdfViewer = ({pdfClient, setIsPdfReady}) => {
         }
     }
 
-    const handlePageNumberChanged = (newPageNum) => {
-        setPageNumber(newPageNum);
-        scrollIntoView(newPageNum);
+    const handlePageNumberChanged = useCallback(
+        (newPageNum) => {
+            console.debug("ReactPdfViewer.handlePageNumberChanged ", newPageNum)
+            refPageNum.current = newPageNum;
+            setPageNumber(newPageNum);
+            scrollIntoView(newPageNum);
+        },
+        [setPageNumber, scrollIntoView],
+    );
+
+    function handleDocumentLoadSuccess(pdfProxy) {
+        setNumPages(pdfProxy.numPages);
+        onDocumentLoaded({
+            pdfProxy,
+            scrollIntoView,
+        })
     }
+
+    if (!file)
+        onInit?.({loadPdf: setFile, goToPage: handlePageNumberChanged, getPageCanvas, refDocument, refPageNum})
 
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>
-            <UploadPdf loadPdf={pdfClient.loadPdf.bind(pdfClient)} setIsPdfReady={setIsPdfReady}/>
             <ViewerToolbar page={pageNumber} numPages={numPages} onChangedNumPage={handlePageNumberChanged}
                            scale={scale} onZoomed={setScale}/>
             <Drawer variant="permanent" open={true} classes={{paperAnchorLeft: classes.sidebar}}/>
@@ -88,8 +95,9 @@ const ReactPdfViewer = ({pdfClient, setIsPdfReady}) => {
 
                 <div className={"document-container"}>
                     <Document
-                        file="files/pdf-form-assistant_example.pdf"
-                        onLoadSuccess={onDocumentLoadSuccess}
+                        inputRef={refDocument}
+                        file={file}
+                        onLoadSuccess={handleDocumentLoadSuccess}
                         loading={<CircularProgress/>}
                     >
                         <div className={"page-container flex-column"}>
