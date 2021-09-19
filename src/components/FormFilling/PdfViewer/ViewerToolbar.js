@@ -27,9 +27,8 @@ const adjustZoomToOption = (zoom, isGoingUp = true) => {
     return 100;
 }
 
-export const ViewerToolbar = ({page = 0, numPages = 0, onChangedNumPage, scale, onZoomed}) => {
+export const ViewerToolbar = ({pageNum = 0, setPageNum, numPages = 0, onChangedNumPage, scale, onZoomed}) => {
     const [zoom, setZoom] = useState(scale * 100);
-    const [pageNum, setPageNum] = useState(page)
 
     const ZOOM_STEP = 25;
     const renderZoomMenu = () => {
@@ -74,7 +73,7 @@ export const ViewerToolbar = ({page = 0, numPages = 0, onChangedNumPage, scale, 
     return <div className={"viewer-toolbar"}>
         <div className={"controls-left"}>
             <Box sx={{ width: 25, display:"inline-block"}}/>
-            <Btn BtnIcon={KeyboardArrowUpIcon} label={"Previous Page"} onClick={() => handlePageNumberChanged(page + 1)}/>
+            <Btn BtnIcon={KeyboardArrowUpIcon} label={"Previous Page"} onClick={() => handlePageNumberChanged(pageNum + 1)}/>
             <TextField
                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 hiddenLabel
@@ -85,7 +84,7 @@ export const ViewerToolbar = ({page = 0, numPages = 0, onChangedNumPage, scale, 
                 style={{maxWidth:"50px", display:"inline-block"}}
             />
             <Typography display={"inline"} variant="h6"  >  / {numPages}</Typography>
-            <Btn BtnIcon={KeyboardArrowDownIcon} label={"Next Page"} onClick={() => handlePageNumberChanged(page - 1 )}/>
+            <Btn BtnIcon={KeyboardArrowDownIcon} label={"Next Page"} onClick={() => handlePageNumberChanged(pageNum - 1 )}/>
         </div>
 
         <div className={"controls-center"}>
