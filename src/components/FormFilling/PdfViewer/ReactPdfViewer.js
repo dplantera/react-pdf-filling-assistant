@@ -4,6 +4,7 @@ import React, {createRef, memo, useCallback, useRef, useState} from "react";
 import {ViewerToolbar} from "./ViewerToolbar";
 import {Card, CircularProgress, Drawer} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
+import dom from '../../../utils/dom'
 
 // there is known issue with create react app directly using the lib for worker https://github.com/mozilla/pdf.js/issues/10997
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -63,12 +64,7 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
     const scrollIntoView = useCallback(
         (page) => {
             const pageCanvas = getPageCanvas(page);
-            if (pageCanvas.scrollIntoViewIfNeeded) {
-                pageCanvas.scrollIntoViewIfNeeded();  // https://stackoverflow.com/a/54515025
-            } else {
-                let inlineCenter = {behavior: 'auto', block: 'center', inline: 'center'};
-                pageCanvas.scrollIntoView(inlineCenter);
-            }
+            dom.scrollIntoView(pageCanvas);
         },
         [getPageCanvas],
     );

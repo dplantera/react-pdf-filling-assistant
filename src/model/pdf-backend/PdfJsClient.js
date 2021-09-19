@@ -1,4 +1,5 @@
 import {Field} from "../types";
+import DomUtil from "../../utils/dom";
 
 const CMAP_URL = "../../node_modules/pdfjs-dist/cmaps/";
 const CMAP_PACKED = true;
@@ -124,7 +125,7 @@ export default class PdfJsClient {
         const doSelectField = (fieldName) => {
             const el = this.getElement(fieldName);
             el.style.backgroundColor = "yellow";
-            el.scrollIntoView();
+            DomUtil.scrollIntoView(el)
         }
         const fieldName = field.name ?? field;
         let fieldPageNum = field.location.pageNum;
