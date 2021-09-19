@@ -5,6 +5,7 @@ import './App.css';
 import FormFillingMain from "./components/FormFilling/FormFillingMain";
 import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
 import {useStore} from "./store";
+import Settings from "./components/FormFilling/Settings/Settings";
 
 const App = () => {
         const refLoadPdfs = useRef(useStore.getState().loadPdfs)
@@ -28,7 +29,7 @@ const App = () => {
         }, []);
 
         const handleReload = () => {
-            window.location.reload();
+            window.location.reload(true);
         }
 
         return <main>
@@ -43,6 +44,7 @@ const App = () => {
                             <Button component={Link} to={"/variables"} style={{color: "white"}}
                             >Manage Variables</Button>
                         </List>
+                        <Settings/>
                     </Toolbar>
                 </AppBar>
                 <Switch>

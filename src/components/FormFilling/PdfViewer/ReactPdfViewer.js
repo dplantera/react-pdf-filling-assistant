@@ -1,10 +1,12 @@
 import {Document, Page, pdfjs} from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import React, {createRef, useRef, useState} from "react";
+import React, {createRef, memo, useCallback, useRef, useState} from "react";
 import {ViewerToolbar} from "./ViewerToolbar";
 import {Card, CircularProgress, Drawer} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
+import dom from '../../../utils/dom'
 
+// there is known issue with create react app directly using the lib for worker https://github.com/mozilla/pdf.js/issues/10997
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const useStyles = makeStyles(() => {
@@ -31,10 +33,14 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
 
     const refPageNum = useRef(pageNumber);
 
-    const getPageCanvas = (page = pageNumber) => {
-        const indexPage = page <= 0 ? 0 : page - 1;
-        return refPages.current[indexPage].current
-    }
+    const getPageCanvas = useCallback(
+        (page = pageNumber) => {
+            const indexPage = page <= 0 ? 0 : page - 1;
+            return refPages.current[indexPage].current
+        },
+        [pageNumber],
+    );
+
 
     const renderPages = () => {
         const Pages = [];
@@ -55,22 +61,21 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
         }
         return Pages;
     }
-    const scrollIntoView = (page) => {
-        const pageCanvas = getPageCanvas(page);
-        if (pageCanvas.scrollIntoViewIfNeeded) {
-            pageCanvas.scrollIntoViewIfNeeded();  // https://stackoverflow.com/a/54515025
-        } else {
-            let inlineCenter = {behavior: 'auto', block: 'center', inline: 'center'};
-            pageCanvas.scrollIntoView(inlineCenter);
-        }
-    }
+    const scrollIntoView = useCallback(
+        (page) => {
+            const pageCanvas = getPageCanvas(page);
+            dom.scrollIntoView(pageCanvas);
+        },
+        [getPageCanvas],
+    );
 
-    const handlePageNumberChanged = (newPageNum) => {
+
+    const handlePageNumberChanged = useCallback((newPageNum) => {
         console.debug("ReactPdfViewer.handlePageNumberChanged ", newPageNum)
         refPageNum.current = newPageNum;
         setPageNumber(newPageNum);
         scrollIntoView(newPageNum);
-    };
+    }, [scrollIntoView])
 
     function handleDocumentLoadSuccess(pdfProxy) {
         setNumPages(pdfProxy.numPages);
@@ -85,7 +90,7 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
 
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>
-            <ViewerToolbar page={pageNumber} numPages={numPages} onChangedNumPage={handlePageNumberChanged}
+            <ViewerToolbar pageNum={pageNumber} setPageNum={setPageNumber} numPages={numPages} onChangedNumPage={handlePageNumberChanged}
                            scale={scale} onZoomed={setScale}/>
             <Drawer variant="permanent" open={true} classes={{paperAnchorLeft: classes.sidebar}}/>
             <div id="viewer" className="react-pdf-viewer">
@@ -107,4 +112,4 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
     );
 };
 
-export default ReactPdfViewer;
+export default memo(ReactPdfViewer);
