@@ -4,7 +4,7 @@ import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
 import {AddVariableProvider} from "../hooks/AddVariableContext";
 import "./FormFillingMain.css"
-import useSpinner from "../commons/UseSpinner";
+import useSpinner from "../hooks/useSpinner";
 
 
 const FormFillingMain = () => {
