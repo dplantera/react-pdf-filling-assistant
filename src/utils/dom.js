@@ -7,5 +7,8 @@ function scrollIntoView(element) {
     }
 }
 
+const DomUtils = {
+    scrollIntoView
+};
 
-export default {scrollIntoView}
+export default DomUtils
