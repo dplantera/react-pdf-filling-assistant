@@ -1,16 +1,21 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PdfJsClient from "../../model/pdf-backend/PdfJsClient";
 import FormFieldList from "./FormFieldList/FormFieldList";
 import PdfViewer from "./PdfViewer/PdfViewer";
-import Spinner from "../commons/Spinner";
 import {AddVariableProvider} from "../hooks/AddVariableContext";
 import "./FormFillingMain.css"
+import useSpinner from "../commons/UseSpinner";
 
 
 const FormFillingMain = () => {
     const [pdfClient] = useState(new PdfJsClient())
     const [isPdfReady, setIsPdfReady] = useState(false);
+    const {Spinner, show, hide} = useSpinner();
 
+    useEffect(() => {
+        if(!isPdfReady) show()
+        else hide()
+    }, [isPdfReady, show, hide])
     return (
         <div className="form-filling-main">
             <div className={"form-filling-container"}>
@@ -22,7 +27,7 @@ const FormFillingMain = () => {
                     pdfClient={pdfClient}
                 />
             </div>
-            {(!isPdfReady) && <Spinner/>}
+            <Spinner/>
         </div>
     );
 };

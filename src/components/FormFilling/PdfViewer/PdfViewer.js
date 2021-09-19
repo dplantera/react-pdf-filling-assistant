@@ -10,6 +10,8 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
 
 
     const lastPDF = pdfs?.[pdfs?.length - 1] ?? {}
+    if(!lastPDF)
+        setIsPdfReady(true);
 
     const handleDocumentLoaded = async ({pdfProxy}) => {
         console.log("PdfViewer.handleDocumentLoaded")
@@ -22,6 +24,7 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
             console.debug("PdfViewer: handleOnInit")
             if (pdfClient.isInitialized) {
                 console.debug("PdfViewer: already initialized")
+                setIsPdfReady(true);
                 return
             }
             const initPdf = (fileName, data) => {
@@ -31,7 +34,7 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
             if (pdfs?.length > 0)
                 initPdf(lastPDF.name, lastPDF.binary)
         }
-    , [pdfs, lastPDF.binary, lastPDF.name, pdfClient])
+    , [pdfs, lastPDF.binary, lastPDF.name, pdfClient, setIsPdfReady])
 
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>

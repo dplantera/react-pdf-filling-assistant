@@ -58,7 +58,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
 
     return (
         <React.Fragment>
-            <Button variant="contained" onClick={show} style={{position: "relative", width: "100%"}}>
+            <Button variant="contained" onClick={show} style={{position: "relative", width: "100%", zIndex:1202}}>
                 Upload PDF or Template
             </Button>
             <RenderImportFilesDialog
