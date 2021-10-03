@@ -14,7 +14,7 @@ A complete client-side Progressive Web App to facilitate preparing PDF forms for
 
 ## Features
 ![][features]
-* Known issue: When loading the app for the first time, a scientific paper appears (The default PDF of `pdf.js`). Reloading the page once should load the project sample PDF.
+
 ## Introduction
 This started as a quick project to make the life of my team easier and to learn about FE development with react. `PDF Form Assistant` is an integration tool for PDF form filling automation. I've decided to work a little more on it and dive deeper into FE development and react.
 
