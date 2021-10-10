@@ -21,16 +21,18 @@ const createPdfSlice = (set, get) => ({
         await getRepository(FieldList).deleteAll();
         set({pdfs: persist.updateAll(get().pdfs, {payload: pdfs, context: Pdf})})
     },
-    selectPdf: async (pdf) => {
-        if (!get().pdfs.find(p => p.id === pdf.id))
-            await get().updatePdf(pdf)
-        // switch fieldList
-        get().switchFieldList(pdf)
-            .then(() => console.debug("Store.selectPdf: done"))
-            .catch((err) => console.error(err))
-            .finally(() => {
-                return pdf;
-            })
+    selectPdf: (pdf) => {
+        return new Promise((async resolve => {
+            if (!get().pdfs.find(p => p.id === pdf.id))
+                await get().updatePdf(pdf)
+            // switch fieldList
+            await get().switchFieldList(pdf)
+                .then((fieldList) => {
+                    console.debug("Store.selectPdf: done")
+                    resolve(fieldList)
+                })
+                .catch((err) => console.error(err))
+        }))
     },
     loadPdfs: () => {
         retrieveInitialPdfs().then(pdfs => set({pdfs}))

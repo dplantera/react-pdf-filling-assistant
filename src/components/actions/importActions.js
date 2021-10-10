@@ -2,14 +2,14 @@ import {addVariableToField} from "./mutateActions";
 import {FormVariable} from "../../model/types";
 
 
-export function importFieldsAndVarsFromCsv(text, fields, variables) {
+export function importFieldsAndVarsFromCsv(text, fields, variables, selectedFieldList) {
     // field candidate must exist in current FieldList. Before changing this we need to support multiple FieldLists
     const fieldCandidates = parseFieldsFromCsv(text, fields);
-    return evaluateFieldCandidates(fields, variables, fieldCandidates)
+    return evaluateFieldCandidates(fields, variables, fieldCandidates, selectedFieldList)
 }
 
-export function evaluateFieldCandidates(fields, variables, fieldCandidates) {
-    console.debug("Import.evaluateFieldCandidates: ", fieldCandidates);
+export function evaluateFieldCandidates(fields, variables, fieldCandidates, selectedFieldList) {
+    console.debug("Import.evaluateFieldCandidates: ", {fieldCandidates, selectedFieldList});
     const result = {
         newFields: [], ignoredField: [], newVariables: [], error: [],
     }
@@ -20,10 +20,12 @@ export function evaluateFieldCandidates(fields, variables, fieldCandidates) {
             result.error.push(fieldCandidate);
             return;
         }
+        //todo: fix (multiple fieldlists workaround - unsupported)
+        let fieldListIdForNewFields = selectedFieldList?.id ?? existingField.id;
 
         const isValueMatching = existingField && existingField.value === fieldCandidate.value;
         if (isValueMatching) {
-            result.ignoredField.push(existingField);
+            result.ignoredField.push({...existingField, fieldListId: fieldListIdForNewFields});
             return;
         }
 
@@ -44,7 +46,8 @@ export function evaluateFieldCandidates(fields, variables, fieldCandidates) {
                 newField = {...newField, ...updatedField};
 
             }
-            result.newFields.push(newField);
+            const newFieldWithUpdatedFieldListId = {...newField, fieldListId: fieldListIdForNewFields};
+            result.newFields.push(newFieldWithUpdatedFieldListId);
         }
     })
     if (result.error.length > 0)
