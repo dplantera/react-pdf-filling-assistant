@@ -113,14 +113,14 @@ export const ImportFilesDialog = ({
                 <Button variant="contained" component="button" onClick={onCancel}>
                     Cancel
                 </Button>
-                <Button variant="contained" color="secondary" component="button" onClick={handleImport}>
-                    Import Files
-                </Button>
                 <label htmlFor="var-file-upload">
                     <Button variant="contained" color="primary" component="span">
                         Select Files
                     </Button>
                 </label>
+                <Button variant="contained" color="secondary" component="button" onClick={handleImport}>
+                    Import Files
+                </Button>
                 <input accept={acceptedFileExt.join(",")} multiple style={{display: "none"}} id="var-file-upload"
                        type="file"
                        onChange={onUpload}/>
