@@ -23,10 +23,10 @@
     "react-scripts": "^4.0.3",
     "react-simple-code-editor": "^0.11.0",
     "uuid": "^8.3.2",
-    "workbox-core": "^5.1.4",
-    "workbox-expiration": "^5.1.4",
-    "workbox-precaching": "^5.1.4",
-    "workbox-routing": "^5.1.4",
+    "workbox-core": "^6.3.0",
+    "workbox-expiration": "^6.3.0",
+    "workbox-precaching": "^6.3.0",
+    "workbox-routing": "^6.3.0",
     "zustand": "^3.5.10"
   },
   "devDependencies": {
@@ -40,7 +40,7 @@
     "jest": "^26.6.0",
     "npm-check-updates": "^11.8.5",
     "prop-types": "^15.7.2",
-    "workbox-strategies": "^5.1.4"
+    "workbox-strategies": "^6.3.0"
   },
   "scripts": {
     "pre_dev": "npx babel-node ./dev/testdata.js",
