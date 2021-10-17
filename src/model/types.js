@@ -13,13 +13,36 @@ export const Pdf = (name, binary, id) => {
     }
 }
 
-export const Field = (refPdf = null, name, value, location, fieldListId) => {
+export const FieldTypes = {
+    "RADIO": {
+        name: "radio"
+    },
+    "CHECK": {
+        name: "check",
+        detail: {}
+    },
+    "TEXT": {
+        name: "text",
+        detail: {}
+    }
+}
+
+
+/**
+ */
+export const Field = (refPdf = null, name, value, location, fieldListId, type) => {
+
     return {
         id: name ?? refPdf?.name,
         refPdf: refPdf ?? null,
         name: name ?? refPdf?.name,
         value: value ?? refPdf?.value,
         description: "",
+        type: type ?? FieldTypes.TEXT,
+        groupInfo: {
+          parent: undefined,
+          children: []
+        },
         location: location ?? {pageNum: refPdf?.pageNum},
         fieldListId,
         variable: null

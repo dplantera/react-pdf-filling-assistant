@@ -1,8 +1,67 @@
-import {Field} from "../types";
+import {Field, FieldTypes} from "../types";
 import DomUtil from "../../utils/dom";
 
 const CMAP_URL = "../../node_modules/pdfjs-dist/cmaps/";
 const CMAP_PACKED = true;
+
+function determineFieldType(pdfJsField) {
+    if (pdfJsField?.fieldType === "Tx")
+        return FieldTypes.TEXT;
+    if (!!pdfJsField?.checkBox)
+        return FieldTypes.CHECK;
+    if (!!pdfJsField?.radioButton)
+        return FieldTypes.RADIO;
+    return FieldTypes.TEXT;
+}
+
+function toDomainGroupField(fieldName, pdfJsFieldArray) {
+    const firstRadioBtn = {...pdfJsFieldArray?.[0]};
+    const groupField = Field(firstRadioBtn, fieldName, firstRadioBtn.fieldValue, {pageNum: firstRadioBtn.pageNum}, undefined, determineFieldType(firstRadioBtn) );
+
+    const groupChildren = pdfJsFieldArray
+        .map(child => {
+            const fieldType = determineFieldType(child);
+            if(fieldType !== FieldTypes.RADIO)
+                console.error("that should not happen - Single RadioBtn found", {fieldName, child, fieldType})
+            const groupChildKey = `${child.fieldName}-${child.buttonValue}`;
+            const groupChild = Field(child, groupChildKey, child.fieldValue, {pageNum: child.pageNum}, undefined, fieldType);
+            groupChild.groupInfo.parent = groupField.name;
+            return  groupChild;
+        } );
+    groupField.groupInfo.children = groupChildren.map(child => child.name);
+    return [groupField, ...groupChildren];
+}
+
+function toDomainField(fieldName, pdfJsField) {
+    const fieldType = determineFieldType(pdfJsField);
+    const {fieldName: name, fieldValue: value, pageNum} = pdfJsField;
+    if (fieldType === FieldTypes.RADIO)
+        console.error("that should not happen - Single RadioBtn found", {fieldName, pdfJsField, fieldType})
+    return Field(pdfJsField, name, value, {pageNum}, undefined, fieldType);
+}
+
+function transformToDomainFields(pdfjsFields) {
+    const nameToPdfjsField = pdfjsFields.reduce((map, field) => {
+        let {fieldName: keyFieldName} = field;
+        let valueInMap = map[keyFieldName];
+        if (!valueInMap)
+            map[keyFieldName] = field
+        else if (Array.isArray(valueInMap))
+            valueInMap.push(field);
+        else
+            map[keyFieldName] = [valueInMap, field]
+        return map;
+    }, {})
+    console.debug({nameToPdfjsField});
+    const fields = [];
+    Object.entries(nameToPdfjsField).forEach(([fieldName, fieldOrGroup]) => {
+        if (Array.isArray(fieldOrGroup))
+            fields.push(...toDomainGroupField(fieldName, fieldOrGroup))
+        else
+            fields.push(toDomainField(fieldName, fieldOrGroup));
+    });
+    return fields;
+}
 
 export default class PdfJsClient {
     constructor() {
@@ -103,21 +162,14 @@ export default class PdfJsClient {
                 }))
             }, Promise.resolve())
 
-            const formFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
-            //remove duplicates
-            const names = formFields.map(field => {
-                return field.fieldName
-            });
-            let filtered = formFields.filter(({fieldName}, index) => !names.includes(fieldName, index + 1))
+            const pdfjsFormFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
+            const formFields = transformToDomainFields(pdfjsFormFields);
             console.debug("PdfJsClient: loaded fields:", {
-                formFields,
-                excluded: allAnnotations.filter(e => !formFields.includes(e)),
-                dups: filtered
+                allAnnotations,
+                filtered: pdfjsFormFields,
+                imported: formFields
             })
-
-            resolve(filtered.map(field => {
-                return Field(field, field.fieldName, field.fieldValue, {pageNum: field.pageNum})
-            }))
+            resolve(formFields)
         })
     }
 
@@ -144,7 +196,7 @@ export default class PdfJsClient {
             console.error("PdfJsClient: select field failed for: ", fieldName)
             return document.createElement("div")
         }
-        if(Array.isArray(elements))
+        if (Array.isArray(elements))
             return elements[0].parentNode;
         return elements.parentNode;
     }
