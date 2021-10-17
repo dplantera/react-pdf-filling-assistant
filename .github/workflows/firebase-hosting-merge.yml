@@ -25,7 +25,7 @@ jobs:
         run: npm ci && npm run build
 
       - name: Automated Version Bump
-        uses: phips28/gh-action-bump-version@v9.0.1
+        uses: phips28/gh-action-bump-version@v9.0.8
         with:
           minor-wording: 'add,Adds,new,Added'
           major-wording: 'MAJOR,cut-major,breaking-change'
