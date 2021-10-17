@@ -58,5 +58,13 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "jest": {
+    "testMatch": [
+      "./test/**/*.test.[jt]s?(x)"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!@private-repo-name)/"
+    ]
+  }
 }
