@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextField} from "@material-ui/core";
+import {TextField} from "@mui/material";
 
 const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
 
@@ -7,6 +7,7 @@ const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
         <TextField
             id={key}
             key={key}
+            size={"small"}
             defaultValue={descValue}
             multiline
             variant="outlined"

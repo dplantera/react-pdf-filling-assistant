@@ -1,88 +1,46 @@
 import React, {memo} from 'react';
-import ResizeableDiv from "../../../commons/ResizeableDiv";
-import FormFieldVariable from "./FormFieldVariable";
-import FormFieldDesc from "./FormFieldDesc";
-import {Card} from "@material-ui/core";
+import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
+import {ExpandLess, ExpandMore} from "@mui/icons-material";
 
-const FormGroupItem = memo((
-    {
-        groupField,
-        groupChildren,
-        variables,
-        openVariableDialog,
-        addVariableToField,
-        updateField,
-        widthFormField,
-        resetHighlightFormField,
-        highlightFormField
-    }
+const FormGroupItem = memo(({
+                                children,
+                                GroupComponent,
+                                GroupComponentProps
+                            }
 ) => {
-    const handleFocus = (fieldName, fieldPageNum) => {
-        highlightFormField(fieldName, fieldPageNum);
+    const [open, setOpen] = React.useState(true);
+
+    const handleClick = () => {
+        setOpen(!open);
+    };
+    const style = {
+        itemBtn: {justifyContent: "center"},
+        itemText: {
+            '& .MuiTypography-root': {
+                fontSize: "0.9rem",
+                userSelect: "none"
+            },
+        }
     }
-    const handleInput = (fieldId, inputVal) => {
-        if (!inputVal)
-            return;
+    if (true)
+        return <List disableGutters dense>
+            <ListItem dense disablePadding disableGutters>
 
-        updateField({id: fieldId, value: inputVal});
-        // setFieldVal(inputVal);
-    }
+                <ListItemButton onClick={handleClick} alignItems={"center"} sx={style.itemBtn}>
+                    {open ? <ExpandLess/> : <ExpandMore/>}
+                </ListItemButton>
+                <GroupComponent {...GroupComponentProps}/>
 
-    const handleNewVariable = (formVariable, _fieldId) => {
-        addVariableToField(formVariable, {id: _fieldId});
-        // setFieldVal(formVariable.name);
-        // setFieldDesc(formVariable.description);
-    }
-
-    const handleNewDescription = (fieldId, description) => {
-        resetHighlightFormField(groupField.name);
-        updateField({id: fieldId, description});
-        // setFieldDesc(description);
-    }
-
-    const handleClear = (fieldId) => {
-        console.group("handleClear")
-
-        // setFieldVal("");
-        // setFieldDesc("");
-        updateField({id: fieldId, variable: "", value: "", description: ""})
-        console.groupEnd();
-    }
-
-    const RenderFieldItem = ({field}) => {
-        const {name: fieldName, description: fieldDesc, value: fieldVal} = field;
-        return (<div style={{position: "relative", display: "flex", width: "100%"}}>
-            <ResizeableDiv overflow={"visible"} width={widthFormField}>
-                <FormFieldVariable
-                    fieldName={fieldName}
-                    fieldValue={fieldVal} // fieldValue is default to fieldVal but when fieldValue changes from extern than fieldVal wont update
-                    formVariables={variables}
-                    onVariableSet={(variable) => handleNewVariable(variable, field.id)}
-                    onInputSet={(inputValue) => handleInput(field.id, inputValue)}
-                    onBlur={(e) => {
-                        resetHighlightFormField(fieldName)
-                    }}
-                    onClear={() => handleClear(field.id)}
-                    onFocus={() => handleFocus(field.name, field.location.pageNum)}
-                    openVariableDialog={openVariableDialog}
-                />
-            </ResizeableDiv>
-            {widthFormField < 100 && <FormFieldDesc id={"desc-" + fieldName}
-                                                    descValue={fieldDesc}
-                                                    onBlur={(e) => handleNewDescription(e.currentTarget.value || fieldDesc || "")}
-                                                    onFocus={() => handleFocus(field.name, field.location.pageNum)}
-            />}
-        </div>);
-    }
-
-    return (
-        <div style={{display: "flex", flex: "0 1", position: "relative", width: "100%"}}>
-            <h6>{groupField.name}</h6>
-            <Card style={{marginTop: 5, flexGrow: 1, padding: 5}}>
-                {groupChildren.map( (field, idx) => <RenderFieldItem key={idx} field={field}/>)}
-            </Card>
-        </div>
-    );
+            </ListItem>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+                <List>
+                    <ListItemText sx={style.itemText}>In a group only the "export value" (.*-FieldName) counts to select
+                        the
+                        corresponding button</ListItemText>
+                    {children}
+                </List>
+            </Collapse>
+        </List>
 })
 
 export default FormGroupItem;

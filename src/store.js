@@ -220,7 +220,6 @@ const persist = {
             console.warn("Store.updateOne: element not found")
         if (index < 0 && state.length < 1)
             index = 0
-        console.warn({index, state, element})
 
         const newState = [...state];
         const prevField = newState[index];
