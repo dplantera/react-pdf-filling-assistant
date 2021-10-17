@@ -1,0 +1,33 @@
+name: Compile TS and run tests
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 15.x ]
+
+    name: Compile TS and run tests - Node.js ${{ matrix.node-version }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Automated Version Bump
+        uses: phips28/gh-action-bump-version@v9.0.1
+        with:
+          minor-wording:  'add,Adds,new,Added'
+          major-wording:  'MAJOR,cut-major,breaking-change'
+          patch-wording:  'patch,fixes,Fixed'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
