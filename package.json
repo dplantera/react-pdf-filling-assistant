@@ -36,7 +36,7 @@
     "@material-ui/icons": "^4.11.2",
     "dotenv": "^10.0.0",
     "fs-extra": "^10.0.0",
-    "jest": "26.6.0",
+    "jest": "26.6.3",
     "prop-types": "^15.7.2",
     "react-scripts": "^4.0.3",
     "workbox-strategies": "^6.3.0"
