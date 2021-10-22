@@ -1,23 +1,9 @@
 import React, {useCallback} from 'react';
 import {Button, TextField} from "@material-ui/core";
-import {ClientDownload} from "../../../../utils/ClientDownload";
 import {useStore} from "../../../../store";
 import UploadDialog from "../../../commons/UploadDialog";
 import {importFieldsAndVarsFromCsv} from "../../../actions/importActions";
-
-const downloadClient = new ClientDownload();
-const downloadCsv = (e, fieldList, variables, fields) => {
-    const fieldsInList = fields.filter(field => field.fieldListId === fieldList.id);
-    const rows = fieldsInList.map(field => {
-        const getVariable = (field) => variables.find(v => v.id === field.variable);
-        let value = field.variable ? getVariable(field)?.value ?? "" : field.value || "";
-        value = value.replace(/\r?\n|\r/g, '');
-        return [field.name, value, field.description]
-    })
-    downloadClient.forCsv
-        .changeSettings({useBOM: true})
-        .download(rows, fieldList.name);
-}
+import {exportFieldListAsCsv} from "../../../actions/exportActions";
 
 const FormListControls = () => {
     const [fieldLists, updateFieldList] = useStore(state => [state.fieldLists, state.updateFieldList])
@@ -26,7 +12,7 @@ const FormListControls = () => {
     const addVariableToField = useStore(state => state.addVariableToField)
 
     const handleDownloadPdf = useCallback((e, index) => {
-        downloadCsv(e, fieldLists[index], variables, fields)
+        exportFieldListAsCsv(fieldLists[index], variables, fields)
     }, [variables, fieldLists, fields])
 
     const handleUploadCsv = (text, filename) => {
