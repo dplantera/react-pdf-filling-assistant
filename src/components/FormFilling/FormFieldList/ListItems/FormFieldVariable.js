@@ -15,7 +15,8 @@ const FormFieldVariable = memo((
         onBlur,
         onFocus,
         onClear,
-        openVariableDialog
+        openVariableDialog,
+        ...innerInputProps
     }) => {
     const selectVariable = (formVariable) => {
         if (!formVariable) {
@@ -113,6 +114,7 @@ const FormFieldVariable = memo((
                 style={{fontFamily: 'Source Code Pro'}}
                 freeSolo
                 onInputChange={handleInputChanged}
+                {...innerInputProps}
                 renderInput={params => (
                     <TextField {...params}
                                multiline={true}

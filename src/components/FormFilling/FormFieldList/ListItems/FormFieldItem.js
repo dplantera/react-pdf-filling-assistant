@@ -17,7 +17,8 @@ const FormFieldItem = memo((
         updateField,
         widthFormField,
         resetHighlightFormField,
-        highlightFormField
+        highlightFormField,
+        disabled = false
     }
 ) => {
     const [fieldVal, setFieldVal] = useState(fieldValue);
@@ -73,12 +74,14 @@ const FormFieldItem = memo((
                     onClear={handleClear}
                     onFocus={handleFocus}
                     openVariableDialog={openVariableDialog}
+                    disabled={disabled}
                 />
             </ResizeableDiv>
             {widthFormField < 100 && <FormFieldDesc id={"desc-" + fieldName}
                                                     descValue={fieldDesc || fieldDescription} // when fieldDescription changes from extern than fieldDesc wont update
                                                     onBlur={handleNewDescription}
                                                     onFocus={handleFocus}
+                                                    disabled={disabled}
             />}
         </div>
     );

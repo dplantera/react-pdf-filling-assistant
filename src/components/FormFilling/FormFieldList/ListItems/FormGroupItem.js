@@ -1,11 +1,12 @@
 import React, {memo} from 'react';
-import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
+import {Collapse, List, ListItem, ListItemButton, ListItemText, Tooltip} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 
 const FormGroupItem = memo(({
                                 children,
                                 GroupComponent,
-                                GroupComponentProps
+                                GroupComponentProps,
+                                disableGroupItem = false
                             }
 ) => {
     const [open, setOpen] = React.useState(true);
@@ -22,24 +23,26 @@ const FormGroupItem = memo(({
             },
         }
     }
-    if (true)
-        return <List dense>
-            <ListItem dense disablePadding >
+    return <List dense>
+        <Tooltip  title={disableGroupItem ? "Clear the underlying group-fields to activate this field again" : ""}
+        placement={"top-start"} arrow
+        >
+            <ListItem dense disablePadding>
                 <ListItemButton onClick={handleClick} alignItems={"center"} sx={style.itemBtn}>
                     {open ? <ExpandLess/> : <ExpandMore/>}
                 </ListItemButton>
-                <GroupComponent {...GroupComponentProps}/>
-
+                <GroupComponent {...GroupComponentProps} disabled={disableGroupItem}/>
             </ListItem>
-            <Collapse in={open} timeout="auto" >
-                <List>
-                    <ListItemText sx={style.itemText}>In a group only the "export value" (.*-FieldName) counts to select
-                        the
-                        corresponding button</ListItemText>
-                    {children}
-                </List>
-            </Collapse>
-        </List>
+        </Tooltip>
+        <Collapse in={open} timeout="auto">
+            <List>
+                <ListItemText sx={style.itemText}>In a group only the "export value" (.*-FieldName) counts to select
+                    the
+                    corresponding button</ListItemText>
+                {children}
+            </List>
+        </Collapse>
+    </List>
 })
 
 export default FormGroupItem;

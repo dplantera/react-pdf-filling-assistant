@@ -34,6 +34,13 @@ const FormFieldList = memo((
         pdfClient.unselectField({name})
     }, [pdfClient])
 
+    const clearGroupWhenChildSet = useCallback((field, _childField) => {
+        if (_childField.value || _childField.variable) {
+            updateField({id: field.id, value: "", variable: "", description: ""})
+        }
+        updateField(_childField);
+    }, [updateField])
+
     const makePropsForField = (idx, field, fieldToHighlight) => {
         return {
             idx,
@@ -64,12 +71,15 @@ const FormFieldList = memo((
             <FormItemsControls widthFormField={widthFormField} setWidthFormField={setWidthFormField}/>
             <div className={"field-list"}>
                 {fields.map((field, idx) => {
-                    if (isRadioBtnGroup(field))
+                    if (isRadioBtnGroup(field)) {
+                        const idxChildren = field.groupInfo.children.map(childName => fields.findIndex(({name}) => childName === name));
+                        const isGroupEnabled = idxChildren.some(childIdx => !!fields[childIdx]?.variable)
                         return (
                             <FormGroupItem
                                 key={"field-" + field.name}
                                 GroupComponent={FormFieldItem}
                                 GroupComponentProps={{...makePropsForField(idx, field)}}
+                                disableGroupItem={isGroupEnabled}
                             >
                                 {field.groupInfo.children
                                     .map(childName => fields.findIndex(({name}) => childName === name))
@@ -77,13 +87,19 @@ const FormFieldList = memo((
                                         const child = fields[childIdx];
                                         return (
                                             <ListItem key={"child-" + child.name}>
-                                                <FormFieldItem {...makePropsForField(childIdx, child, field)}/>
+                                                <FormFieldItem
+                                                    {...makePropsForField(childIdx, child, field)}
+                                                    updateField={(_childField) => {
+                                                        clearGroupWhenChildSet(field, _childField);
+                                                    }
+                                                    }
+                                                />
                                             </ListItem>
                                         )
                                     })}
                             </FormGroupItem>
                         )
-                    else if (isNotRadioBtn(field)) {
+                    } else if (isNotRadioBtn(field)) {
                         return (
                             <FormFieldItem key={"field-" + field.name} {...makePropsForField(idx, field)}/>
                         )

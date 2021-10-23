@@ -1,7 +1,7 @@
 import React from 'react';
 import {TextField} from "@mui/material";
 
-const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
+const FormFieldDesc = ({key, descValue, onBlur, onFocus, ...innerInputProps}) => {
 
     return (
         <TextField
@@ -19,6 +19,7 @@ const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
             InputLabelProps={{
                 shrink: true
             }}
+            {...innerInputProps}
         />
     );
 };
