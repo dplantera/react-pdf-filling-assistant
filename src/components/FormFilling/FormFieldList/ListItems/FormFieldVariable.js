@@ -1,6 +1,6 @@
 import React, {Fragment, memo} from "react";
 import {FormVariable} from "../../../../model/types";
-import {Autocomplete, createFilterOptions, TextField} from "@mui/material";
+import {createFilterOptions, TextField, Autocomplete} from "@mui/material";
 
 
 const filter = createFilterOptions();
@@ -113,10 +113,10 @@ const FormFieldVariable = memo((
                 style={{fontFamily: 'Source Code Pro'}}
                 freeSolo
                 onInputChange={handleInputChanged}
-                renderInput={(params) => (
+                renderInput={params => (
                     <TextField {...params}
                                multiline={true}
-                        size={"small"}
+                               size={"small"}
                                id={"input-" + fieldName}
                                label={fieldName}
                                fullWidth={true}

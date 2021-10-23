@@ -23,16 +23,15 @@ const FormGroupItem = memo(({
         }
     }
     if (true)
-        return <List disableGutters dense>
-            <ListItem dense disablePadding disableGutters>
-
+        return <List dense>
+            <ListItem dense disablePadding >
                 <ListItemButton onClick={handleClick} alignItems={"center"} sx={style.itemBtn}>
                     {open ? <ExpandLess/> : <ExpandMore/>}
                 </ListItemButton>
                 <GroupComponent {...GroupComponentProps}/>
 
             </ListItem>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse in={open} timeout="auto" >
                 <List>
                     <ListItemText sx={style.itemText}>In a group only the "export value" (.*-FieldName) counts to select
                         the

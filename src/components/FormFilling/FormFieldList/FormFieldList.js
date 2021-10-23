@@ -75,18 +75,18 @@ const FormFieldList = memo((
                                     .map(childName => fields.findIndex(({name}) => childName === name))
                                     .map(childIdx => {
                                         const child = fields[childIdx];
-                                        return <ListItem><FormFieldItem
-                                            key={"child-" + child.name}
-                                            {...makePropsForField(childIdx, child, field)}
-                                        /></ListItem>
+                                        return (
+                                            <ListItem key={"child-" + child.name}>
+                                                <FormFieldItem {...makePropsForField(childIdx, child, field)}/>
+                                            </ListItem>
+                                        )
                                     })}
                             </FormGroupItem>
                         )
                     else if (isNotRadioBtn(field)) {
-                        return <FormFieldItem
-                            key={"field-" + field.name}
-                            {...makePropsForField( idx, field)}
-                        />
+                        return (
+                            <FormFieldItem key={"field-" + field.name} {...makePropsForField(idx, field)}/>
+                        )
                     }
                     return null;
                 })}
