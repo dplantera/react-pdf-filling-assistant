@@ -60,7 +60,7 @@ const FormFieldItem = memo((
 
 
     return (
-        <div style={{position: "relative", display: "flex", width: "100%"}}>
+        <div id={fieldId} style={{position: "relative", display: "flex", width: "100%"}}>
             <ResizeableDiv overflow={"visible"} width={widthFormField}>
                 <FormFieldVariable
                     fieldName={fieldName}

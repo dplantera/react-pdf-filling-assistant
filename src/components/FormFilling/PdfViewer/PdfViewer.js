@@ -2,7 +2,30 @@ import React, {useCallback} from 'react';
 import UploadPdf from "./UploadPdf";
 import {useStore} from "../../../store";
 import ReactPdfViewer from "./ReactPdfViewer";
+import DomUtil from "../../../utils/dom";
 
+function registerFieldSelectionHandler(pdfViewer) {
+    const doc = pdfViewer.refDocument.current;
+    if(!doc) return
+    doc.addEventListener("click", (e) => {
+        const {target} = e;
+        if (target?.tagName !== "INPUT")
+            return;
+
+        const el = document.getElementById(target.name);
+        if (!el) {
+            console.warn("failed to select: ", {field: el})
+            return;
+        }
+        el.style.backgroundColor = "yellow";
+        DomUtil.scrollIntoView(el)
+
+        const listener = target.addEventListener("blur", () => {
+            el.style.backgroundColor = "";
+            target.removeEventListener("blur", listener);
+        })
+    })
+}
 
 const PdfViewer = ({pdfClient, setIsPdfReady}) => {
     const pdfs = useStore(state => state.pdfs)
@@ -33,6 +56,8 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
 
             if (pdfs?.length > 0)
                 initPdf(lastPDF.name, lastPDF.binary)
+
+            registerFieldSelectionHandler(pdfViewer)
         }
     , [pdfs, lastPDF.binary, lastPDF.name, pdfClient, setIsPdfReady])
 
