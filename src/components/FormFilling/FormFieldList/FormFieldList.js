@@ -34,9 +34,8 @@ const FormFieldList = memo((
         pdfClient.unselectField({name})
     }, [pdfClient])
 
-    const makePropsForField = (key, idx, field, fieldToHighlight) => {
+    const makePropsForField = (idx, field, fieldToHighlight) => {
         return {
-            key,
             idx,
             fieldId: field.id,
             fieldValue: field.value,
@@ -68,22 +67,25 @@ const FormFieldList = memo((
                     if (isRadioBtnGroup(field))
                         return (
                             <FormGroupItem
+                                key={"field-" + field.name}
                                 GroupComponent={FormFieldItem}
-                                GroupComponentProps={{...makePropsForField("field-" + field.name, idx, field)}}
+                                GroupComponentProps={{...makePropsForField(idx, field)}}
                             >
                                 {field.groupInfo.children
                                     .map(childName => fields.findIndex(({name}) => childName === name))
                                     .map(childIdx => {
                                         const child = fields[childIdx];
                                         return <ListItem><FormFieldItem
-                                            {...makePropsForField("child-" + child.name, childIdx, child, field)}
+                                            key={"child-" + child.name}
+                                            {...makePropsForField(childIdx, child, field)}
                                         /></ListItem>
                                     })}
                             </FormGroupItem>
                         )
                     else if (isNotRadioBtn(field)) {
                         return <FormFieldItem
-                            {...makePropsForField("field-" + field.name, idx, field)}
+                            key={"field-" + field.name}
+                            {...makePropsForField( idx, field)}
                         />
                     }
                     return null;
