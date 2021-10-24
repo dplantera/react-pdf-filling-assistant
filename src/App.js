@@ -10,6 +10,7 @@ import Settings from "./components/FormFilling/Settings/Settings";
 const App = () => {
         const refLoadPdfs = useRef(useStore.getState().loadPdfs)
         const refLoadVariables = useRef(useStore.getState().loadVariables)
+        const loadSettings = useStore(state => state.loadSettings)
 
         useEffect(() => useStore.subscribe(
             loadPdfs => (refLoadPdfs.current = loadPdfs),
@@ -20,13 +21,14 @@ const App = () => {
             state => state.loadVariables
         ), [])
 
-        useEffect(() => {
+        useEffect( () => {
             const loadInitialData = async () => {
+                await loadSettings();
                 await refLoadPdfs.current();
                 await refLoadVariables.current();
             }
             loadInitialData().then(() => console.debug("App: data loaded"))
-        }, []);
+        }, [loadSettings]);
 
         const handleReload = () => {
             window.location.reload(true);

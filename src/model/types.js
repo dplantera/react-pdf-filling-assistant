@@ -1,4 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
+import {Entity} from "client-persistence";
 
 
 /*
@@ -27,6 +28,44 @@ export const FieldTypes = {
     }
 }
 
+/**
+ * https://stackoverflow.com/questions/22545031/store-a-function-in-indexeddb-datastore
+ */
+function serialize(key, value) {
+    if (typeof value === 'function') {
+        return value.toString();
+    }
+    return value;
+}
+/**
+ * https://stackoverflow.com/questions/22545031/store-a-function-in-indexeddb-datastore
+ */
+function deserialize(key, value) {
+    if (value && typeof value === "string" && value.substr(0, 8) === "function") {
+        const startBody = value.indexOf('{') + 1;
+        const endBody = value.lastIndexOf('}');
+        const startArgs = value.indexOf('(') + 1;
+        const endArgs = value.indexOf(')');
+        // eslint-disable-next-line
+        return new Function(value.substring(startArgs, endArgs), value.substring(startBody, endBody));
+    }
+    return value;
+}
+
+export class Settings extends Entity {
+    constructor(json) {
+        super();
+        this.addJson(json);
+    }
+
+    addJson (obj) {
+        this.json = JSON.stringify(obj, serialize);
+    }
+
+    getSettings () {
+        return JSON.parse(this.json, deserialize);
+    }
+}
 
 /**
  */

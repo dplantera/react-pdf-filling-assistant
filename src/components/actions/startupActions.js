@@ -1,6 +1,7 @@
 import {Field, FormVariable, Pdf} from "../../model/types";
 import {getRepository} from "../../utils/ClientStorage";
 import {Upload} from "../../utils/upload";
+import {loadSettings} from "../../config/settings";
 
 
 const pdfRepo = getRepository(Pdf);
@@ -22,6 +23,10 @@ async function loadFormFieldsFromDB(selectedList) {
             resolve([]);
         }
     })
+}
+
+export async function retrieveInitialSettings() {
+    return await loadSettings();
 }
 
 export async function retrieveInitialFormFields({selectedList, fieldsRaw}) {
