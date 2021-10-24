@@ -1,4 +1,3 @@
-import React from 'react';
 import {useCodeEditor} from "../../hooks/useCodeEditor";
 import {useStore} from "../../../store";
 
