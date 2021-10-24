@@ -13,21 +13,31 @@ const defaultSettings = {
             {
                 name: "no double quotes in values",
                 type: RuleTypes.CELL,
-                validate: (row) => !row.includes("\""),
-                fix: (row) => row.replaceAll("\"", '\'')
+                validate: function (row) {
+                    return !row.includes("\"");
+                },
+                fix: function (row) {
+                    return row.replaceAll("\"", '\'');
+                }
             },
             {
                 name: "no multiline values",
                 type: RuleTypes.CELL,
-                validate: (value) => /\r?\n|\r/g.test(value),
-                fix: (value) => value.replaceAll(/\r?\n|\r/g, '')
+                validate: function (value) {
+                    return /\r?\n|\r/g.test(value);
+                },
+                fix: function (value) {
+                    return value.replaceAll(/\r?\n|\r/g, '');
+                }
             }
         ],
         fieldRules: [
             {
                 name: "group fields in single field",
                 type: RuleTypes.RADIO,
-                template: (groupFieldValues) => `$[${groupFieldValues.map(field => field || 'false').join(",")}]`
+                template: function (groupFieldValues){
+                    return `$[${groupFieldValues.map(field => field || 'false').join(",")}]`;
+                }
             }
         ]
     }

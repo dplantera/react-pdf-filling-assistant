@@ -33,10 +33,11 @@ export const FieldTypes = {
  */
 function serialize(key, value) {
     if (typeof value === 'function') {
-        return value.toString();
+        return value.toString().replaceAll(/(\r?\n|\r|\s{2})/g, "");
     }
     return value;
 }
+
 /**
  * https://stackoverflow.com/questions/22545031/store-a-function-in-indexeddb-datastore
  */
@@ -55,14 +56,24 @@ function deserialize(key, value) {
 export class Settings extends Entity {
     constructor(json) {
         super();
-        this.addJson(json);
+        this.addPlainJs(json);
     }
 
-    addJson (obj) {
+    addPlainJs(obj) {
         this.json = JSON.stringify(obj, serialize);
     }
 
-    getSettings () {
+    addJson(json) {
+        this.json = json;
+    }
+
+    getJson(beautify) {
+        if (beautify)
+            return JSON.stringify(this.getSettings(), serialize, 2);
+        return this.json;
+    }
+
+    getSettings() {
         return JSON.parse(this.json, deserialize);
     }
 }
@@ -79,8 +90,8 @@ export const Field = (refPdf = null, name, value, location, fieldListId, type) =
         description: "",
         type: type ?? FieldTypes.TEXT,
         groupInfo: {
-          parent: undefined,
-          children: []
+            parent: undefined,
+            children: []
         },
         location: location ?? {pageNum: refPdf?.pageNum},
         fieldListId,
