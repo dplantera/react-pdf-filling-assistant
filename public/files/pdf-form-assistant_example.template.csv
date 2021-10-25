@@ -6,6 +6,6 @@ Text5;zip;;
 Text6;;;
 Text7;;;
 Text8;;;
-Group1;Choice1;;
+Group1;$[$test.apl, 'hmm' == '$!test', $!var ];;
 Check Box1;Off;;
 Check Box2;Off;;

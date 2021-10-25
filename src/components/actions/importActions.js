@@ -11,7 +11,7 @@ export function importFieldsAndVarsFromCsv(text, fields, variables, selectedFiel
 export function evaluateFieldCandidates(fields, variables, fieldCandidates, selectedFieldList) {
     console.debug("Import.evaluateFieldCandidates: ", {fieldCandidates, selectedFieldList});
     const result = {
-        newFields: [], ignoredField: [], newVariables: [], error: [],
+        newFields: [], updatedFields: [], ignoredField: [], newVariables: [], error: [],
     }
     fieldCandidates.forEach(fieldCandidate => {
         const existingField = getExistingField(fields, fieldCandidate);
@@ -24,8 +24,13 @@ export function evaluateFieldCandidates(fields, variables, fieldCandidates, sele
         let fieldListIdForNewFields = selectedFieldList?.id ?? existingField.id;
 
         const isValueMatching = existingField && existingField.value === fieldCandidate.value;
+        if(isValueMatching && existingField.id !== fieldListIdForNewFields) {
+            result.updatedFields.push({...existingField, fieldListId: fieldListIdForNewFields});
+            return;
+        }
+
         if (isValueMatching) {
-            result.ignoredField.push({...existingField, fieldListId: fieldListIdForNewFields});
+            result.ignoredField.push({...existingField});
             return;
         }
 

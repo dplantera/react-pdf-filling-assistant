@@ -26,6 +26,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         const importResult = importFieldsAndVarsFromCsv(text, fields, variables, selectedFieldList);
         updateVariables(importResult.newVariables);
         updateFields(importResult.newFields);
+        updateFields(importResult.updatedFields);
         console.groupEnd()
     }
 

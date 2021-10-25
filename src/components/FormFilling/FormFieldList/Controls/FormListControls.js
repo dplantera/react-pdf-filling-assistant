@@ -10,16 +10,16 @@ const FormListControls = () => {
     const [variables, updateVariables] = useStore(state => [state.variables, state.updateVariables])
     const [fields, updateFields] = useStore(state => [state.fields, state.updateFields])
     const settings = useStore(state => state.settings)
-    const addVariableToField = useStore(state => state.addVariableToField)
 
     const handleDownloadPdf = useCallback((e, index) => {
         exportFieldListAsCsv(fieldLists[index], variables, fields, settings.getSettings())
     }, [variables, fieldLists, fields, settings])
 
     const handleUploadCsv = (text, filename) => {
-        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, addVariableToField);
+        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, fieldLists.find(fl => fl.isSelected));
         updateVariables(importResult.newVariables);
         updateFields(importResult.newFields);
+        updateFields(importResult.updatedFields);
     };
 
     const makeNameWithExtension = (name) => {

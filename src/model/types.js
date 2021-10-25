@@ -58,8 +58,6 @@ export class Settings extends Entity {
     }
 }
 
-/**
- */
 export const Field = (refPdf = null, name, value, location, fieldListId, type) => {
 
     return {
