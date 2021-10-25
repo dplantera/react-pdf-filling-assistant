@@ -20,11 +20,18 @@ export const FieldTypes = {
     },
     "CHECK": {
         name: "check",
-        detail: {}
     },
     "TEXT": {
         name: "text",
-        detail: {}
+    }
+}
+
+export const FieldValueTypes = {
+    "VAR": {
+        name: "variable"
+    },
+    "CONST": {
+        name: "constant"
     }
 }
 
@@ -58,7 +65,7 @@ export class Settings extends Entity {
     }
 }
 
-export const Field = (refPdf = null, name, value, location, fieldListId, type) => {
+export const Field = (refPdf = null, name, value, location, fieldListId, type, valueType) => {
 
     return {
         id: name ?? refPdf?.name,
@@ -67,6 +74,7 @@ export const Field = (refPdf = null, name, value, location, fieldListId, type) =
         value: value ?? refPdf?.value,
         description: "",
         type: type ?? FieldTypes.TEXT,
+        valueType: valueType ?? FieldValueTypes.VAR,
         groupInfo: {
             parent: undefined,
             children: []

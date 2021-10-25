@@ -46,6 +46,7 @@ const FormFieldList = memo((
             idx,
             fieldId: field.id,
             fieldValue: field.value,
+            fieldValueType: field.valueType.name,
             fieldName: field.name,
             fieldDescription: field.description,
             fieldPageNum: field.location?.pageNum,

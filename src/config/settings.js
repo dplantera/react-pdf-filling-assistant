@@ -28,6 +28,17 @@ const defaultSettings = {
                 name: "group fields in single field",
                 type: RuleTypes.RADIO,
                 template: (groupFieldValues) => `$[${groupFieldValues.map(field => field || 'false').join(",")}]`
+            },
+            {
+                name: "prefix constant field values",
+                type: RuleTypes.FIELD_VALUE,
+                template: (value, flags) => {
+                    if(!flags.isConstant)
+                        return value;
+                    if(value?.startsWith("/"))
+                        return value
+                    return `/${value}`
+                }
             }
         ]
     }
