@@ -14,26 +14,34 @@ export const Pdf = (name, binary, id) => {
     }
 }
 
-export const FieldTypes = {
-    "RADIO": {
-        name: "radio"
-    },
-    "CHECK": {
-        name: "check",
-    },
-    "TEXT": {
-        name: "text",
-    }
-}
-
 export const FieldValueTypes = {
     "VAR": {
         name: "variable"
     },
     "CONST": {
         name: "constant"
+    },
+    "SCRIPT": {
+        name: "script"
     }
 }
+
+export const FieldTypes = {
+    "RADIO": {
+        name: "radio",
+        valueType: FieldValueTypes.SCRIPT
+    },
+    "CHECK": {
+        name: "check",
+        valueType: FieldValueTypes.VAR
+
+    },
+    "TEXT": {
+        name: "text",
+        valueType: FieldValueTypes.VAR
+    }
+}
+
 
 function deserializeScript(serializedJavascript) {
     // eslint-disable-next-line
@@ -74,7 +82,7 @@ export const Field = (refPdf = null, name, value, location, fieldListId, type, v
         value: value ?? refPdf?.value,
         description: "",
         type: type ?? FieldTypes.TEXT,
-        valueType: valueType ?? FieldValueTypes.VAR,
+        valueType: valueType ?? type.valueType ?? FieldValueTypes.VAR,
         groupInfo: {
             parent: undefined,
             children: []

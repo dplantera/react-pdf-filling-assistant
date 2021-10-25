@@ -39,6 +39,17 @@ const defaultSettings = {
                         return value
                     return `/${value}`
                 }
+            },
+            {
+                name: "prefix script field values",
+                type: RuleTypes.FIELD_VALUE,
+                template: (value, flags) => {
+                    if(!flags.isScript)
+                        return value;
+                    if(value?.startsWith("#"))
+                        return value
+                    return `#${value}`
+                }
             }
         ]
     }

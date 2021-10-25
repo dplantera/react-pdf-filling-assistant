@@ -1,4 +1,4 @@
-import {FieldTypes, FieldValueTypes} from "../../../model/types";
+import {FieldTypes} from "../../../model/types";
 
 const RuleTypesCSV = {
     CELL: {name: "cell"}

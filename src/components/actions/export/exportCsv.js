@@ -19,6 +19,7 @@ export function transformToCsvRows(fieldList, variables, fields, settings) {
         const flagsField = {
             ...flagsExport,
             isConstant: field.valueType.name === FieldValueTypes.CONST.name,
+            isScript: field.valueType.name === FieldValueTypes.SCRIPT.name
         };
         switch (field.type.name) {
             case RuleTypes.RADIO.name:

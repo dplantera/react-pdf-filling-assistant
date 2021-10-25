@@ -6,6 +6,7 @@ import TextFieldsIcon from '@mui/icons-material/TextFields';
 import Checkbox from '@mui/material/Checkbox';
 import {TextField, Tooltip} from "@mui/material";
 import {FieldValueTypes} from "../../../../model/types";
+import CodeIcon from '@mui/icons-material/Code';
 
 const FormFieldItem = memo((
     {
@@ -63,19 +64,28 @@ const FormFieldItem = memo((
         console.groupEnd();
     }
 
-    const isConstant = () => {
-        console.debug({fieldValueType, isConstant: fieldValueType === FieldValueTypes.CONST.name})
-        return fieldValueType === FieldValueTypes.CONST.name
-    };
-    const makeTooltipCheckbox = () => {
+    const isConstant = () => fieldValueType === FieldValueTypes.CONST.name;
+    const isScript = () => fieldValueType === FieldValueTypes.SCRIPT.name;
+
+    const makeTooltipConstant = () => {
         if (isConstant())
             return "Uncheck, if this field is variable.";
         return "Check, if this field is constant.";
     }
 
+    const makeTooltipScript = () => {
+        if (isScript())
+            return "Uncheck, if this field is variable.";
+        return "Check, if this field is a script.";
+    }
+
     const handleCheckedConstant = (event) => {
         const checked = event.target.checked;
         updateField({index: idx, id: fieldId, valueType: checked ? FieldValueTypes.CONST : FieldValueTypes.VAR})
+    }
+    const handleCheckedScript = (event) => {
+        const checked = event.target.checked;
+        updateField({index: idx, id: fieldId, valueType: checked ? FieldValueTypes.SCRIPT : FieldValueTypes.VAR})
     }
 
     const renderInput = () => {
@@ -107,18 +117,27 @@ const FormFieldItem = memo((
                 onFocus={handleFocus}
                 openVariableDialog={openVariableDialog}
                 disabled={disabled}
+                color={"warning"}
+                focused={isScript()}
             />
         </ResizeableDiv>
-
     }
     return (
         <div id={fieldId} style={{position: "relative", display: "flex", width: "100%"}}>
-            <Tooltip title={makeTooltipCheckbox()} placement={"top-start"}
+            <Tooltip title={makeTooltipConstant()} placement={"top-start"}
                      arrow>
                 <Checkbox icon={<TextFieldsIcon fontSize="small"/>}
                           checkedIcon={<TextFieldsIcon color={"secondary"} fontSize="small"/>}
                           onChange={handleCheckedConstant}
                           checked={isConstant()}
+                />
+            </Tooltip>
+            <Tooltip title={makeTooltipScript()} placement={"top-start"}
+                     arrow>
+                <Checkbox icon={<CodeIcon fontSize="small"/>}
+                          checkedIcon={<CodeIcon color={"warning"} fontSize="small"/>}
+                          onChange={handleCheckedScript}
+                          checked={isScript()}
                 />
             </Tooltip>
             {renderInput()}
