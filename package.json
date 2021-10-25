@@ -12,7 +12,7 @@
     "@mui/icons-material": "^5.0.4",
     "@mui/material": "^5.0.4",
     "@mui/styles": "^5.0.1",
-    "client-persistence": "git+https://github.com/dplantera/client-persistence.git#1.0.4",
+    "client-persistence": "git+https://github.com/dplantera/client-persistence.git#1.0.5",
     "console-log-level": "^1.4.1",
     "pdfjs-dist": "^2.10.377",
     "prismjs": "^1.25.0",
