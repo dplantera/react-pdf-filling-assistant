@@ -36,3 +36,10 @@ export function getRepository(jsObject) {
 
     return repositories[repoName];
 }
+export function getRepositoryByClass(clazz) {
+    const name = clazz.constructor.name;
+    if(!Object.keys(repositories).includes(name))
+        repositories[name] = new IDBRepository(clazz);
+
+    return repositories[name];
+}

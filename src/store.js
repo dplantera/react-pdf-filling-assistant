@@ -4,9 +4,23 @@ import {Field, FieldList, FormVariable, Pdf} from "./model/types";
 import {
     retrieveInitialFormFields,
     retrieveInitialFormVariables,
-    retrieveInitialPdfs
+    retrieveInitialPdfs,
+    retrieveInitialSettings
 } from "./components/actions/startupActions";
 import {addVariableToField, switchFieldList} from "./components/actions/mutateActions";
+import {addSettings} from "./config/settings";
+
+const createSettingsSlice = (set, get) => ({
+    settings: {},
+    loadSettings: async () => new Promise(async (resolve) => {
+        set({settings: await retrieveInitialSettings()})
+        resolve(get().settings);
+    }),
+    saveSettings: async (newSettings) => {
+        const settings = await addSettings(newSettings);
+        set({settings: settings})
+    },
+});
 
 const createPdfSlice = (set, get) => ({
     pdfs: [],
@@ -220,7 +234,6 @@ const persist = {
             console.warn("Store.updateOne: element not found")
         if (index < 0 && state.length < 1)
             index = 0
-        console.warn({index, state, element})
 
         const newState = [...state];
         const prevField = newState[index];
@@ -250,6 +263,7 @@ const persist = {
 
 
 export const useStore = create((set, get) => ({
+    ...createSettingsSlice(set, get),
     ...createPdfSlice(set, get),
     ...createFieldListSlice(set, get),
     ...createFieldSlice(set, get),

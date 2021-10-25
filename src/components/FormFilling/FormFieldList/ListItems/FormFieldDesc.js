@@ -1,12 +1,13 @@
 import React from 'react';
-import {TextField} from "@material-ui/core";
+import {TextField} from "@mui/material";
 
-const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
+const FormFieldDesc = ({key, descValue, onBlur, onFocus, ...innerInputProps}) => {
 
     return (
         <TextField
             id={key}
             key={key}
+            size={"small"}
             defaultValue={descValue}
             multiline
             variant="outlined"
@@ -18,6 +19,7 @@ const FormFieldDesc = ({key, descValue, onBlur, onFocus}) => {
             InputLabelProps={{
                 shrink: true
             }}
+            {...innerInputProps}
         />
     );
 };

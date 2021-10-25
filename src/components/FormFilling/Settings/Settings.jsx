@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
-import {List, Divider, ListItem, ListItemIcon, ListItemText, Drawer, Box, IconButton} from "@mui/material";
+import {List, Divider, ListItem, ListItemIcon, ListItemText, Drawer, IconButton} from "@mui/material";
 import StorageIcon from '@mui/icons-material/Storage';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {clearLocalStorage} from "../../actions/cleanupActions";
+import {useExport} from "./UseExport";
 
 const Settings = () => {
     const [open, setOpen] = useState(false);
+    const {show, RenderExport} = useExport();
     const toggleDrawer = (_open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
             return;
@@ -17,25 +19,6 @@ const Settings = () => {
         action?.();
         toggleDrawer(false);
     }
-    const list = () => (
-        <Box
-            sx={{width: 250}}
-            role="presentation"
-            onClick={() => handleSelection(clearLocalStorage)}
-            onKeyDown={toggleDrawer(false)}
-        >
-            <List>
-                <ListItem button>
-                    <ListItemIcon>
-                        <StorageIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary={"Clear Storage"}/>
-                </ListItem>
-            </List>
-            <Divider/>
-        </Box>
-    );
-
     return (
         <React.Fragment>
             <IconButton onClick={toggleDrawer(true)} style={{textDecoration: 'none', color: "white"}}
@@ -50,7 +33,31 @@ const Settings = () => {
                 }}
                 onClose={toggleDrawer(false)}
             >
-                {list()}
+                <List>
+                    <ListItem button
+                              sx={{width: 250}}
+                              role="presentation"
+                              onClick={() => handleSelection(clearLocalStorage)}
+                              onKeyDown={toggleDrawer(false)}
+                    >
+                        <ListItemIcon>
+                            <StorageIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary={"Clear Storage"}/>
+                    </ListItem>
+                    <Divider/>
+                    <ListItem button
+                              sx={{width: 250}}
+                              role="presentation"
+                              onClick={() => show()}
+                    >
+                        <ListItemIcon>
+                            <StorageIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary={"Export Settings"}/>
+                    </ListItem>
+                </List>
+                <RenderExport/>
             </Drawer>
         </React.Fragment>
     )

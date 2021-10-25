@@ -1,7 +1,6 @@
-import Autocomplete, {createFilterOptions} from '@material-ui/lab/Autocomplete';
 import React, {Fragment, memo} from "react";
-import {TextField} from "@material-ui/core";
 import {FormVariable} from "../../../../model/types";
+import {createFilterOptions, TextField, Autocomplete} from "@mui/material";
 
 
 const filter = createFilterOptions();
@@ -16,7 +15,8 @@ const FormFieldVariable = memo((
         onBlur,
         onFocus,
         onClear,
-        openVariableDialog
+        openVariableDialog,
+        ...innerInputProps
     }) => {
     const selectVariable = (formVariable) => {
         if (!formVariable) {
@@ -56,6 +56,7 @@ const FormFieldVariable = memo((
     return (
         <Fragment>
             <Autocomplete
+                size={"small"}
                 /*getOptionLabel destructs var for options*/
                 value={fieldValue}
                 onChange={(event, newValue) => {
@@ -105,13 +106,19 @@ const FormFieldVariable = memo((
                 selectOnFocus
                 clearOnBlur
                 handleHomeEndKeys
-                renderOption={(option) => option.name}
+                renderOption={(props, option, { selected }) => (
+                   <li {...props}>
+                       {option.name}
+                  </li>
+                )}
                 style={{fontFamily: 'Source Code Pro'}}
                 freeSolo
                 onInputChange={handleInputChanged}
-                renderInput={(params) => (
+                {...innerInputProps}
+                renderInput={params => (
                     <TextField {...params}
                                multiline={true}
+                               size={"small"}
                                id={"input-" + fieldName}
                                label={fieldName}
                                fullWidth={true}

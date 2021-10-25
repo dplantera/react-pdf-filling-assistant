@@ -17,6 +17,7 @@
     align-content: space-between;
     justify-content: center;
     padding: 10px 10px 10px 10px;
+    user-select: none;
 }
 
 .app-bar-menu {
