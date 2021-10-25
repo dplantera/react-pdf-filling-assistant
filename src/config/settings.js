@@ -13,31 +13,21 @@ const defaultSettings = {
             {
                 name: "no double quotes in values",
                 type: RuleTypes.CELL,
-                validate: function (row) {
-                    return !row.includes("\"");
-                },
-                fix: function (row) {
-                    return row.replaceAll("\"", '\'');
-                }
+                validate: (row) => !row.includes("\""),
+                fix: (row) => row.replaceAll("\"", '\'')
             },
             {
                 name: "no multiline values",
                 type: RuleTypes.CELL,
-                validate: function (value) {
-                    return /\r?\n|\r/g.test(value);
-                },
-                fix: function (value) {
-                    return value.replaceAll(/\r?\n|\r/g, '');
-                }
+                validate: (value) => /\r?\n|\r/g.test(value),
+                fix: (value) => value.replaceAll(/\r?\n|\r/g, '')
             }
         ],
         fieldRules: [
             {
                 name: "group fields in single field",
                 type: RuleTypes.RADIO,
-                template: function (groupFieldValues){
-                    return `$[${groupFieldValues.map(field => field || 'false').join(",")}]`;
-                }
+                template: (groupFieldValues) => `$[${groupFieldValues.map(field => field || 'false').join(",")}]`
             }
         ]
     }
@@ -49,12 +39,12 @@ export async function loadSettings() {
     if (existingSettings?.length <= 0) {
         console.debug("no settings found: creating new")
         let initialSettings = new Settings(defaultSettings);
-        console.log({json: initialSettings.getSettings()})
         settings = await settingsRepo.create(initialSettings);
     } else {
         console.debug("settings found: ", {existingSettings})
         settings = existingSettings[0];
     }
+    console.debug({json: settings.getJson(true), settings: settings.getSettings()})
     return settings;
 }
 

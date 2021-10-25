@@ -1,6 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 import {Entity} from "client-persistence";
-
+import serializeJs from "serialize-javascript";
 
 /*
         Entities
@@ -28,29 +28,9 @@ export const FieldTypes = {
     }
 }
 
-/**
- * https://stackoverflow.com/questions/22545031/store-a-function-in-indexeddb-datastore
- */
-function serialize(key, value) {
-    if (typeof value === 'function') {
-        return value.toString().replaceAll(/(\r?\n|\r|\s{2})/g, "");
-    }
-    return value;
-}
-
-/**
- * https://stackoverflow.com/questions/22545031/store-a-function-in-indexeddb-datastore
- */
-function deserialize(key, value) {
-    if (value && typeof value === "string" && value.substr(0, 8) === "function") {
-        const startBody = value.indexOf('{') + 1;
-        const endBody = value.lastIndexOf('}');
-        const startArgs = value.indexOf('(') + 1;
-        const endArgs = value.indexOf(')');
-        // eslint-disable-next-line
-        return new Function(value.substring(startArgs, endArgs), value.substring(startBody, endBody));
-    }
-    return value;
+function deserializeScript(serializedJavascript) {
+    // eslint-disable-next-line
+    return eval("(" + serializedJavascript + ")");
 }
 
 export class Settings extends Entity {
@@ -60,7 +40,7 @@ export class Settings extends Entity {
     }
 
     addPlainJs(obj) {
-        this.json = JSON.stringify(obj, serialize);
+        this.json =  serializeJs(obj, {space: 2, unsafe: true})
     }
 
     addJson(json) {
@@ -69,12 +49,12 @@ export class Settings extends Entity {
 
     getJson(beautify) {
         if (beautify)
-            return JSON.stringify(this.getSettings(), serialize, 2);
+            return serializeJs(this.getSettings(), {space: 2, unsafe: true})
         return this.json;
     }
 
     getSettings() {
-        return JSON.parse(this.json, deserialize);
+        return deserializeScript(this.json);
     }
 }
 
