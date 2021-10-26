@@ -16,7 +16,8 @@ const FormListControls = () => {
     }, [variables, fieldLists, fields, settings])
 
     const handleUploadCsv = (text, filename) => {
-        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, fieldLists.find(fl => fl.isSelected));
+        const selectedFieldList = fieldLists.find(fl => fl.isSelected);
+        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, selectedFieldList, settings.getSettings());
         updateVariables(importResult.newVariables);
         updateFields(importResult.newFields);
         updateFields(importResult.updatedFields);

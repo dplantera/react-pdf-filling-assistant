@@ -1,5 +1,5 @@
 import {FieldTypes, FieldValueTypes} from "../../../model/types";
-import {applyRules, RuleTypes} from "./ruleActions";
+import {applyRules, RuleTypes} from "../ruleActions";
 
 let exportSettings = {};
 
@@ -13,7 +13,6 @@ export function transformToCsvRows(fieldList, variables, fields, settings) {
     const flagsExport = {
         applyFixes: exportSettings.applyFixes,
     }
-    console.group("exportFieldListAsCsv")
     const fieldsInList = fields.filter(field => field.fieldListId === fieldList.id);
     const rows = fieldsInList.map(field => {
         const flagsField = {
@@ -28,13 +27,10 @@ export function transformToCsvRows(fieldList, variables, fields, settings) {
                 return applyCsvRulesDefault(field, variables, flagsField);
         }
     })
-    const rowsValidated = rows.filter(row => row != null).map(row => row.map(cell => cell ? applyCsvRules(cell, RuleTypes.CELL, flagsExport) : cell));
-    console.groupEnd()
-    return rowsValidated
+    return rows.filter(row => row != null).map(row => row.map(cell => cell ? applyCsvRules(cell, RuleTypes.CELL, flagsExport) : cell))
 }
 
 function applyCsvRulesRadioBtn(field, variables, fields, fieldFlags) {
-    console.group("applyCsvRulesRadioBtn");
     let shouldExportAsSingleField = !exportSettings.multiFieldExport;
     const hasFieldChildren = field?.groupInfo?.children?.length > 0;
     if (shouldExportAsSingleField && !hasFieldChildren)
@@ -49,10 +45,8 @@ function applyCsvRulesRadioBtn(field, variables, fields, fieldFlags) {
 
             groupField.value = applyFieldRules(groupValues, field.type, fieldFlags);
             groupField.type = FieldTypes.TEXT;
-            console.groupEnd();
             return applyCsvRulesDefault(groupField, variables, fieldFlags)
         }
-        console.groupEnd();
         return [field.name, getValue(field, variables), ...groupChildren.map(child => [child.name, getValue(child, variables)])]
     } catch (error) {
         console.error("csv rules failed: ", {groupField, error})
@@ -60,11 +54,9 @@ function applyCsvRulesRadioBtn(field, variables, fields, fieldFlags) {
 }
 
 function applyCsvRulesDefault(field, variables, fieldFlags) {
-    console.group("applyCsvRulesRadioBtn");
     let value = getValue(field, variables);
     value = applyFieldRules(value, RuleTypes.FIELD_VALUE, fieldFlags);
     const fieldName = applyFieldRules(field.name, RuleTypes.FIELD_NAME, fieldFlags);
     const fieldDesc = applyFieldRules(field.description, RuleTypes.FIELD_DESCRIPTION, fieldFlags);
-    console.groupEnd();
     return [fieldName, value, fieldDesc]
 }

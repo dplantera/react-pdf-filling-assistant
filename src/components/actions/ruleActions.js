@@ -1,12 +1,14 @@
-import {FieldTypes} from "../../../model/types";
+import {FieldTypes} from "../../model/types";
 
 const RuleTypesCSV = {
     CELL: {name: "cell"}
 }
 
+
 export const RuleTypes = {
     ...FieldTypes,
     ...RuleTypesCSV,
+    FIELD: {name: "field"},
     FIELD_VALUE: {name: "value"},
     FIELD_DESCRIPTION: {name: "description"},
     FIELD_NAME: {name: "name"},
@@ -21,7 +23,7 @@ export function areEqualRuleTypes(typeA, typeB) {
 export function applyRules(value, type, ruleSet, flags) {
     const rules = ruleSet?.filter(rule => areEqualRuleTypes(rule?.type, type));
     let validValue = value;
-    if (!validValue) return "";
+    if (!validValue) return areEqualRuleTypes(type, RuleTypes.FIELD) ? {} : "";
     const {applyFixes} = flags;
     rules.forEach(rule => {
         const isValidationRule = rule.validate !== undefined || rule.fix;
@@ -30,8 +32,12 @@ export function applyRules(value, type, ruleSet, flags) {
             validValue = applyFixes && rule.fix ? rule.fix(validValue, flags) : validValue;
         }
         if (rule.template) {
-            console.debug("applying template: " + rule.name);
+            console.debug("applying template: " + rule.name, {validValue});
             validValue = rule.template(validValue, flags);
+        }
+        if (rule.transform) {
+            console.debug("applying transformation: " + rule.name, {validValue});
+            validValue = rule.transform(validValue, flags);
         }
     })
     return validValue;

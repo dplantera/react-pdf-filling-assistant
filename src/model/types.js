@@ -29,7 +29,7 @@ export const FieldValueTypes = {
 export const FieldTypes = {
     "RADIO": {
         name: "radio",
-        valueType: FieldValueTypes.SCRIPT
+        valueType: FieldValueTypes.VAR
     },
     "CHECK": {
         name: "check",
@@ -82,7 +82,7 @@ export const Field = (refPdf = null, name, value, location, fieldListId, type, v
         value: value ?? refPdf?.value,
         description: "",
         type: type ?? FieldTypes.TEXT,
-        valueType: valueType ?? type.valueType ?? FieldValueTypes.VAR,
+        valueType: valueType ?? type.valueType,
         groupInfo: {
             parent: undefined,
             children: []
