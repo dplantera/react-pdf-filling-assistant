@@ -6,6 +6,7 @@ const settingsRepo = getRepositoryByClass(Settings);
 
 const defaultSettings = {
     deserialization: {
+        multiFieldImport: false,
         csvRules: [
             {
                 name: "parse constant fields",
@@ -26,11 +27,39 @@ const defaultSettings = {
                 transform: (field, flags) => {
                     if (!field.value?.startsWith("#"))
                         return field;
-                    field.valueType =  {
+                    field.valueType = {
                         name: "script"
                     };
                     field.value = field.value.substring(1);
                     return field;
+                },
+            },
+            {
+                name: "parse radio btn values",
+                type: RuleTypes.RADIO,
+                transform: (value, flags) => {
+                    if (!value)
+                        return value;
+
+                    if (typeof value !== "string") {
+                        console.warn("expected 'string' but got: ", {value})
+                        return value;
+                    }
+
+                    if (!value?.trim().startsWith("[")) {
+                        console.warn("expected '[' at value start")
+                        return value;
+                    }
+
+                    if (!value?.trim().endsWith("]")) {
+                        console.warn("expected ']' at value end")
+                        return value;
+                    }
+
+                    const valueWithoutFormatting = value.trim().substring(1, value.trim().length - 1);
+                    const values = valueWithoutFormatting.split(",");
+
+                    return values;
                 },
             },
         ],
