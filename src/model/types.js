@@ -14,19 +14,34 @@ export const Pdf = (name, binary, id) => {
     }
 }
 
+export const FieldValueTypes = {
+    "VAR": {
+        name: "variable"
+    },
+    "CONST": {
+        name: "constant"
+    },
+    "SCRIPT": {
+        name: "script"
+    }
+}
+
 export const FieldTypes = {
     "RADIO": {
-        name: "radio"
+        name: "radio",
+        valueType: FieldValueTypes.VAR
     },
     "CHECK": {
         name: "check",
-        detail: {}
+        valueType: FieldValueTypes.VAR
+
     },
     "TEXT": {
         name: "text",
-        detail: {}
+        valueType: FieldValueTypes.VAR
     }
 }
+
 
 function deserializeScript(serializedJavascript) {
     // eslint-disable-next-line
@@ -58,9 +73,7 @@ export class Settings extends Entity {
     }
 }
 
-/**
- */
-export const Field = (refPdf = null, name, value, location, fieldListId, type) => {
+export const Field = (refPdf = null, name, value, location, fieldListId, type, valueType) => {
 
     return {
         id: name ?? refPdf?.name,
@@ -69,6 +82,7 @@ export const Field = (refPdf = null, name, value, location, fieldListId, type) =
         value: value ?? refPdf?.value,
         description: "",
         type: type ?? FieldTypes.TEXT,
+        valueType: valueType ?? type.valueType,
         groupInfo: {
             parent: undefined,
             children: []

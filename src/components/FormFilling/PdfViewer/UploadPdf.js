@@ -7,6 +7,7 @@ import {getFileExtensionFromFile, isPdfMimeType, Upload} from "../../../utils/up
 import {importFieldsAndVarsFromCsv} from "../../actions/importActions";
 
 export default function UploadPdf({loadPdf, setIsPdfReady}) {
+    const settings = useStore(state => state.settings)
     const {show, hide, RenderImportFilesDialog} = useImportFilesDialog();
     const selectPdf = useStore(state => state.selectPdf)
     const [variables, updateVariables] = useStore(state => [state.variables, state.updateVariables])
@@ -23,9 +24,10 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         console.group("handleUploadText")
         const [text, fileName] = await Upload.uploadAsText(file)
         console.log({text, fileName})
-        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, selectedFieldList);
+        const importResult = importFieldsAndVarsFromCsv(text, fields, variables, selectedFieldList, settings.getSettings());
         updateVariables(importResult.newVariables);
         updateFields(importResult.newFields);
+        updateFields(importResult.updatedFields);
         console.groupEnd()
     }
 

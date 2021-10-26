@@ -1,11 +1,69 @@
-import {RuleTypes} from "../components/actions/export/ruleActions";
+import {RuleTypes} from "../components/actions/ruleActions";
 import {getRepositoryByClass} from "../utils/ClientStorage";
 import {Settings} from "../model/types";
 
 const settingsRepo = getRepositoryByClass(Settings);
 
-// $[ '$!att.var' == '$!test', $var1, $var2 ]
 const defaultSettings = {
+    deserialization: {
+        multiFieldImport: false,
+        csvRules: [
+            {
+                name: "parse constant fields",
+                type: RuleTypes.FIELD,
+                transform: (field, flags) => {
+                    if (!field.value?.startsWith("/"))
+                        return field;
+                    field.valueType = {
+                        name: "constant"
+                    };
+                    field.value = field.value.substring(1);
+                    return field;
+                },
+            },
+            {
+                name: "parse script fields",
+                type: RuleTypes.FIELD,
+                transform: (field, flags) => {
+                    if (!field.value?.startsWith("#"))
+                        return field;
+                    field.valueType = {
+                        name: "script"
+                    };
+                    field.value = field.value.substring(1);
+                    return field;
+                },
+            },
+            {
+                name: "parse radio btn values",
+                type: RuleTypes.RADIO,
+                transform: (value, flags) => {
+                    if (!value)
+                        return value;
+
+                    if (typeof value !== "string") {
+                        console.warn("expected 'string' but got: ", {value})
+                        return value;
+                    }
+
+                    if (!value?.trim().startsWith("[")) {
+                        console.warn("expected '[' at value start")
+                        return value;
+                    }
+
+                    if (!value?.trim().endsWith("]")) {
+                        console.warn("expected ']' at value end")
+                        return value;
+                    }
+
+                    const valueWithoutFormatting = value.trim().substring(1, value.trim().length - 1);
+                    const values = valueWithoutFormatting.split(",");
+
+                    return values;
+                },
+            },
+        ],
+    },
     serialization: {
         applyFixes: true,
         multiFieldExport: false,
@@ -19,7 +77,7 @@ const defaultSettings = {
             {
                 name: "no multiline values",
                 type: RuleTypes.CELL,
-                validate: (value) => /\r?\n|\r/g.test(value),
+                validate: (value) => !/\r?\n|\r/g.test(value),
                 fix: (value) => value.replaceAll(/\r?\n|\r/g, '')
             }
         ],
@@ -28,6 +86,28 @@ const defaultSettings = {
                 name: "group fields in single field",
                 type: RuleTypes.RADIO,
                 template: (groupFieldValues) => `$[${groupFieldValues.map(field => field || 'false').join(",")}]`
+            },
+            {
+                name: "prefix constant field values",
+                type: RuleTypes.FIELD_VALUE,
+                template: (value, flags) => {
+                    if (!flags.isConstant)
+                        return value;
+                    if (value?.startsWith("/"))
+                        return value
+                    return `/${value}`
+                }
+            },
+            {
+                name: "prefix script field values",
+                type: RuleTypes.FIELD_VALUE,
+                template: (value, flags) => {
+                    if (!flags.isScript)
+                        return value;
+                    if (value?.startsWith("#"))
+                        return value
+                    return `#${value}`
+                }
             }
         ]
     }

@@ -124,7 +124,9 @@ const FormFieldVariable = memo((
                                fullWidth={true}
                                variant="outlined"
                                onBlur={_onBlurInput}
-                               onFocus={onFocus}/>
+                               onFocus={onFocus}
+                               {...innerInputProps}
+                    />
                 )}
             />
         </Fragment>

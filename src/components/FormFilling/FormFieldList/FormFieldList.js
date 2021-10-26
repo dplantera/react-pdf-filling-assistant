@@ -46,6 +46,7 @@ const FormFieldList = memo((
             idx,
             fieldId: field.id,
             fieldValue: field.value,
+            fieldValueType: field.valueType.name,
             fieldName: field.name,
             fieldDescription: field.description,
             fieldPageNum: field.location?.pageNum,
@@ -84,6 +85,11 @@ const FormFieldList = memo((
                                 {field.groupInfo.children
                                     .map(childName => fields.findIndex(({name}) => childName === name))
                                     .map(childIdx => {
+                                        if(childIdx === -1) {
+                                            console.warn("not found: group child - are you importing?", {field, fields})
+                                            return null;
+                                        }
+
                                         const child = fields[childIdx];
                                         return (
                                             <ListItem key={"child-" + child.name}>
