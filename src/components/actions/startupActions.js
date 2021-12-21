@@ -46,11 +46,15 @@ export async function retrieveInitialFormFields({selectedList, fieldsRaw}) {
         })
         console.debug("Startup.retrieveInitialFormFields: ", {fieldsFromDb, fieldsRaw, mergedFields})
         // update fields with mergedFields
-
-        fieldRepo.updateAll(mergedFields)
-            .then((res) => console.debug("StartupAction: done persist mergedFields", {res}))
-            .catch(error => console.error("StartupAction: failed persist mergedFields", {error}))
-        resolve(mergedFields);
+        
+        try {
+            const res = await fieldRepo.updateAll(mergedFields)
+            console.debug("StartupAction: done persist mergedFields", {res})
+        }catch (error) {
+            console.error("StartupAction: failed persist mergedFields", {error})
+        }finally {
+            resolve(mergedFields);
+        }
     })
 }
 

@@ -15,9 +15,13 @@ function determineFieldType(pdfJsField) {
 }
 
 function toDomainGroupField(fieldName, pdfJsFieldArray) {
-    const firstRadioBtn = {...pdfJsFieldArray?.[0]};
-    const groupField = Field(firstRadioBtn, fieldName, firstRadioBtn.fieldValue, {pageNum: firstRadioBtn.pageNum}, undefined, determineFieldType(firstRadioBtn) );
-
+    const firstField = {...pdfJsFieldArray?.[0]};
+    const fieldType = determineFieldType(firstField);
+    const groupField = Field(firstField, fieldName, firstField.fieldValue, {pageNum: firstField.pageNum}, undefined, fieldType );
+    
+    if(fieldType !== FieldTypes.RADIO)
+        return [groupField]
+    
     const groupChildren = pdfJsFieldArray
         .map(child => {
             const fieldType = determineFieldType(child);
@@ -162,7 +166,7 @@ export default class PdfJsClient {
                 }))
             }, Promise.resolve())
 
-            const pdfjsFormFields = await allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
+            const pdfjsFormFields = allAnnotations.filter(annotation => (includeReadOnly || !annotation.readOnly) && annotation.fieldType);
             const formFields = transformToDomainFields(pdfjsFormFields);
             console.debug("PdfJsClient: loaded fields:", {
                 allAnnotations,
