@@ -5,7 +5,7 @@ import './App.css';
 import FormFillingMain from "./components/FormFilling/FormFillingMain";
 import FormVariablesMain from "./components/FormVariables/FormVariablesMain";
 import {useStore} from "./store";
-import Settings from "./components/FormFilling/Settings/Settings";
+import Settings from "./components/Settings/Settings";
 
 const App = () => {
         const refLoadPdfs = useRef(useStore.getState().loadPdfs)

@@ -1,5 +1,5 @@
-import {useCodeEditor} from "../../hooks/useCodeEditor";
-import {useStore} from "../../../store";
+import {useCodeEditor} from "../hooks/useCodeEditor";
+import {useStore} from "../../store";
 
 export const useExport = () => {
     const [settings, saveSettings] = useStore(state => [state.settings, state.saveSettings])

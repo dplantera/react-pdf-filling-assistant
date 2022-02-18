@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import PdfJsClient from "../../model/pdf-backend/PdfJsClient";
 import FormFieldList from "./FormFieldList/FormFieldList";
-import PdfViewer from "./PdfViewer/PdfViewer";
+import PdfViewer from "../commons/PdfViewer/PdfViewer";
 import {AddVariableProvider} from "../hooks/AddVariableContext";
 import "./FormFillingMain.css"
 import useSpinner from "../hooks/useSpinner";

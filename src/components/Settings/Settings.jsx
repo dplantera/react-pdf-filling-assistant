@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {List, Divider, ListItem, ListItemIcon, ListItemText, Drawer, IconButton} from "@mui/material";
 import StorageIcon from '@mui/icons-material/Storage';
 import SettingsIcon from '@mui/icons-material/Settings';
-import {clearCurrentPdf, clearLocalStorage} from "../../actions/cleanupActions";
+import {clearCurrentPdf, clearLocalStorage} from "../actions/cleanupActions";
 import {useExport} from "./UseExport";
 
 const Settings = () => {
