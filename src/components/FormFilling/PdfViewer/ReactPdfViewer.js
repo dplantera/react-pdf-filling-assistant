@@ -53,7 +53,7 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
                           pageNumber={i + 1}
                           scale={scale}
                           renderTextLayer={false}
-                          renderAnnotationLayer renderInteractiveForms
+                          renderAnnotationLayer renderForms
                           onGetAnnotationsSuccess={(annotations) => console.debug("ReactPdfViewer.onGetAnnotationsSuccess")}
                     />
                 </Card>

@@ -51,7 +51,6 @@
     position: relative;
     display: flex;
     gap: 10px;
-    flex-direction: column;
     padding-right: 10px;
 }
 

@@ -24,7 +24,8 @@ const FormFieldList = memo((
     const {variables, fields, updateField, addVariableToField} = useStore(storeSelector);
 
     const {openVariableDialog} = useAddVariable();
-    const [widthFormField, setWidthFormField] = useState(50);
+    const [widthFormField, setWidthFormField] = useState(100);
+    const [simple, setSimple] = useState(true);
 
     const _highlightFormField = useCallback((name, pageNum) => {
         pdfClient.selectField({name, location: {pageNum}})
@@ -69,7 +70,7 @@ const FormFieldList = memo((
     return (
         <div className={"field-list-container"}>
             <FormListControls formVariables={variables}/>
-            <FormItemsControls widthFormField={widthFormField} setWidthFormField={setWidthFormField}/>
+            <FormItemsControls widthFormField={widthFormField} setWidthFormField={setWidthFormField} simple={simple} setSimple={setSimple}/>
             <div className={"field-list"}>
                 {fields.map((field, idx) => {
                     if (isRadioBtnGroup(field)) {
@@ -85,7 +86,7 @@ const FormFieldList = memo((
                                 {field.groupInfo.children
                                     .map(childName => fields.findIndex(({name}) => childName === name))
                                     .map(childIdx => {
-                                        if(childIdx === -1) {
+                                        if (childIdx === -1) {
                                             console.warn("not found: group child - are you importing?", {field, fields})
                                             return null;
                                         }
@@ -107,7 +108,7 @@ const FormFieldList = memo((
                         )
                     } else if (isNotRadioBtn(field)) {
                         return (
-                            <FormFieldItem key={"field-" + field.name} {...makePropsForField(idx, field)}/>
+                            <FormFieldItem key={"field-" + field.name} {...makePropsForField(idx, field)} simple={simple}/>
                         )
                     }
                     return null;

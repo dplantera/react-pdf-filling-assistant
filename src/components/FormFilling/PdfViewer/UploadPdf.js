@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import {Pdf} from "../../../model/types";
 import {useStore} from "../../../store";
 import {useImportFilesDialog} from "../../hooks/useImportFilesDialog";
@@ -41,6 +41,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         return selectedFieldList;
     }
 
+    // todo: this imports pdfs and templates but the template content won't persist...
     const handleImport = async (files) => {
         const isCsvByExtOrMimeType = (file) => ".csv" === getFileExtensionFromFile(file);
         const pdfs = files.filter(file => isPdfMimeType(file.type));
@@ -62,15 +63,24 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
 
     return (
         <React.Fragment>
-            <Button variant="contained" onClick={show} style={{position: "relative", width: "100%", zIndex: 1202}}>
-                Upload PDF or Template
+            <Button variant="contained" onClick={show} color={"primary"} sx={ {
+                margin: "2px",
+                color: "black",
+                fontSize: "1.5em",
+                fontWeight: "bold",
+                backgroundColor: "rgb(201, 203, 212)",
+                ":hover": {
+                    backgroundColor: "rgb(109,109,110)",
+                }
+            }}>
+                Upload PDF
             </Button>
             <RenderImportFilesDialog
-                title={"Upload PDF or Template"}
-                onImport={handleImport}
+                title={"Upload PDF"}
+                onImport={handleLoadPdf}
                 onCancel={hide}
                 onClose={hide}
-                acceptedFileExt={[".pdf", ".csv"]}/>
+                acceptedFileExt={[".pdf"]}/>
         </React.Fragment>
     );
 }

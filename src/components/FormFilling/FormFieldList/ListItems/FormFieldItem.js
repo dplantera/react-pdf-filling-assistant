@@ -24,7 +24,8 @@ const FormFieldItem = memo((
         widthFormField,
         resetHighlightFormField,
         highlightFormField,
-        disabled = false
+        disabled = false,
+        simple = true
     }
 ) => {
     const [fieldVal, setFieldVal] = useState(fieldValue);
@@ -124,22 +125,24 @@ const FormFieldItem = memo((
     }
     return (
         <div id={fieldId} style={{position: "relative", display: "flex", width: "100%"}}>
-            <Tooltip title={makeTooltipConstant()} placement={"top-start"}
-                     arrow>
-                <Checkbox icon={<TextFieldsIcon fontSize="small"/>}
-                          checkedIcon={<TextFieldsIcon color={"secondary"} fontSize="small"/>}
-                          onChange={handleCheckedConstant}
-                          checked={isConstant()}
-                />
-            </Tooltip>
-            <Tooltip title={makeTooltipScript()} placement={"top-start"}
-                     arrow>
-                <Checkbox icon={<CodeIcon fontSize="small"/>}
-                          checkedIcon={<CodeIcon color={"warning"} fontSize="small"/>}
-                          onChange={handleCheckedScript}
-                          checked={isScript()}
-                />
-            </Tooltip>
+            {!simple && <Tooltip title={makeTooltipConstant()} placement={"top-start"}
+                         arrow>
+                    <Checkbox icon={<TextFieldsIcon fontSize="small"/>}
+                              checkedIcon={<TextFieldsIcon color={"secondary"} fontSize="small"/>}
+                              onChange={handleCheckedConstant}
+                              checked={isConstant()}
+                    />
+                </Tooltip>}
+
+            {!simple && <Tooltip title={makeTooltipScript()} placement={"top-start"}
+                         arrow>
+                    <Checkbox icon={<CodeIcon fontSize="small"/>}
+                              checkedIcon={<CodeIcon color={"warning"} fontSize="small"/>}
+                              onChange={handleCheckedScript}
+                              checked={isScript()}
+                    />
+                </Tooltip>
+            }
             {renderInput()}
             {widthFormField < 100 && <FormFieldDesc id={"desc-" + fieldName}
                                                     descValue={fieldDesc || fieldDescription} // when fieldDescription changes from extern than fieldDesc wont update

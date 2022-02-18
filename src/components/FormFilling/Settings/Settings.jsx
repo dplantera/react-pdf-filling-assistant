@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {List, Divider, ListItem, ListItemIcon, ListItemText, Drawer, IconButton} from "@mui/material";
 import StorageIcon from '@mui/icons-material/Storage';
 import SettingsIcon from '@mui/icons-material/Settings';
-import {clearLocalStorage} from "../../actions/cleanupActions";
+import {clearCurrentPdf, clearLocalStorage} from "../../actions/cleanupActions";
 import {useExport} from "./UseExport";
 
 const Settings = () => {
@@ -34,6 +34,17 @@ const Settings = () => {
                 onClose={toggleDrawer(false)}
             >
                 <List>
+                    <ListItem button
+                              sx={{width: 250}}
+                              role="presentation"
+                              onClick={() => handleSelection(clearCurrentPdf)}
+                              onKeyDown={toggleDrawer(false)}
+                    >
+                        <ListItemIcon>
+                            <StorageIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary={"Clear PDF"}/>
+                    </ListItem>
                     <ListItem button
                               sx={{width: 250}}
                               role="presentation"
