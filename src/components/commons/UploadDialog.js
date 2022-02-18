@@ -1,7 +1,7 @@
 import React from 'react';
 import {useImportFilesDialog} from "../hooks/useImportFilesDialog";
 import {isPdfMimeType, Upload} from "../../utils/upload";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 
 export default function UploadDialog({onUploadText, onUploadPdf, title, acceptedFileExt}) {
     const {show, hide, RenderImportFilesDialog} = useImportFilesDialog();
@@ -30,8 +30,10 @@ export default function UploadDialog({onUploadText, onUploadPdf, title, accepted
 
     return (
         <React.Fragment>
-            <Button onClick={show} size={"small"} style={{height: "50%"}}>
-                Upload
+            <Button onClick={show} size={"small"} style={{height: "50%"}} sx={{
+                color: "black"
+            }}>
+                Upload Template
             </Button>
             <RenderImportFilesDialog
                 title={title}

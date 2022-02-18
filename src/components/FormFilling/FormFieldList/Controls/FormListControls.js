@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Button, TextField} from "@material-ui/core";
+import {Button, TextField} from "@mui/material";
 import {useStore} from "../../../../store";
 import UploadDialog from "../../../commons/UploadDialog";
 import {importFieldsAndVarsFromCsv} from "../../../actions/importActions";
@@ -24,31 +24,46 @@ const FormListControls = () => {
     };
 
     const makeNameWithExtension = (name) => {
-        if(!name)
+        if (!name)
             return "template.csv"
-        if(name.endsWith(".csv"))
+        if (name.endsWith(".csv"))
             return name;
-        if(name.endsWith(".pdf"))
+        if (name.endsWith(".pdf"))
             return name.replace(".pdf", ".csv")
         return name + ".csv";
     }
 
     return (
-        <div className={"field-list-controls"} >
+        <div className={"field-list-controls"}>
             {fieldLists.map((fieldList, index) => {
                 return <div key={fieldList.name}
-                            style={{position: "relative", display: "flex", width: "100%", alignItems: "center", gap: "20px"}}>
-                    <TextField id="standard-basic" label={`CSV ${index}`} defaultValue={makeNameWithExtension(fieldList.name)}
+                            style={{
+                                position: "relative",
+                                display: "flex",
+                                width: "100%",
+                                alignItems: "center",
+                                gap: "20px"
+                            }}>
+                    <TextField id="standard-basic" label={`Template (csv) ${index}`}
+                               defaultValue={makeNameWithExtension(fieldList.name)}
                                fullWidth={true}
+                               variant={"filled"}
+                               size={"small"}
                                onBlur={(e) => {
                                    fieldList.name = e.currentTarget.value;
                                    updateFieldList({index, name: e.currentTarget.value})
                                }}/>
                     <UploadDialog onUploadText={handleUploadCsv}
                                   acceptedFileExt={[".csv"]}
-                                  title={"Upload Variables"}/>
+                                  title={"Upload Template"}/>
                     <Button size={"small"} style={{height: "50%"}}
-                            onClick={(e) => handleDownloadPdf(e, index)}>Download</Button>
+                            sx={{
+                                color: "#3f51b5",
+                                fontWeight: "bold",
+                            }}
+                            variant={"text"}
+
+                            onClick={(e) => handleDownloadPdf(e, index)}>Download Template</Button>
                 </div>
             })}
         </div>

@@ -64,13 +64,12 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
     return (
         <React.Fragment>
             <Button variant="contained" onClick={show} color={"primary"} sx={ {
-                margin: "2px",
-                color: "black",
-                fontSize: "1.5em",
+                color: "#3f51b5",
+                fontSize: "1em",
                 fontWeight: "bold",
                 backgroundColor: "rgb(201, 203, 212)",
                 ":hover": {
-                    backgroundColor: "rgb(109,109,110)",
+                    backgroundColor: "rgba(63,81,181,0.47)"
                 }
             }}>
                 Upload PDF
