@@ -4,6 +4,17 @@ import DomUtil from "../../utils/dom";
 const CMAP_URL = "../../node_modules/pdfjs-dist/cmaps/";
 const CMAP_PACKED = true;
 
+export const PERMISSIONS_KNOWN = {
+    MODIFY_ANNOTATIONS: "MODIFY_ANNOTATIONS",
+    MODIFY_CONTENTS: "MODIFY_CONTENTS",
+    FILL_INTERACTIVE_FORMS: "FILL_INTERACTIVE_FORMS",
+    ASSEMBLE: "ASSEMBLE",
+    PRINT: "PRINT",
+    COPY: "COPY",
+    COPY_FOR_ACCESSIBILITY: "COPY_FOR_ACCESSIBILITY",
+    PRINT_HIGH_QUALITY: "PRINT_HIGH_QUALITY",
+}
+
 function determineFieldType(pdfJsField) {
     if (pdfJsField?.fieldType === "Tx")
         return FieldTypes.TEXT;
@@ -17,21 +28,21 @@ function determineFieldType(pdfJsField) {
 function toDomainGroupField(fieldName, pdfJsFieldArray) {
     const firstField = {...pdfJsFieldArray?.[0]};
     const fieldType = determineFieldType(firstField);
-    const groupField = Field(firstField, fieldName, firstField.fieldValue, {pageNum: firstField.pageNum}, undefined, fieldType );
-    
-    if(fieldType !== FieldTypes.RADIO)
+    const groupField = Field(firstField, fieldName, firstField.fieldValue, {pageNum: firstField.pageNum}, undefined, fieldType);
+
+    if (fieldType !== FieldTypes.RADIO)
         return [groupField]
-    
+
     const groupChildren = pdfJsFieldArray
         .map(child => {
             const fieldType = determineFieldType(child);
-            if(fieldType !== FieldTypes.RADIO)
+            if (fieldType !== FieldTypes.RADIO)
                 console.error("that should not happen - Single RadioBtn found", {fieldName, child, fieldType})
             const groupChildKey = `${child.fieldName}-${child.buttonValue}`;
             const groupChild = Field(child, groupChildKey, child.fieldValue, {pageNum: child.pageNum}, undefined, fieldType);
             groupChild.groupInfo.parent = groupField.name;
-            return  groupChild;
-        } );
+            return groupChild;
+        });
     groupField.groupInfo.children = groupChildren.map(child => child.name);
     return [groupField, ...groupChildren];
 }
@@ -73,9 +84,10 @@ export default class PdfJsClient {
         this.urlPath = null;
         this.filename = null;
         this.pdf = null;
-        this.pdfMeta = null;
+        this.pdfMeta = {};
         this.pages = null;
         this.isInitialized = false;
+        this.hasMacros = undefined;
     }
 
     async init({pdfViewer, url, path, data, fileName = "unnamed.pdf"}) {
@@ -85,7 +97,6 @@ export default class PdfJsClient {
             this.urlPath = url || path;
             this.filename = this.urlPath ? this.urlPath.split("/").reverse()[0] : fileName;
             this.viewer = pdfViewer;
-
             await this.loadPdf({url: this.urlPath, data, fileName})
             console.debug("PdfJsClient: initialized backend.")
             this.isInitialized = true;
@@ -93,6 +104,22 @@ export default class PdfJsClient {
             console.groupEnd();
             resolve(this)
         })
+    }
+
+    async parsePermissions(pdf) {
+        const _permissionFlag = this.viewer.pdfjs.PermissionFlag;
+        const _permissionFlagInverse = Object.entries(_permissionFlag)
+            .reduce((prev, [k, v]) => ({...prev, [v]: k}), {});
+
+        const permissions = await pdf._transport.getPermissions();
+        const _permission = {
+            hasRestrictions: !!permissions && permissions.length !== _permissionFlag.length,
+            flags: _permissionFlagInverse,
+            permissions: [],
+        }
+        _permission.permissions = _permission.hasRestrictions ? permissions.map(pnr => _permissionFlagInverse[pnr]) : [];
+
+        return _permission;
     }
 
     async loadPdf({url, data, filename}) {
@@ -103,32 +130,36 @@ export default class PdfJsClient {
 
                 const cfg = {
                     cMapUrl: CMAP_URL,
-                    cMapPacked: CMAP_PACKED
+                    cMapPacked: CMAP_PACKED,
                 }
                 if (url) cfg.url = url
                 else if (data) cfg.data = data
                 const pdf = await this.viewer.pdfjs.getDocument(cfg).promise;
                 const pdfMeta = await pdf.getMetadata();
 
+                const permissions = await this.parsePermissions(pdf);
                 const pages = [];
                 for (let i = 1; i <= pdf._pdfInfo.numPages; i++) {
                     const page = await pdf.getPage(i);
                     pages.push(page);
                 }
                 const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
-                console.debug("PdfJsClient: pdf loaded:", {
-                    PDFFormatVersion,
-                    IsAcroFormPresent,
-                    Title,
-                    docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "",
-                    pages: pdf._pdfInfo.numPages,
-                    ...pdfMeta.metadata,
-                    all_meta: pdfMeta
-                })
 
                 this.pdf = pdf;
-                this.pdfMeta = pdfMeta;
+                this.pdfMeta = {
+                    title: Title,
+                    permissions,
+                    hasAcroForm: IsAcroFormPresent,
+                    isPureXfa: await pdf.isPureXfa,
+                    hasJSActions: await pdf.hasJSActions(),
+                    PDFFormatVersion,
+                    docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "",
+                    pages: pdf._pdfInfo.numPages,
+                    all_meta: pdfMeta,
+                };
                 this.pages = pages;
+
+                console.debug("PdfJsClient: pdf loaded:", this.pdfMeta)
             }
 
             const loadPdfIntoViewer = async () => {
@@ -171,7 +202,7 @@ export default class PdfJsClient {
             console.debug("PdfJsClient: loaded fields:", {
                 allAnnotations,
                 filtered: pdfjsFormFields,
-                imported: formFields
+                imported: formFields,
             })
             resolve(formFields)
         })

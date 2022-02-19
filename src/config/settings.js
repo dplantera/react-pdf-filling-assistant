@@ -5,6 +5,16 @@ import {Settings} from "../model/types";
 const settingsRepo = getRepositoryByClass(Settings);
 
 const defaultSettings = {
+    validation: {
+        fields: {
+            checkbox: {
+                validExportValues: ["yes", "no", "on", "off", "0", "1"],
+            },
+            radio: {
+                validExportValues: ["on", "off", "0", "1"],
+            },
+        },
+    },
     deserialization: {
         multiFieldImport: false,
         csvRules: [
@@ -15,7 +25,7 @@ const defaultSettings = {
                     if (!field.value?.startsWith("/"))
                         return field;
                     field.valueType = {
-                        name: "constant"
+                        name: "constant",
                     };
                     field.value = field.value.substring(1);
                     return field;
@@ -28,7 +38,7 @@ const defaultSettings = {
                     if (!field.value?.startsWith("#"))
                         return field;
                     field.valueType = {
-                        name: "script"
+                        name: "script",
                     };
                     field.value = field.value.substring(1);
                     return field;
@@ -72,20 +82,20 @@ const defaultSettings = {
                 name: "no double quotes in values",
                 type: RuleTypes.CELL,
                 validate: (row) => !row.includes("\""),
-                fix: (row) => row.replaceAll("\"", '\'')
+                fix: (row) => row.replaceAll("\"", '\''),
             },
             {
                 name: "no multiline values",
                 type: RuleTypes.CELL,
                 validate: (value) => !/\r?\n|\r/g.test(value),
-                fix: (value) => value.replaceAll(/\r?\n|\r/g, '')
-            }
+                fix: (value) => value.replaceAll(/\r?\n|\r/g, ''),
+            },
         ],
         fieldRules: [
             {
                 name: "group fields in single field",
                 type: RuleTypes.RADIO,
-                template: (groupFieldValues) => `$[${groupFieldValues.map(field => field || 'false').join(",")}]`
+                template: (groupFieldValues) => `$[${groupFieldValues.map(field => field || 'false').join(",")}]`,
             },
             {
                 name: "prefix constant field values",
@@ -96,7 +106,7 @@ const defaultSettings = {
                     if (value?.startsWith("/"))
                         return value
                     return `/${value}`
-                }
+                },
             },
             {
                 name: "prefix script field values",
@@ -107,10 +117,10 @@ const defaultSettings = {
                     if (value?.startsWith("#"))
                         return value
                     return `#${value}`
-                }
-            }
-        ]
-    }
+                },
+            },
+        ],
+    },
 }
 
 export async function loadSettings() {
@@ -121,10 +131,9 @@ export async function loadSettings() {
         let initialSettings = new Settings(defaultSettings);
         settings = await settingsRepo.create(initialSettings);
     } else {
-        console.debug("settings found: ", {existingSettings})
+        console.debug("settings found")
         settings = existingSettings[0];
     }
-    console.debug({json: settings.getJson(true), settings: settings.getSettings()})
     return settings;
 }
 

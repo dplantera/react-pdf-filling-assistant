@@ -1,4 +1,11 @@
 import {setLogger} from "client-persistence/lib/logging";
 
-setLogger(console)
+setLogger({
+    log: () => {
+    },
+    debug: () => {
+    },
+    error: () => {
+    },
+});
 

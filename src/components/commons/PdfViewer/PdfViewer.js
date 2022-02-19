@@ -6,7 +6,7 @@ import DomUtil from "../../../utils/dom";
 
 function registerFieldSelectionHandler(pdfViewer) {
     const doc = pdfViewer.refDocument.current;
-    if(!doc) return
+    if (!doc) return
     doc.addEventListener("click", (e) => {
         const {target} = e;
         if (target?.tagName !== "INPUT")
@@ -27,19 +27,20 @@ function registerFieldSelectionHandler(pdfViewer) {
     })
 }
 
-const PdfViewer = ({pdfClient, setIsPdfReady}) => {
+const PdfViewer = ({pdfClient, setIsPdfReady, withFieldHighlighting = true}) => {
     const pdfs = useStore(state => state.pdfs)
     const loadFields = useStore(state => state.loadFields);
 
 
     const lastPDF = pdfs?.[pdfs?.length - 1] ?? {}
-    if(!lastPDF)
+    if (!lastPDF)
         setIsPdfReady(true);
 
     const handleDocumentLoaded = async ({pdfProxy}) => {
         console.log("PdfViewer.handleDocumentLoaded")
-        let rawFields = await pdfClient.getFormFields();
-        await loadFields(lastPDF, rawFields);
+        console.log({pdfProxy})
+        let rawFields = await pdfClient.getFormFields().catch(err => console.error(err));
+        await loadFields(lastPDF, rawFields).catch(err => console.error(err));
         setIsPdfReady(true);
     }
 
@@ -57,16 +58,17 @@ const PdfViewer = ({pdfClient, setIsPdfReady}) => {
             if (pdfs?.length > 0)
                 initPdf(lastPDF.name, lastPDF.binary)
 
-            registerFieldSelectionHandler(pdfViewer)
+            if (withFieldHighlighting)
+                registerFieldSelectionHandler(pdfViewer)
         }
-    , [pdfs, lastPDF.binary, lastPDF.name, pdfClient, setIsPdfReady])
-
+        , [pdfs, lastPDF.binary, lastPDF.name, pdfClient, setIsPdfReady, withFieldHighlighting])
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>
             <UploadPdf loadPdf={pdfClient?.loadPdf.bind(pdfClient)} setIsPdfReady={setIsPdfReady}/>
             <ReactPdfViewer onDocumentLoaded={handleDocumentLoaded}
                             onInit={handleOnInit}
-                            pdfSource={null}/>
+                            pdfSource={null}
+            />
         </div>
     );
 };

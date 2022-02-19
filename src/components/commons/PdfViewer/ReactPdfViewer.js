@@ -17,7 +17,7 @@ const useStyles = makeStyles(() => {
             top: heightToolbar,
             backgroundColor: "#eee",
             minWidth: 25,
-            height: `calc(100% - ${heightToolbar}px)`
+            height: `calc(100% - ${heightToolbar}px)`,
         },
     }
 })
@@ -49,14 +49,14 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
             Pages.push(
                 <Card key={i}>
                     <Page
-                          inputRef={refPages.current[i]}
-                          pageNumber={i + 1}
-                          scale={scale}
-                          renderTextLayer={false}
-                          renderAnnotationLayer renderForms
-                          onGetAnnotationsSuccess={(annotations) => console.debug("ReactPdfViewer.onGetAnnotationsSuccess")}
+                        inputRef={refPages.current[i]}
+                        pageNumber={i + 1}
+                        scale={scale}
+                        renderTextLayer={false}
+                        renderAnnotationLayer renderForms
+                        onGetAnnotationsSuccess={(annotations) => console.debug("ReactPdfViewer.onGetAnnotationsSuccess")}
                     />
-                </Card>
+                </Card>,
             )
         }
         return Pages;
@@ -90,7 +90,8 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
 
     return (
         <div id="viewerContainer" className={"pdf-viewer-container"}>
-            <ViewerToolbar pageNum={pageNumber} setPageNum={setPageNumber} numPages={numPages} onChangedNumPage={handlePageNumberChanged}
+            <ViewerToolbar pageNum={pageNumber} setPageNum={setPageNumber} numPages={numPages}
+                           onChangedNumPage={handlePageNumberChanged}
                            scale={scale} onZoomed={setScale}/>
             <Drawer variant="permanent" open={true} classes={{paperAnchorLeft: classes.sidebar}}/>
             <div id="viewer" className="react-pdf-viewer">
@@ -101,6 +102,9 @@ const ReactPdfViewer = ({onDocumentLoaded, onInit, pdfSource}) => {
                         file={file}
                         onLoadSuccess={handleDocumentLoadSuccess}
                         loading={<CircularProgress/>}
+                        onPassword={() => {
+                            console.log("Password ----")
+                        }}
                     >
                         <div className={"page-container flex-column"}>
                             {renderPages()}

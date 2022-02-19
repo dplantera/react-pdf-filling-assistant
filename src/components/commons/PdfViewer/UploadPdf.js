@@ -41,6 +41,12 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         return selectedFieldList;
     }
 
+    const handleImportPdf = async (files) => {
+        const pdfs = files.filter(file => isPdfMimeType(file.type));
+        hide();
+        if (pdfs.length > 0)
+             await handleUploadPdf(pdfs[0])
+    }
     // todo: this imports pdfs and templates but the template content won't persist...
     const handleImport = async (files) => {
         const isCsvByExtOrMimeType = (file) => ".csv" === getFileExtensionFromFile(file);
@@ -76,7 +82,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
             </Button>
             <RenderImportFilesDialog
                 title={"Upload PDF"}
-                onImport={handleLoadPdf}
+                onImport={handleImportPdf}
                 onCancel={hide}
                 onClose={hide}
                 acceptedFileExt={[".pdf"]}/>
