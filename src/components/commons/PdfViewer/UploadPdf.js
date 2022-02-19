@@ -48,6 +48,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
             await handleUploadPdf(pdfs[0])
     }
     // todo: this imports pdfs and templates but the template content won't persist...
+    // eslint-disable-next-line
     const handleImport = async (files) => {
         const isCsvByExtOrMimeType = (file) => ".csv" === getFileExtensionFromFile(file);
         const pdfs = files.filter(file => isPdfMimeType(file.type));

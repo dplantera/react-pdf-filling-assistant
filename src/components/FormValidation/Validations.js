@@ -119,6 +119,8 @@ const toValidate = ({validation, pdfMeta}) => {
                     case 'GB':
                     case 'TB':
                         return false;
+                    default:
+                        return true;
                 }
             },
         }),
@@ -150,7 +152,7 @@ const Validations = ({pdfClient}) => {
             pdfMeta: pdfClient.pdfMeta ?? {},
             validation: settings?.validation ?? {},
         }).map(validation => validation.apply(fields)))
-    }, [settingsStore, fields, setValidated])
+    }, [settingsStore, fields, setValidated, pdfClient.pdfMeta])
 
     return (
         <List sx={{
@@ -162,7 +164,6 @@ const Validations = ({pdfClient}) => {
         }}>
             {validated.map((result, i) => {
                 const value = result.getOrElse(result.error);
-                const prefix = result.isSuccess() ? "[ SUCCESS ]" : `[ ${value.severity} ]`;
                 const Icon = result.isSuccess() ? getIcon() : getIcon(value.severity);
                 return (
                     <>
@@ -170,8 +171,7 @@ const Validations = ({pdfClient}) => {
                             <ListItemIcon>
                                 <Icon/>
                             </ListItemIcon>
-                            <ListItemText prefix={"sdf"}
-                                          primary={result.isSuccess() ? `${value.name}` : `${value.description}`}
+                            <ListItemText primary={result.isSuccess() ? `${value.name}` : `${value.description}`}
                             />
                             <Typography variant={"body1"}>
                             </Typography>
