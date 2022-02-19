@@ -27,8 +27,9 @@ const Validation = ({name, description, condition, severity = Severity.ERROR, ty
 const FieldsValidation = (props) => Validation({...props, type: "FIELDS_VALIDATION"})
 const DocumentValidation = (props) => Validation({...props, type: "DOCUMENT_VALIDATION"})
 
-const toValidate = ({validation, permissions}) => {
+const toValidate = ({validation, pdfMeta}) => {
     const fieldsValidation = validation?.fields;
+    const permissions = pdfMeta.permissions ?? {};
     const neededPermissions = [PERMISSIONS_KNOWN.ASSEMBLE, PERMISSIONS_KNOWN.MODIFY_CONTENTS, PERMISSIONS_KNOWN.MODIFY_ANNOTATIONS];
     return [
         FieldsValidation({
@@ -78,17 +79,47 @@ const toValidate = ({validation, permissions}) => {
             name: "HAS_NECESSARY_PERMISSIONS",
             description: `Document permission needed: [ ${neededPermissions.join(", ")} ]`,
             condition: () => {
-                console.log({per2: permissions.permissions, rist: permissions.hasRestrictions})
                 return !permissions.hasRestrictions || neededPermissions.every(per => permissions.permissions.includes(per))
             },
         }),
         DocumentValidation({
-            severity: Severity.ERROR,
+            severity: Severity.WARN,
             name: "HAS_NO_MACROS",
-            description: `Document permission needed: [ ${neededPermissions.join(", ")} ]`,
+            description: `Document should be free from any macros or functionality to avoid display issues.`,
             condition: () => {
-                console.log({per2: permissions.permissions, rist: permissions.hasRestrictions})
-                return !permissions.hasRestrictions || neededPermissions.every(per => permissions.permissions.includes(per))
+                return !pdfMeta.hasJSActions
+            },
+        }),
+        DocumentValidation({
+            severity: Severity.WARN,
+            name: "NO_XFA_FORMAT",
+            description: `Document comprises XFA format which may be incompatible with PDF automation software.`,
+            condition: () => {
+                return !pdfMeta.isPureXfa && !pdfMeta.isXFAPresent
+            },
+        }),
+
+        DocumentValidation({
+            severity: Severity.WARN,
+            name: "NO_LARGE_DOCUMENTS",
+            description: `Document should be of reasonable filesize.`,
+            condition: () => {
+                const size = pdfMeta.fileSize;
+                if (!size)
+                    return true;
+
+                switch (size.unit) {
+                    //'B', 'kB', 'MB', 'GB', 'TB'
+                    case 'B':
+                        return true;
+                    case 'kB':
+                        return size.value < 3000
+                    case 'MB':
+                        return size.value < 3
+                    case 'GB':
+                    case 'TB':
+                        return false;
+                }
             },
         }),
     ]
@@ -116,7 +147,7 @@ const Validations = ({pdfClient}) => {
     useEffect(() => {
         const settings = settingsStore?.getSettings?.();
         setValidated(toValidate({
-            permissions: pdfClient.pdfMeta.permissions ?? {},
+            pdfMeta: pdfClient.pdfMeta ?? {},
             validation: settings?.validation ?? {},
         }).map(validation => validation.apply(fields)))
     }, [settingsStore, fields, setValidated])

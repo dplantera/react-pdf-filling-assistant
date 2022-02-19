@@ -25,6 +25,19 @@ function determineFieldType(pdfJsField) {
     return FieldTypes.TEXT;
 }
 
+function humanFileSize(size) {
+    const i = Math.floor(Math.log(size) / Math.log(1024));
+    console.log({
+        "Math.log(size)": Math.log(size),
+        "Math.log(1024)": Math.log(1024),
+        "i": i,
+    })
+    return {
+        value: (size / Math.pow(1024, i)).toFixed(2) * 1,
+        unit: ['B', 'kB', 'MB', 'GB', 'TB'][i],
+    };
+}
+
 function toDomainGroupField(fieldName, pdfJsFieldArray) {
     const firstField = {...pdfJsFieldArray?.[0]};
     const fieldType = determineFieldType(firstField);
@@ -100,7 +113,6 @@ export default class PdfJsClient {
             await this.loadPdf({url: this.urlPath, data, fileName})
             console.debug("PdfJsClient: initialized backend.")
             this.isInitialized = true;
-
             console.groupEnd();
             resolve(this)
         })
@@ -143,14 +155,16 @@ export default class PdfJsClient {
                     const page = await pdf.getPage(i);
                     pages.push(page);
                 }
-                const {PDFFormatVersion, IsAcroFormPresent, Title} = pdfMeta.info
+                const {PDFFormatVersion, IsAcroFormPresent, IsXFAPresent, Title} = pdfMeta.info
 
                 this.pdf = pdf;
                 this.pdfMeta = {
                     title: Title,
                     permissions,
+                    fileSize: data ? humanFileSize(data.byteLength) : {value: 0, unit: ""},
                     hasAcroForm: IsAcroFormPresent,
                     isPureXfa: await pdf.isPureXfa,
+                    isXFAPresent: IsXFAPresent,
                     hasJSActions: await pdf.hasJSActions(),
                     PDFFormatVersion,
                     docId: pdfMeta.metadata ? pdfMeta.metadata.get("xmpmm:documentid") : "",

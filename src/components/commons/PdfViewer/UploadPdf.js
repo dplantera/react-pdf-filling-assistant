@@ -45,7 +45,7 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
         const pdfs = files.filter(file => isPdfMimeType(file.type));
         hide();
         if (pdfs.length > 0)
-             await handleUploadPdf(pdfs[0])
+            await handleUploadPdf(pdfs[0])
     }
     // todo: this imports pdfs and templates but the template content won't persist...
     const handleImport = async (files) => {
@@ -69,14 +69,14 @@ export default function UploadPdf({loadPdf, setIsPdfReady}) {
 
     return (
         <React.Fragment>
-            <Button variant="contained" onClick={show} color={"primary"} sx={ {
+            <Button variant="contained" onClick={show} color={"primary"} sx={{
                 color: "#3f51b5",
                 fontSize: "1em",
                 fontWeight: "bold",
                 backgroundColor: "rgb(201, 203, 212)",
                 ":hover": {
-                    backgroundColor: "rgba(63,81,181,0.47)"
-                }
+                    backgroundColor: "rgba(63,81,181,0.47)",
+                },
             }}>
                 Upload PDF
             </Button>

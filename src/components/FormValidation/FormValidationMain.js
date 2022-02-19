@@ -28,7 +28,7 @@ const FormValidationMain = () => {
                 <ValidationsControls/>
                 <Validations pdfClient={pdfClient}/>
             </Box>
-            <Box>
+            <Box maxWidth={"60%"}>
                 <PdfViewer
                     setIsPdfReady={setIsPdfReady}
                     pdfClient={pdfClient}
