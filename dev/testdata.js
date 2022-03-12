@@ -1,5 +1,3 @@
-import {FormVariable} from "../src/model/types";
-
 require('dotenv').config()
 const fs = require("fs")
 
